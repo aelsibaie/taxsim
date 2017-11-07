@@ -1,6 +1,6 @@
 import csv_parser
 import tax_funcs
-import collections
+from collections import OrderedDict
 
 TAXPAYERS_FILE = "taxpayers.csv"
 
@@ -16,7 +16,7 @@ house_2018_policy = csv_parser.load_policy(HOUSE_2018_FILE)
 
 
 def calc_federal_taxes(taxpayer, policy):
-    results = collections.OrderedDict()
+    results = OrderedDict()
     # Gross income
     gross_income = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2'] + taxpayer['business_income'] + taxpayer['ss_income'] + taxpayer['qualified_income']
     print("gross_income", gross_income)
@@ -121,7 +121,7 @@ def calc_house_2018_taxes(taxpayer, policy):
     taxpayer["sl_property_tax"] = max(10000, taxpayer["sl_property_tax"])
     taxpayer["sl_income_tax"] = 0
 
-    results = collections.OrderedDict()
+    results = OrderedDict()
     # Gross income
     gross_income = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2'] + taxpayer['business_income'] + taxpayer['ss_income'] + taxpayer['qualified_income']
     print("gross_income", gross_income)
@@ -243,11 +243,11 @@ def calc_house_2018_taxes(taxpayer, policy):
 
 current_law_results = []
 house_2018_results = []
-for taxpayer in taxpayers:
+for filer in taxpayers:
     print("\n" + "Starting current law calculator")
-    current_law_results.append(calc_federal_taxes(taxpayer, current_law_policy))
+    current_law_results.append(calc_federal_taxes(filer, current_law_policy))
     print("\n" + "Starting house 2018 calculator")
-    house_2018_results.append(calc_house_2018_taxes(taxpayer, house_2018_policy))
+    house_2018_results.append(calc_house_2018_taxes(filer, house_2018_policy))
 
 csv_parser.write_results(current_law_results, CURRENT_LAW_RESULTS)
 csv_parser.write_results(house_2018_results, HOUSE_2018_RESULTS)

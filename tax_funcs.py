@@ -27,12 +27,12 @@ def fed_payroll(policy, taxpayer):
 
 def fed_agi(policy, taxpayer, ordinary_income_after_401k):
 
-    agi = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2'] + taxpayer['business_income'] + taxpayer['qualified_income']
+    agi = ordinary_income_after_401k + taxpayer['business_income'] + taxpayer['qualified_income']
 
     # Social security income may not be fully taxable
     if taxpayer['ss_income'] > 0:
         ss_income = 0
-        combined_income = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2'] + taxpayer['business_income'] + (taxpayer['ss_income'] * 0.5) + taxpayer['qualified_income']
+        combined_income = agi + (taxpayer['ss_income'] * 0.5)
         # Publication 915 https://www.irs.gov/pub/irs-pdf/p915.pdf
         line10 = combined_income - policy["taxable_ss_base_threshold"][taxpayer['filing_status']]
         if line10 > 0:
