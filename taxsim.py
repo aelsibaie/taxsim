@@ -4,13 +4,11 @@ import tax_funcs
 CURRENT_LAW_FILE = "./params/current_law_2018.csv"
 TAXPAYERS_FILE = "taxpayers.csv"
 
-
 policy = csv_parser.load_policy(CURRENT_LAW_FILE)
-
 taxpayers = csv_parser.load_taxpayers(TAXPAYERS_FILE)
 
 
-for taxpayer in taxpayers:
+def calc_federal_taxes(taxpayer):
     # Gross income
     gross_income = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2'] + taxpayer['business_income'] + taxpayer['ss_income'] + taxpayer['qualified_income']
     print("gross_income", gross_income)
@@ -75,3 +73,7 @@ for taxpayer in taxpayers:
     print("tax_wedge", tax_wedge)
 
     print("")
+
+
+for taxpayer in taxpayers:
+    calc_federal_taxes(taxpayer)
