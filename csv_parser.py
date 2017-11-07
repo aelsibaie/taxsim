@@ -1,6 +1,5 @@
 import csv
 
-
 def load_policy(file_location):
     policy = {}
     with open(file_location) as csvfile:
@@ -25,3 +24,13 @@ def load_taxpayers(file_location):
                 row[key] = int(row[key])
             taxpayers.append(row)
     return taxpayers
+
+def write_results(results_list, results_file): 
+    try:
+        with open(results_file, 'w', newline='') as csvfile:
+                writer = csv.DictWriter(csvfile, fieldnames=results_list[0].keys(), dialect='excel')
+                writer.writeheader()
+                for row in results_list:
+                    writer.writerow(row)
+    except PermissionError:
+        print("PermissionError: Results file in use. Please close '" + results_file + "' and try again.")
