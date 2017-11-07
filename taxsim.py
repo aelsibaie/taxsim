@@ -98,7 +98,7 @@ def calc_federal_taxes(taxpayer, policy):
 
 def calc_house_2018_taxes(taxpayer, policy):
     # NEW: Itemized deduction limitations
-    taxpayer["sl_property_tax"] = max(10000, taxpayer["sl_property_tax"])
+    taxpayer["sl_property_tax"] = min(10000, taxpayer["sl_property_tax"])
     taxpayer["sl_income_tax"] = 0
 
     results = OrderedDict()
