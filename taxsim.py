@@ -117,6 +117,10 @@ def calc_federal_taxes(taxpayer, policy):
 
 
 def calc_house_2018_taxes(taxpayer, policy):
+    # NEW: Itemized deduction limitations
+    taxpayer["sl_property_tax"] = max(10000, taxpayer["sl_property_tax"])
+    taxpayer["sl_income_tax"] = 0
+
     results = collections.OrderedDict()
     # Gross income
     gross_income = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2'] + taxpayer['business_income'] + taxpayer['ss_income'] + taxpayer['qualified_income']
