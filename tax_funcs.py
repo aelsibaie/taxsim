@@ -73,7 +73,8 @@ def fed_taxable_income(policy, taxpayer, agi):
 
     # Standard deduction
     standard_deduction = policy["standard_deduction"][taxpayer['filing_status']]
-    # TODO: ADD ADDITIONAL STANDARD DEDUCTION FOR ELDERLY
+    if taxpayer["ss_income"] > 0:
+        standard_deduction = standard_deduction + (filers * policy["additional_standard_deduction"][taxpayer['filing_status']])
 
     # Itemized deductions
     itemized_total = taxpayer["medical_expenses"] + \
