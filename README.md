@@ -5,3 +5,7 @@
 Usage notes:
 
  - For `filing_status` use `0` for single filers, `1` for married filers, and `2` for head of household filers
+
+ - List of example taxpayers is in `taxpayers.csv`
+
+ - All policy parameters can be found in the `params` folder
