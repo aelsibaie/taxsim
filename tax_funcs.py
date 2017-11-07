@@ -147,26 +147,20 @@ def fed_ctc(policy, taxpayer, agi):
 
 
 def fed_eitc(policy, taxpayer):
-    eitc = 0
     # Publication 596 https://www.irs.gov/pub/irs-pdf/p596.pdf
-    # TODO: TEST EITC. THIS IS JUST A DIRECT R TRANSLATION.
     income = taxpayer["ordinary_income1"] + taxpayer["ordinary_income2"]  # earned income
-    c = min(taxpayer["child_dep"], 3)
-    if taxpayer["filing_status"] != 1:
-        if income < policy["eitc_threshold"][c]:
-            eitc = income * (policy["eitc_max"][c] / policy["eitc_threshold"][c])
-        elif (income >= policy["eitc_threshold"][c]) and (income <= policy["eitc_phaseout_single"][c]):
-            eitc = policy["eitc_max"][c]
-        elif (income > policy["eitc_phaseout_single"][c]):
-            eitc = max(0, policy["eitc_max"][c] + ((policy["eitc_phaseout_single"][c] - income) * (policy["eitc_max"][c] / (policy["eitc_max_income_single"][c] - policy["eitc_phaseout_single"][c]))))
-    else:
-        if income < policy["eitc_threshold"][c]:
-            eitc = income * (policy["eitc_max"][c] / policy["eitc_threshold"][c])
-        elif (income >= policy["eitc_threshold"][c]) and (income <= policy["eitc_phaseout_married"][c]):
-            eitc = policy["eitc_max"][c]
-        elif (income > policy["eitc_phaseout_married"][c]):
-            eitc = max(0, policy["eitc_max"][c] + ((policy["eitc_phaseout_married"][c] - income) * (policy["eitc_max"][c] / (policy["eitc_max_income_married"][c] - policy["eitc_phaseout_married"][c]))))
-    return eitc
+    dependentCount = min(taxpayer["child_dep"], 3)
+    status = ("married", "single")[taxpayer["filing_status"] != 1]
+    EITC_THRESHOLD = policy["eitc_threshold"][dependentCount]
+    EITC_MAX = policy["eitc_max"][dependentCount]
+    EITC_PHASEOUT = policy["eitc_phaseout_" + status][dependentCount]
+    EITC_MAX_INCOME = policy["eitc_max_income_" + status][dependentCount]
+    if income < EITC_THRESHOLD:
+        return income * (EITC_MAX / EITC_THRESHOLD)
+    if (income >= EITC_THRESHOLD) and (income <= EITC_PHASEOUT):
+        return EITC_MAX
+    if (income > EITC_PHASEOUT):
+        return max(0, EITC_MAX + ((EITC_PHASEOUT - income) * (EITC_MAX / (EITC_MAX_INCOME - EITC_PHASEOUT))))
 
 
 def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt):

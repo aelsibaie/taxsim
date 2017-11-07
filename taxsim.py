@@ -163,11 +163,11 @@ def calc_house_2018_taxes(taxpayer, policy):
 
     # NEW: Phaseout of benefit of the 12-percent bracket
     po_amount = 0
-    lower_rate_po_threshold = [1000000, 1200000, 1000000] # Hardcoded policy
+    lower_rate_po_threshold = [1000000, 1200000, 1000000]  # Hardcoded policy
     if agi > lower_rate_po_threshold[taxpayer["filing_status"]]:
         brackets = tax_funcs.get_brackets(taxpayer, policy)
         benefit = policy["income_tax_rates"][-1] * brackets[2] - policy["income_tax_rates"][0] * brackets[2]
-        po_amount = min(benefit, 0.06 * (agi - lower_rate_po_threshold[taxpayer["filing_status"]])) # Hardcoded policy
+        po_amount = min(benefit, 0.06 * (agi - lower_rate_po_threshold[taxpayer["filing_status"]]))  # Hardcoded policy
     income_tax_before_credits = income_tax_before_credits + po_amount
     print("income_tax_before_credits", income_tax_before_credits)
     results["income_tax_before_credits"] = income_tax_before_credits
@@ -199,7 +199,7 @@ def calc_house_2018_taxes(taxpayer, policy):
 
     # NEW: Personal credit
     num_taxpayers = 1
-    if taxpayer["filing_status"] == 1: # married
+    if taxpayer["filing_status"] == 1:  # married
         num_taxpayers = 2
     personal_credit = (num_taxpayers) * 300
 
@@ -207,7 +207,7 @@ def calc_house_2018_taxes(taxpayer, policy):
     income_tax_before_credits = max(0, income_tax_before_credits - personal_credit)
 
     # Tax after credits
-    income_tax_after_credits = income_tax_before_credits - ctc - eitc # TODO: check refundable portion of CTC
+    income_tax_after_credits = income_tax_before_credits - ctc - eitc  # TODO: check refundable portion of CTC
     print("income_tax_after_credits", income_tax_after_credits)
     results["income_tax_after_credits"] = income_tax_after_credits
 
