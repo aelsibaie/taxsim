@@ -251,6 +251,40 @@ def fed_qualified_income(policy, taxpayer, taxable_income, income_tax_before_cre
     return cap_gains_tax
 
 
+def house_2018_qualified_income(policy, taxpayer, taxable_income, income_tax_before_credits, po_amount):
+    # Qualified Dividends and Capital Gain Tax Worksheet—Line 44, Form 1040
+    # https://apps.irs.gov/app/vita/content/globalmedia/capital_gain_tax_worksheet_1040i.pdf
+    cap_gains_tax = 0
+    line1 = taxable_income
+    line2 = taxpayer["qualified_income"]
+    line3 = 0  # Enter the amount from Form 1040, line 13.
+    line4 = line3 + line2
+    line5 = 0  # investment interest expense deduction
+    line6 = line4 - line5
+    line7 = line1 - line6  # taxable_income - qualified_income
+    line8 = policy["cap_gains_lower_threshold"][taxpayer['filing_status']]
+    line9 = min(line1, line8)
+    line10 = min(line7, line9)
+    line11 = line9 - line10  # this amount is taxed at 0%
+    line12 = min(line1, line6)
+    line14 = line12 - line11
+    line15 = policy["cap_gains_upper_threshold"][taxpayer['filing_status']]
+    line16 = min(line15, line1)
+    line17 = line7 + line11
+    line18 = line16 - line17
+    line19 = min(line14, line18)
+    line20 = line19 * policy["cap_gains_lower_rate"]
+    line21 = line11 + line19
+    line22 = line12 - line21
+    line23 = line22 * policy["cap_gains_upper_rate"]
+    line24 = fed_ordinary_income_tax(policy, taxpayer, line7 - taxpayer["business_income"]) + (taxpayer["business_income"] * 0.25) + po_amount  # tax on line7
+    line25 = line20 + line23 + line24
+    line26 = income_tax_before_credits  # tax on line1
+    cap_gains_tax = min(line25, line26)
+
+    return cap_gains_tax
+
+
 def get_brackets(taxpayer, policy):
     if taxpayer['filing_status'] == 0:
         brackets = policy["single_brackets"]
