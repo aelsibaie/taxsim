@@ -218,6 +218,8 @@ def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_
 
 
 def fed_qualified_income(policy, taxpayer, taxable_income, income_tax_before_credits):
+    # Qualified Dividends and Capital Gain Tax Worksheet—Line 44, Form 1040
+    # https://apps.irs.gov/app/vita/content/globalmedia/capital_gain_tax_worksheet_1040i.pdf
     cap_gains_tax = 0
     line1 = taxable_income
     line2 = taxpayer["qualified_income"]
