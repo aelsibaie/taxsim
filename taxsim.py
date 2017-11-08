@@ -121,6 +121,7 @@ def calc_house_2018_taxes(taxpayer, policy):
 
     # Taxable income
     taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt = tax_funcs.fed_taxable_income(policy, taxpayer, agi)
+    taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt = tax_funcs.house_2018_taxable_income(policy, taxpayer, agi)
     results["taxable_income"] = taxable_income
     results["deduction_type"] = deduction_type
     results["deductions"] = deductions

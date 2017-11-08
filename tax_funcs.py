@@ -110,6 +110,67 @@ def fed_taxable_income(policy, taxpayer, agi):
     return taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt
 
 
+def house_2018_taxable_income(policy, taxpayer, agi):
+    taxable_income = agi
+
+    # Personal exemption(s)
+    # Publication 501 https://www.irs.gov/pub/irs-pdf/p501.pdf
+    personal_exemption_amt = 0
+    filers = 1
+    if taxpayer["filing_status"] == 1:
+        filers = 2
+    exemptions_claimed = filers + taxpayer["child_dep"] + taxpayer["nonchild_dep"]
+    # Check for phase out of personal exemption
+    if agi > policy["personal_exemption_po_threshold"][taxpayer['filing_status']]:
+        personal_exemption_amt = policy["personal_exemption"] * exemptions_claimed
+        amt_over_threshold = agi - policy["personal_exemption_po_threshold"][taxpayer['filing_status']]
+        line6 = math.ceil(amt_over_threshold / policy["personal_exemption_po_amt"])
+        line7 = round(line6 * policy["personal_exemption_po_rate"], 3)
+        line8 = personal_exemption_amt * line7
+        personal_exemption_amt = max(0, personal_exemption_amt - line8)  # aka line9
+    else:
+        personal_exemption_amt = policy["personal_exemption"] * exemptions_claimed
+
+    # Standard deduction
+    standard_deduction = policy["standard_deduction"][taxpayer['filing_status']]
+    # NEW: Eliminate additional standard deduction    
+    #if taxpayer["ss_income"] > 0:
+    #    standard_deduction = standard_deduction + (filers * policy["additional_standard_deduction"][taxpayer['filing_status']])
+
+    # Itemized deductions
+    itemized_total = taxpayer["medical_expenses"] + \
+        taxpayer["sl_income_tax"] + \
+        taxpayer["sl_property_tax"] + \
+        taxpayer["interest_paid"] + \
+        taxpayer["charity_contributions"] + \
+        taxpayer["other_itemized"]
+    # Check for phase out of itemized deductions
+    # Itemized Deductions Worksheet—Line 29 https://www.irs.gov/pub/irs-pdf/i1040sca.pdf
+    pease_limitation_amt = 0
+    line1 = itemized_total
+    line2 = taxpayer["medical_expenses"]  # could also include investment interest and casualty deductions
+    if line2 < line1:
+        line3 = line1 - line2
+        line4 = line3 * policy["itemized_limitation_amt"]
+        line5 = agi
+        line6 = policy["itemized_limitation_threshold"][taxpayer['filing_status']]
+        if line6 < line5:
+            line7 = line5 - line6
+            line8 = line7 * policy["itemized_limitation_rate"]
+            line9 = min(line4, line8)
+            pease_limitation_amt = line9  # used in AMT calc
+            itemized_total = line1 - line9  # aka line10
+
+    deductions = max(itemized_total, standard_deduction)
+    if deductions != standard_deduction:
+        deduction_type = "itemized"
+    else:
+        deduction_type = "standard"
+    taxable_income = max(0, taxable_income - personal_exemption_amt - deductions)
+
+    return taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt
+
+
 def fed_ordinary_income_tax(policy, taxpayer, taxable_income):
     brackets = get_brackets(taxpayer, policy)
     rates = list(reversed(policy["income_tax_rates"]))
