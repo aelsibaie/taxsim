@@ -86,7 +86,7 @@ def calc_federal_taxes(taxpayer, policy):
     results["tax_burden"] = tax_burden
 
     # Average effective tax rate
-    avg_effective_tax_rate = round((tax_burden / gross_income) * 100, 2)
+    avg_effective_tax_rate = round((tax_burden / gross_income), 4)
     results["avg_effective_tax_rate"] = avg_effective_tax_rate
 
     # Tax wedge
@@ -189,7 +189,7 @@ def calc_house_2018_taxes(taxpayer, policy):
     results["tax_burden"] = tax_burden
 
     # Average effective tax rate
-    avg_effective_tax_rate = round((tax_burden / gross_income) * 100, 2)
+    avg_effective_tax_rate = round((tax_burden / gross_income), 4)
     results["avg_effective_tax_rate"] = avg_effective_tax_rate
 
     # Tax wedge
