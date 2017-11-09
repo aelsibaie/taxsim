@@ -11,12 +11,11 @@ def fed_payroll(policy, taxpayer):
     filing status.
 
     Args:
-        policy: A set of policy parameters, parsed from CSV.
-        taxpayer: An example taxpayer household, parsed from CSV.
+        policy (dict): A set of policy parameters, parsed from CSV.
+        taxpayer (dict): An example taxpayer household, parsed from CSV.
 
     Returns:
-        Two numbers, the employee payroll tab liability
-        and the employer payroll tax liability.
+        dict: Payroll tax values for employee and employer.
     """
     combined_ordinary_income = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2']
     payroll_taxes = {
@@ -50,7 +49,7 @@ def fed_payroll(policy, taxpayer):
         medicare_surtax = taxable_medicare_surtax * policy['additional_medicare_tax_rate']
     payroll_taxes['employee'] += medicare_surtax
 
-    return payroll_taxes['employee'], payroll_taxes['employer']
+    return payroll_taxes
 
 
 def fed_agi(policy, taxpayer, ordinary_income_after_401k):
