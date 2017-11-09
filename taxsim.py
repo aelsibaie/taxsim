@@ -1,7 +1,7 @@
+from pprint import pprint
+from collections import OrderedDict
 import csv_parser
 import tax_funcs
-from collections import OrderedDict
-from pprint import pprint
 
 TAXPAYERS_FILE = "taxpayers.csv"
 
