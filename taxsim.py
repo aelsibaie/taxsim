@@ -88,7 +88,7 @@ def calc_federal_taxes(taxpayer, policy):
     results["federal_income_tax"] = federal_income_tax
 
     # Tax burden
-    tax_burden = round(federal_income_tax + employee_payroll_tax, 2)
+    tax_burden = round(federal_income_tax + results["employee_payroll_tax"], 2)
     results["tax_burden"] = tax_burden
 
     # Average effective tax rate
@@ -96,7 +96,14 @@ def calc_federal_taxes(taxpayer, policy):
     results["avg_effective_tax_rate"] = avg_effective_tax_rate
 
     # Tax wedge
-    tax_wedge = round(federal_income_tax + employee_payroll_tax + employer_payroll_tax, 2)
+    tax_wedge = round(
+        (
+            federal_income_tax
+            + results["employee_payroll_tax"]
+            + results["employer_payroll_tax"]
+        ),
+        2
+    )
     results["tax_wedge"] = tax_wedge
 
     return results
@@ -192,7 +199,7 @@ def calc_house_2018_taxes(taxpayer, policy):
     results["federal_income_tax"] = federal_income_tax
 
     # Tax burden
-    tax_burden = round(federal_income_tax + employee_payroll_tax, 2)
+    tax_burden = round(federal_income_tax + results["employee_payroll_tax"], 2)
     results["tax_burden"] = tax_burden
 
     # Average effective tax rate
@@ -200,7 +207,14 @@ def calc_house_2018_taxes(taxpayer, policy):
     results["avg_effective_tax_rate"] = avg_effective_tax_rate
 
     # Tax wedge
-    tax_wedge = round(federal_income_tax + employee_payroll_tax + employer_payroll_tax, 2)
+    tax_wedge = round(
+        (
+            federal_income_tax
+            + results["employee_payroll_tax"]
+            + results["employer_payroll_tax"]
+        ),
+        2
+    )
     results["tax_wedge"] = tax_wedge
 
     return results

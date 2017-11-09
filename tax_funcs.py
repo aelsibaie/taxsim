@@ -94,6 +94,20 @@ def fed_agi(policy, taxpayer, ordinary_income_after_401k):
 
 def fed_taxable_income(policy, taxpayer, agi):
     taxable_income = agi
+    """
+    Get Federal taxable income.
+
+    Takes a taxpayer's info, a given policy, and AGI to calculate taxable income,
+    deductions, and exemptions.
+
+    Args:
+        policy (dict): A set of policy parameters, parsed from CSV.
+        taxpayer (dict): An example taxpayer household, parsed from CSV.
+        agi (float): Adjusted gross income of taxpayer household.
+
+    Returns:
+        Too many variables.
+    """
 
     # Personal exemption(s)
     # Publication 501 https://www.irs.gov/pub/irs-pdf/p501.pdf
