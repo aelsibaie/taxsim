@@ -46,4 +46,4 @@ ax.set_title('Average Effective Federal Income Tax Rate by Gross Income (Single 
 ax.set_xlabel('Gross Income')
 ax.set_ylabel('Average Effective Tax Rate')
 fig.set_size_inches(8, 4)
-fig.savefig("tax_rates.png", dpi=100)
+fig.savefig("./graphs/tax_rates.png", dpi=100)
