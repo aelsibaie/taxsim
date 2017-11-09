@@ -52,46 +52,47 @@ def calc_federal_taxes(taxpayer, policy):
     qualified_income_tax = tax_funcs.fed_qualified_income(policy, taxpayer, taxable_income, income_tax_before_credits)
     income_tax_before_credits = min(income_tax_before_credits, qualified_income_tax)
     results["qualified_income_tax"] = qualified_income_tax
-    results["income_tax_before_credits"] = income_tax_before_credits
+    results["selected_tax_before_credits"] = income_tax_before_credits # form1040_line44
 
     # AMT
-    amt = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt)
+    amt = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits)
     results["amt"] = amt
 
+    income_tax_before_credits += amt
+    results["income_tax_before_credits_with_amt"] = income_tax_before_credits
+
     # CTC
-    ctc = tax_funcs.fed_ctc(policy, taxpayer, agi)
+    ctc, actc = tax_funcs.fed_ctc(policy, taxpayer, agi)
     results["ctc"] = ctc
+    results["actc"] = actc
 
     # EITC
     eitc = tax_funcs.fed_eitc(policy, taxpayer)
     results["eitc"] = eitc
 
-    # Tax after credits
-    income_tax_after_credits = income_tax_before_credits - ctc - eitc
+    # Tax after nonrefundable credits
+    income_tax_after_credits = round(max(0, income_tax_before_credits - ctc), 2)
+    results["income_tax_after_nonrefundable_credits"] = income_tax_after_credits
+
+    # Tax after ALL credits
+    income_tax_after_credits = round(income_tax_before_credits - actc - eitc, 2) # TODO: check if the EITC is fully refundable
     results["income_tax_after_credits"] = income_tax_after_credits
 
-    # AMT check
-    # TODO: Check this workaround so the AMT wont block refundable credits
-    if income_tax_after_credits >= 0:
-        federal_income_tax = max(amt, income_tax_after_credits)
-    else:
-        federal_income_tax = income_tax_after_credits
-
-    # Federal income tax
-    federal_income_tax = round(federal_income_tax, 2)
-    results["federal_income_tax"] = federal_income_tax
-
     # Tax burden
-    tax_burden = round(federal_income_tax + employee_payroll_tax, 2)
+    tax_burden = round(income_tax_after_credits + employee_payroll_tax, 2)
     results["tax_burden"] = tax_burden
+
+    # Tax wedge
+    tax_wedge = round(income_tax_after_credits + employee_payroll_tax + employer_payroll_tax, 2)
+    results["tax_wedge"] = tax_wedge
 
     # Average effective tax rate
     avg_effective_tax_rate = round((tax_burden / gross_income), 4)
     results["avg_effective_tax_rate"] = avg_effective_tax_rate
 
-    # Tax wedge
-    tax_wedge = round(federal_income_tax + employee_payroll_tax + employer_payroll_tax, 2)
-    results["tax_wedge"] = tax_wedge
+    # Average effective tax rate without payroll
+    avg_effective_tax_rate_wo_payroll = round((income_tax_after_credits / gross_income), 4)
+    results["avg_effective_tax_rate_wo_payroll"] = avg_effective_tax_rate_wo_payroll
 
     return results
 
@@ -100,6 +101,7 @@ def calc_house_2018_taxes(taxpayer, policy):
     # NEW: Itemized deduction limitations
     taxpayer["sl_property_tax"] = min(10000, taxpayer["sl_property_tax"])
     taxpayer["sl_income_tax"] = 0
+    taxpayer["medical_expenses"] = 0
 
     results = OrderedDict()
     # Gross income
@@ -142,20 +144,23 @@ def calc_house_2018_taxes(taxpayer, policy):
     results["income_tax_before_credits"] = income_tax_before_credits
 
     # Qualified income/capital gains
-    # TODO: Check for bugs
     # NEW: new house_2018_qualified_income function
     qualified_income_tax = tax_funcs.house_2018_qualified_income(policy, taxpayer, taxable_income, income_tax_before_credits, po_amount)
     income_tax_before_credits = min(income_tax_before_credits, qualified_income_tax)
     results["qualified_income_tax"] = qualified_income_tax
-    results["income_tax_before_credits"] = income_tax_before_credits
+    results["selected_tax_before_credits"] = income_tax_before_credits # form1040_line44 
 
     # AMT
-    amt = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt)
+    amt = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits)
     results["amt"] = amt
 
+    income_tax_before_credits += amt 
+    results["income_tax_before_credits_with_amt"] = income_tax_before_credits 
+
     # CTC
-    ctc = tax_funcs.fed_ctc(policy, taxpayer, agi)
+    ctc, actc = tax_funcs.fed_ctc(policy, taxpayer, agi) 
     results["ctc"] = ctc
+    results["actc"] = actc 
 
     # EITC
     eitc = tax_funcs.fed_eitc(policy, taxpayer)
@@ -166,52 +171,48 @@ def calc_house_2018_taxes(taxpayer, policy):
     if taxpayer["filing_status"] == 1:  # married
         num_taxpayers = 2
     personal_credit = (num_taxpayers) * 300
+    results["personal_credit"] = personal_credit
 
-    # NEW: Nonrefundable credits
-    income_tax_before_credits = max(0, income_tax_before_credits - personal_credit)
+    # Tax after nonrefundable credits
+    income_tax_after_credits = round(max(0, income_tax_before_credits - ctc - personal_credit), 2)
+    results["income_tax_after_nonrefundable_credits"] = income_tax_after_credits
 
-    # Tax after credits
-    income_tax_after_credits = income_tax_before_credits - ctc - eitc  # TODO: check refundable portion of CTC
+    # Tax after ALL credits
+    income_tax_after_credits = round(income_tax_before_credits - actc - eitc, 2) # TODO: check if the EITC is fully refundable
     results["income_tax_after_credits"] = income_tax_after_credits
 
-    # AMT check
-    # TODO: Check this workaround so the AMT wont block refundable credits
-    if income_tax_after_credits >= 0:
-        federal_income_tax = max(amt, income_tax_after_credits)
-    else:
-        federal_income_tax = income_tax_after_credits
-
-    # Federal income tax
-    federal_income_tax = round(federal_income_tax, 2)
-    results["federal_income_tax"] = federal_income_tax
-
     # Tax burden
-    tax_burden = round(federal_income_tax + employee_payroll_tax, 2)
+    tax_burden = round(income_tax_after_credits + employee_payroll_tax, 2)
     results["tax_burden"] = tax_burden
+
+    # Tax wedge
+    tax_wedge = round(income_tax_after_credits + employee_payroll_tax + employer_payroll_tax, 2)
+    results["tax_wedge"] = tax_wedge
 
     # Average effective tax rate
     avg_effective_tax_rate = round((tax_burden / gross_income), 4)
     results["avg_effective_tax_rate"] = avg_effective_tax_rate
 
-    # Tax wedge
-    tax_wedge = round(federal_income_tax + employee_payroll_tax + employer_payroll_tax, 2)
-    results["tax_wedge"] = tax_wedge
+    # Average effective tax rate without payroll
+    avg_effective_tax_rate_wo_payroll = round((income_tax_after_credits / gross_income), 4)
+    results["avg_effective_tax_rate_wo_payroll"] = avg_effective_tax_rate_wo_payroll
 
     return results
 
 
-current_law_results = []
-house_2018_results = []
-for i in range(len(taxpayers)):
-    filer = taxpayers[i]
-    print("\n" + "Current law - filer #" + str(i + 1))
-    current_law_result = calc_federal_taxes(filer, current_law_policy)
-    current_law_results.append(current_law_result)
-    pprint(current_law_result)
-    print("\n" + "House 2018 - filer #" + str(i + 1))
-    house_2018_result = calc_house_2018_taxes(filer, house_2018_policy)
-    house_2018_results.append(house_2018_result)
-    pprint(house_2018_result)
+if __name__ == '__main__':
+    current_law_results = []
+    house_2018_results = []
+    for i in range(len(taxpayers)):
+        filer = taxpayers[i]
+        print("\n" + "Current law - filer #" + str(i + 1))
+        current_law_result = calc_federal_taxes(filer, current_law_policy)
+        current_law_results.append(current_law_result)
+        pprint(current_law_result)
+        print("\n" + "House 2018 - filer #" + str(i + 1))
+        house_2018_result = calc_house_2018_taxes(filer, house_2018_policy)
+        house_2018_results.append(house_2018_result)
+        pprint(house_2018_result)
 
-csv_parser.write_results(current_law_results, CURRENT_LAW_RESULTS)
-csv_parser.write_results(house_2018_results, HOUSE_2018_RESULTS)
+    csv_parser.write_results(current_law_results, CURRENT_LAW_RESULTS)
+    csv_parser.write_results(house_2018_results, HOUSE_2018_RESULTS)
