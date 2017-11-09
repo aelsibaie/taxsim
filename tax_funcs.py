@@ -3,32 +3,38 @@ import math
 
 def fed_payroll(policy, taxpayer):
     combined_ordinary_income = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2']
+    payroll_taxes = {
+        "employee": 0,
+        "employer": 0
+    }
 
     # Withholding Taxes
-    employee_payroll_tax = 0
-    employer_payroll_tax = 0
-    for income in [taxpayer['ordinary_income1'], taxpayer['ordinary_income2']]:
-        employee_ss = policy['ss_withholding_rate_employee'] * min(income, policy['ss_wage_base'])
-        employer_ss = policy['ss_withholding_rate_employer'] * min(income, policy['ss_wage_base'])
-        employee_med = (
-            policy['medicare_withholding_rate_employee']
-            * min(income, policy['medicare_wage_base'])
-        )
-        employer_med = (
-            policy['medicare_withholding_rate_employer']
-            * min(income, policy['medicare_wage_base'])
-        )
-        employee_payroll_tax = employee_payroll_tax + employee_ss + employee_med
-        employer_payroll_tax = employer_payroll_tax + employer_ss + employer_med
+    for party in payroll_taxes:
+        for income in [taxpayer['ordinary_income1'], taxpayer['ordinary_income2']]:
+            social_security = (
+                policy['ss_withholding_rate_{party}'.format(party=party)]
+                * min(income, policy['ss_wage_base'])
+            )
+            medicare = (
+                policy['medicare_withholding_rate_{party}'.format(party=party)]
+                * min(income, policy['medicare_wage_base'])
+            )
+            payroll_taxes[party] += social_security + medicare
 
     # Additional Medicare Tax
+    filing_status = taxpayer['filing_status']
+    medicare_thresholds = policy['additional_medicare_tax_threshold']
+    additional_medicare_tax_threshold = medicare_thresholds[filing_status]
     medicare_surtax = 0
-    if combined_ordinary_income > policy['additional_medicare_tax_threshold'][taxpayer['filing_status']]:
-        taxable_medicare_surtax = combined_ordinary_income - policy['additional_medicare_tax_threshold'][taxpayer['filing_status']]
+    if combined_ordinary_income > additional_medicare_tax_threshold:
+        taxable_medicare_surtax = (
+            combined_ordinary_income
+            - additional_medicare_tax_threshold
+        )
         medicare_surtax = taxable_medicare_surtax * policy['additional_medicare_tax_rate']
-    employee_payroll_tax = employee_payroll_tax + medicare_surtax
+    payroll_taxes['employee'] += medicare_surtax
 
-    return employee_payroll_tax, employer_payroll_tax
+    return payroll_taxes['employee'], payroll_taxes['employer']
 
 
 def fed_agi(policy, taxpayer, ordinary_income_after_401k):
