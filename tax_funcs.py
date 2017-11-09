@@ -2,6 +2,22 @@ import math
 
 
 def fed_payroll(policy, taxpayer):
+    """
+    Get Federal payroll tax liabilities.
+
+    Calculates total Federal payroll tax liabilities of both employees
+    and employers. Adds any applicable medicare surtax to employees' liability
+    if the combined ordinary income exceeds the defined threshold for the
+    filing status.
+
+    Args:
+        policy: A set of policy parameters, parsed from CSV.
+        taxpayer: An example taxpayer household, parsed from CSV.
+
+    Returns:
+        Two numbers, the employee payroll tab liability
+        and the employer payroll tax liability.
+    """
     combined_ordinary_income = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2']
     payroll_taxes = {
         "employee": 0,
