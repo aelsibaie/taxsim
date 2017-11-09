@@ -53,7 +53,19 @@ def fed_payroll(policy, taxpayer):
 
 
 def fed_agi(policy, taxpayer, ordinary_income_after_401k):
+    """
+    Get Federal AGI.
 
+    Calculates the Federal Adjusted Gross Income, based on IRS Publication 915.
+
+    Args:
+        policy (dict): A set of policy parameters, parsed from CSV.
+        taxpayer (dict): An example taxpayer household, parsed from CSV.
+        ordinary_income_after_401k (float): Combined income, less 401k contributions.
+
+    Returns:
+        float: Federal adjusted gross income.
+    """
     agi = ordinary_income_after_401k + taxpayer['business_income'] + taxpayer['qualified_income']
 
     # Social security income may not be fully taxable
