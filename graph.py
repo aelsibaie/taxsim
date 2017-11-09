@@ -9,10 +9,11 @@ current_law_result_list = []
 house_2018_result_list = []
 
 for i in range(1, 10000):
+    STEP = 100
     default_taxpayer = OrderedDict([('filing_status', 0),
                                     ('child_dep', 0),
                                     ('nonchild_dep', 0),
-                                    ('ordinary_income1', 0),
+                                    ('ordinary_income1', i * STEP),
                                     ('ordinary_income2', 0),
                                     ('business_income', 0),
                                     ('ss_income', 0),
@@ -24,13 +25,7 @@ for i in range(1, 10000):
                                     ('interest_paid', 0),
                                     ('charity_contributions', 0),
                                     ('other_itemized', 0)])
-    income = i * 100
-    default_taxpayer['ordinary_income1'] = income
-
-    current_law_result = taxsim.calc_federal_taxes(
-        default_taxpayer,
-        taxsim.current_law_policy
-    )
+    current_law_result = taxsim.calc_federal_taxes(default_taxpayer, taxsim.current_law_policy)
     current_law_result_list.append(current_law_result)
 
     house_2018_result = taxsim.calc_house_2018_taxes(
@@ -42,6 +37,11 @@ for i in range(1, 10000):
 current_law_df = pd.DataFrame(current_law_result_list)
 house_2018_df = pd.DataFrame(house_2018_result_list)
 
+# Save CSVs
+current_law_df.to_csv('current_law_graph_data.csv')
+house_2018_df.to_csv('house_2018_graph_data.csv')
+
+# Plot figure(s)
 plt.style.use('ggplot')
 fig = plt.figure()
 ax = plt.axes()
