@@ -160,19 +160,19 @@ def calc_house_2018_taxes(taxpayer, policy):
     qualified_income_tax = tax_funcs.house_2018_qualified_income(policy, taxpayer, taxable_income, income_tax_before_credits, po_amount)
     income_tax_before_credits = min(income_tax_before_credits, qualified_income_tax)
     results["qualified_income_tax"] = qualified_income_tax
-    results["selected_tax_before_credits"] = income_tax_before_credits # form1040_line44 
+    results["selected_tax_before_credits"] = income_tax_before_credits # form1040_line44
 
     # AMT
     amt = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits)
     results["amt"] = amt
 
-    income_tax_before_credits += amt 
-    results["income_tax_before_credits_with_amt"] = income_tax_before_credits 
+    income_tax_before_credits += amt
+    results["income_tax_before_credits_with_amt"] = income_tax_before_credits
 
     # CTC
-    ctc, actc = tax_funcs.fed_ctc(policy, taxpayer, agi) 
+    ctc, actc = tax_funcs.fed_ctc(policy, taxpayer, agi)
     results["ctc"] = ctc
-    results["actc"] = actc 
+    results["actc"] = actc
 
     # EITC
     eitc = tax_funcs.fed_eitc(policy, taxpayer)

@@ -152,7 +152,7 @@ def fed_taxable_income(policy, taxpayer, agi):
     pease_limitation_amt = 0
     line1 = itemized_total
     # line2 could also include investment interest and casualty deductions
-    line2 = taxpayer["medical_expenses"]  
+    line2 = taxpayer["medical_expenses"]
     if line2 < line1:
         line3 = line1 - line2
         line4 = line3 * policy["itemized_limitation_amt"]
@@ -365,7 +365,7 @@ def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_
     else:
         line29 = amt_exemption
     amt_taxable_income = max(0, amt_income - line29)
-    
+
     # Step 3: Calculate AMT
     # After this if statement, amt is equivalent to line 31 and 33 of form 6251
     if amt_taxable_income < policy["amt_rate_threshold"]:
@@ -428,19 +428,19 @@ def house_2018_qualified_income(policy, taxpayer, taxable_income, income_tax_bef
     line4 = line3 + line2
     line5 = 0  # investment interest expense deduction
     line6 = max(0, line4 - line5)
-    line7 = max(0, line1 - line6)  # taxable_income - qualified_income 
+    line7 = max(0, line1 - line6)  # taxable_income - qualified_income
     line8 = policy["cap_gains_lower_threshold"][taxpayer['filing_status']]
     line9 = min(line1, line8)
     line10 = min(line7, line9)
     line11 = line9 - line10  # this amount is taxed at 0%
     line12 = min(line1, line6)
-    line13 = line11 
-    line14 = line12 - line13 
+    line13 = line11
+    line14 = line12 - line13
     line15 = policy["cap_gains_upper_threshold"][taxpayer['filing_status']]
     line16 = min(line15, line1)
     line17 = line7 + line11
-    line18 = line16 - line17 
-    line18 = max(0, line16 - line17) 
+    line18 = line16 - line17
+    line18 = max(0, line16 - line17)
     line19 = min(line14, line18)
     line20 = line19 * policy["cap_gains_lower_rate"]
     line21 = line11 + line19
