@@ -19,7 +19,13 @@ house_2018_policy = csv_parser.load_policy(HOUSE_2018_FILE)
 def calc_federal_taxes(taxpayer, policy):
     results = OrderedDict()
     # Gross income
-    gross_income = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2'] + taxpayer['business_income'] + taxpayer['ss_income'] + taxpayer['qualified_income']
+    gross_income = (
+        taxpayer['ordinary_income1']
+        + taxpayer['ordinary_income2']
+        + taxpayer['business_income']
+        + taxpayer['ss_income']
+        + taxpayer['qualified_income']
+    )
     results["gross_income"] = gross_income
 
     # Payroll taxes
