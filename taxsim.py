@@ -33,8 +33,7 @@ def calc_federal_taxes(taxpayer, policy):
     ordinary_income_after_401k = (
         taxpayer['ordinary_income1']
         + taxpayer['ordinary_income2']
-        - taxpayer['401k_contributions']
-    )
+        - taxpayer['401k_contributions'])
     results["ordinary_income_after_401k"] = ordinary_income_after_401k
 
     # AGI
@@ -59,12 +58,10 @@ def calc_federal_taxes(taxpayer, policy):
         policy,
         taxpayer,
         taxable_income,
-        income_tax_before_credits
-    )
+        income_tax_before_credits)
     income_tax_before_credits = min(
         income_tax_before_credits,
-        qualified_income_tax
-    )
+        qualified_income_tax)
     results["qualified_income_tax"] = qualified_income_tax
     # form1040_line44
     results["selected_tax_before_credits"] = income_tax_before_credits
@@ -77,8 +74,7 @@ def calc_federal_taxes(taxpayer, policy):
         deductions,
         agi,
         pease_limitation_amt,
-        income_tax_before_credits
-    )
+        income_tax_before_credits)
     results["amt"] = amt
 
     income_tax_before_credits += amt
@@ -119,9 +115,8 @@ def calc_federal_taxes(taxpayer, policy):
 
     # Average effective tax rate without payroll
     avg_effective_tax_rate_wo_payroll = round(
-        (income_tax_after_credits / results["gross_income"]),
-        4
-    )
+        income_tax_after_credits / results["gross_income"],
+        4)
     results["avg_effective_tax_rate_wo_payroll"] = avg_effective_tax_rate_wo_payroll
 
     return results
@@ -146,8 +141,7 @@ def calc_house_2018_taxes(taxpayer, policy):
     ordinary_income_after_401k = (
         taxpayer['ordinary_income1']
         + taxpayer['ordinary_income2']
-        - taxpayer['401k_contributions']
-    )
+        - taxpayer['401k_contributions'])
     results["ordinary_income_after_401k"] = ordinary_income_after_401k
 
     # AGI
@@ -175,13 +169,11 @@ def calc_house_2018_taxes(taxpayer, policy):
             policy["income_tax_rates"][-1]
             * brackets[2]
             - policy["income_tax_rates"][0]
-            * brackets[2]
-        )
+            * brackets[2])
         # Hardcoded policy
         po_amount = min(
             benefit,
-            0.06 * (agi - lower_rate_po_threshold[taxpayer["filing_status"]])
-        )  
+            0.06 * (agi - lower_rate_po_threshold[taxpayer["filing_status"]]))  
     income_tax_before_credits = income_tax_before_credits + po_amount
     results["income_tax_before_credits"] = income_tax_before_credits
 
@@ -193,8 +185,7 @@ def calc_house_2018_taxes(taxpayer, policy):
         taxable_income,
         income_tax_before_credits,
         po_amount,
-        agi
-    )
+        agi)
     income_tax_before_credits = min(income_tax_before_credits, qualified_income_tax)
     results["qualified_income_tax"] = qualified_income_tax
     # form1040_line44
@@ -208,8 +199,7 @@ def calc_house_2018_taxes(taxpayer, policy):
         deductions,
         agi,
         pease_limitation_amt,
-        income_tax_before_credits
-    )
+        income_tax_before_credits)
     results["amt"] = amt
 
     income_tax_before_credits += amt
@@ -234,10 +224,8 @@ def calc_house_2018_taxes(taxpayer, policy):
     income_tax_after_credits = round(
         max(
             0,
-            income_tax_before_credits - ctc - personal_credit
-        ),
-        2
-    )
+            income_tax_before_credits - ctc - personal_credit),
+        2)
     results["income_tax_after_nonrefundable_credits"] = income_tax_after_credits
 
     # Tax after ALL credits
@@ -255,13 +243,14 @@ def calc_house_2018_taxes(taxpayer, policy):
 
     # Average effective tax rate
     avg_effective_tax_rate = round(
-        (results["tax_burden"] / results["gross_income"]),
-        4
-    )
+        results["tax_burden"] / results["gross_income"],
+        4)
     results["avg_effective_tax_rate"] = avg_effective_tax_rate
 
     # Average effective tax rate without payroll
-    avg_effective_tax_rate_wo_payroll = round((income_tax_after_credits / results["gross_income"]), 4)
+    avg_effective_tax_rate_wo_payroll = round(
+        income_tax_after_credits / results["gross_income"],
+        4)
     results["avg_effective_tax_rate_wo_payroll"] = avg_effective_tax_rate_wo_payroll
 
     return results
@@ -349,16 +338,14 @@ def calc_senate_2018_taxes(taxpayer, policy):
 
     # Average effective tax rate
     avg_effective_tax_rate = round(
-        (results["tax_burden"] / results["gross_income"]),
-        4
-    )
+        results["tax_burden"] / results["gross_income"],
+        4)
     results["avg_effective_tax_rate"] = avg_effective_tax_rate
 
     # Average effective tax rate without payroll
     avg_effective_tax_rate_wo_payroll = round(
-        (income_tax_after_credits / results["gross_income"]),
-        4
-    )
+        income_tax_after_credits / results["gross_income"],
+        4)
     results["avg_effective_tax_rate_wo_payroll"] = avg_effective_tax_rate_wo_payroll
 
     return results

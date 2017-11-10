@@ -44,8 +44,7 @@ def fed_payroll(policy, taxpayer):
     if combined_ordinary_income > additional_medicare_tax_threshold:
         taxable_medicare_surtax = (
             combined_ordinary_income
-            - additional_medicare_tax_threshold
-        )
+            - additional_medicare_tax_threshold)
         medicare_surtax = taxable_medicare_surtax * policy['additional_medicare_tax_rate']
     payroll_taxes['employee'] += medicare_surtax
 
@@ -83,8 +82,7 @@ def fed_agi(policy, taxpayer, ordinary_income_after_401k):
         if line10 > 0:
             line11 = (
                 policy["taxable_ss_top_threshold"][taxpayer['filing_status']]
-                - policy["taxable_ss_base_threshold"][taxpayer['filing_status']]
-            )
+                - policy["taxable_ss_base_threshold"][taxpayer['filing_status']])
             line12 = max(0, line10 - line11)
             line13 = min(line10, line11)
             line14 = line13 * policy["taxable_ss_base_amt"]
@@ -202,8 +200,7 @@ def house_2018_taxable_income(policy, taxpayer, agi):
         personal_exemption = policy["personal_exemption"] * exemptions_claimed
         amt_over_threshold = (
             agi
-            - policy["personal_exemption_po_threshold"][taxpayer['filing_status']]
-        )
+            - policy["personal_exemption_po_threshold"][taxpayer['filing_status']])
         line6 = math.ceil(amt_over_threshold / policy["personal_exemption_po_amt"])
         line7 = round(line6 * policy["personal_exemption_po_rate"], 3)
         line8 = personal_exemption * line7
@@ -216,12 +213,13 @@ def house_2018_taxable_income(policy, taxpayer, agi):
     # NEW: Eliminate additional standard deduction
 
     # Itemized deductions
-    itemized_total = taxpayer["medical_expenses"] + \
-        taxpayer["sl_income_tax"] + \
-        taxpayer["sl_property_tax"] + \
-        taxpayer["interest_paid"] + \
-        taxpayer["charity_contributions"] + \
-        taxpayer["other_itemized"]
+    itemized_total = (
+        taxpayer["medical_expenses"]
+        + taxpayer["sl_income_tax"]
+        + taxpayer["sl_property_tax"]
+        + taxpayer["interest_paid"]
+        + taxpayer["charity_contributions"]
+        + taxpayer["other_itemized"])
     # Check for phase out of itemized deductions
     # Itemized Deductions Worksheet—Line 29 https://www.irs.gov/pub/irs-pdf/i1040sca.pdf
     pease_limitation = 0
@@ -381,12 +379,9 @@ def fed_eitc(policy, taxpayer):
         return EITC_MAX
     if income > EITC_PHASEOUT:
         return max(
-            0,
-            EITC_MAX + (
+            0, EITC_MAX + (
                 (EITC_PHASEOUT - income)
-                * (EITC_MAX / (EITC_MAX_INCOME - EITC_PHASEOUT))
-            )
-        )
+                * (EITC_MAX / (EITC_MAX_INCOME - EITC_PHASEOUT))))
 
 
 def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation, income_tax_before_credits):
@@ -440,8 +435,7 @@ def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation,
     else:
         rate_diff = (
             (policy["amt_rate_threshold"] * policy["amt_rates"][1])
-            - (policy["amt_rate_threshold"] * policy["amt_rates"][0])
-        )
+            - (policy["amt_rate_threshold"] * policy["amt_rates"][0]))
         amt = amt_taxable_income * policy["amt_rates"][1] - rate_diff  # 28% rate
 
     line34 = income_tax_before_credits
@@ -577,5 +571,4 @@ def tax_burden_or_wedge(income, payroll_taxes, theType):
     elif theType == "wedge":
         return round(
             income + payroll_taxes["employee"] + payroll_taxes["employer"],
-            2
-        )
+            2)
