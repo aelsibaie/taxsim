@@ -136,8 +136,8 @@ def fed_taxable_income(policy, taxpayer, agi):
     if taxpayer["ss_income"] > 0:
         standard_deduction = (
             standard_deduction
-            + (filers * policy["additional_standard_deduction"][taxpayer['filing_status']])
-        )
+            + filers
+            * policy["additional_standard_deduction"][taxpayer['filing_status']])
 
     # Itemized deductions
     itemized_total = (
@@ -239,24 +239,33 @@ def house_2018_taxable_income(policy, taxpayer, agi):
             itemized_total = line1 - line9  # aka line10
 
     deductions = max(itemized_total, standard_deduction)
-    if deductions != standard_deduction:
-        deduction_type = "itemized"
-    else:
-        deduction_type = "standard"
+    deduction_type = "standard" if deductions == standard_deduction else "itemized"
     taxable_income = max(0, taxable_income - personal_exemption - deductions)
 
     return taxable_income, deduction_type, deductions, personal_exemption, pease_limitation
 
 
 def senate_2018_taxable_income(policy, taxpayer, agi):
+    """
+    Get Federal taxable income.
+
+    Takes a taxpayer's info, a given policy, and AGI to calculate taxable income,
+    deductions, and exemptions under proposed Senate bill.
+
+    Args:
+        policy (dict): A set of policy parameters, parsed from CSV.
+        taxpayer (dict): An example taxpayer household, parsed from CSV.
+        agi (float): Adjusted gross income of taxpayer household.
+
+    Returns:
+        Too many variables.
+    """
     taxable_income = agi
 
     # Personal exemption(s)
     # Publication 501 https://www.irs.gov/pub/irs-pdf/p501.pdf
     personal_exemption_amt = 0
-    filers = 1
-    if taxpayer["filing_status"] == 1:
-        filers = 2
+    filers = 2 if taxpayer["filing_status"] == 1 else 1
     exemptions_claimed = filers + taxpayer["child_dep"] + taxpayer["nonchild_dep"]
     # Check for phase out of personal exemption
     if agi > policy["personal_exemption_po_threshold"][taxpayer['filing_status']]:
@@ -272,20 +281,24 @@ def senate_2018_taxable_income(policy, taxpayer, agi):
     # Standard deduction
     standard_deduction = policy["standard_deduction"][taxpayer['filing_status']]
     if taxpayer["ss_income"] > 0:
-        standard_deduction = standard_deduction + (filers * policy["additional_standard_deduction"][taxpayer['filing_status']])
-
+        standard_deduction = (
+            standard_deduction
+            + filers
+            * policy["additional_standard_deduction"][taxpayer['filing_status']])
     # Itemized deductions
-    itemized_total = taxpayer["medical_expenses"] + \
-        taxpayer["sl_income_tax"] + \
-        taxpayer["sl_property_tax"] + \
-        taxpayer["interest_paid"] + \
-        taxpayer["charity_contributions"] + \
-        taxpayer["other_itemized"]
+    itemized_total = (
+        taxpayer["medical_expenses"]
+        + taxpayer["sl_income_tax"]
+        + taxpayer["sl_property_tax"]
+        + taxpayer["interest_paid"]
+        + taxpayer["charity_contributions"]
+        + taxpayer["other_itemized"])
     # Check for phase out of itemized deductions
     # Itemized Deductions Worksheet—Line 29 https://www.irs.gov/pub/irs-pdf/i1040sca.pdf
     pease_limitation_amt = 0
     line1 = itemized_total
-    line2 = taxpayer["medical_expenses"]  # could also include investment interest and casualty deductions
+    # Line 2 could also include investment interest and casualty deductions
+    line2 = taxpayer["medical_expenses"]
     if line2 < line1:
         line3 = line1 - line2
         line4 = line3 * policy["itemized_limitation_amt"]
@@ -299,13 +312,10 @@ def senate_2018_taxable_income(policy, taxpayer, agi):
             itemized_total = line1 - line9  # aka line10
 
     deductions = max(itemized_total, standard_deduction)
-    if deductions != standard_deduction:
-        deduction_type = "itemized"
-    else:
-        deduction_type = "standard"
-    taxable_income = max(0, taxable_income - personal_exemption_amt - deductions)\
+    deduction_type = "standard" if deductions == standard_deduction else "itemized"
+    taxable_income = max(0, taxable_income - personal_exemption_amt - deductions)
 
-    deductions = deductions + taxpayer['business_income'] * 0.175
+    deductions += taxpayer['business_income'] * 0.175
 
     return taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt
 
@@ -359,10 +369,14 @@ def fed_ctc(policy, taxpayer, agi):
         if actc_line4 >= actc_line1:
             return ctc, actc
         else:
-            print("WARNING: Taxpayer with earned income of $" + str(actc_line2) + " may NOT eligible for the additional child tax credit")
-            # TODO: In this instance, the taxpayer might not actually be eligible for the full additional child tax credit"
-            # To find the real amount of ACTC, we will need withholding and EITC data
-            # This could overestimate the amount of ACTC owed
+            print(
+                "WARNING: Taxpayer with earned income of $"
+                + str(actc_line2)
+                + " may NOT eligible for the additional child tax credit")
+            # TODO: In this instance, the taxpayer might not actually be eligible
+            # for the full additional child tax credit.
+            # To find the real amount of ACTC, we will need withholding and EITC data.
+            # This could overestimate the amount of ACTC owed.
             return ctc, actc
     else:
         if actc_line4 == 0:
@@ -414,10 +428,14 @@ def fed_ctc_actc_limited(policy, taxpayer, agi, actc_limit):
         if actc_line4 >= actc_line1:
             return ctc, actc
         else:
-            print("WARNING: Taxpayer with earned income of $" + str(actc_line2) + " may NOT eligible for the additional child tax credit")
-            # TODO: In this instance, the taxpayer might not actually be eligible for the full additional child tax credit"
-            # To find the real amount of ACTC, we will need withholding and EITC data
-            # This could overestimate the amount of ACTC owed
+            print(
+                "WARNING: Taxpayer with earned income of $"
+                + str(actc_line2)
+                + " may NOT eligible for the additional child tax credit")
+            # TODO: In this instance, the taxpayer might not actually be eligible
+            # for the full additional child tax credit.
+            # To find the real amount of ACTC, we will need withholding and EITC data.
+            # This could overestimate the amount of ACTC owed.
             return ctc, actc
     else:
         if actc_line4 == 0:
