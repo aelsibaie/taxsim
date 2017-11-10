@@ -75,7 +75,7 @@ def calc_federal_taxes(taxpayer, policy):
     results["income_tax_after_nonrefundable_credits"] = income_tax_after_credits
 
     # Tax after ALL credits
-    income_tax_after_credits = round(income_tax_before_credits - actc - eitc, 2) # TODO: check if the EITC is fully refundable
+    income_tax_after_credits = round(income_tax_after_credits - actc - eitc, 2) # TODO: check if the EITC is fully refundable
     results["income_tax_after_credits"] = income_tax_after_credits
 
     # Tax burden
@@ -178,7 +178,7 @@ def calc_house_2018_taxes(taxpayer, policy):
     results["income_tax_after_nonrefundable_credits"] = income_tax_after_credits
 
     # Tax after ALL credits
-    income_tax_after_credits = round(income_tax_before_credits - actc - eitc, 2) # TODO: check if the EITC is fully refundable
+    income_tax_after_credits = round(income_tax_after_credits - actc - eitc, 2) # TODO: check if the EITC is fully refundable
     results["income_tax_after_credits"] = income_tax_after_credits
 
     # Tax burden
