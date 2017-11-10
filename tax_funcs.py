@@ -89,7 +89,7 @@ def fed_agi(policy, taxpayer, ordinary_income_after_401k):
             line13 = min(line10, line11)
             line14 = line13 * policy["taxable_ss_base_amt"]
             line15 = min(line14, line2)
-            line16 = line12 * policy["taxable_ss_top_amt"]
+            line16 = max(0, line12 * policy["taxable_ss_top_amt"])
             line17 = line15 + line16
             line18 = taxpayer['ss_income'] * policy["taxable_ss_top_amt"]
             line19 = min(line17, line18) # Line 20b on 1040
@@ -311,6 +311,61 @@ def fed_ctc(policy, taxpayer, agi):
             return ctc, actc
 
 
+def fed_ctc_actc_limited(policy, taxpayer, agi, actc_limit):
+    # Child Tax Credit Worksheet https://www.irs.gov/pub/irs-pdf/p972.pdf
+    # Part 1
+    ctc = 0
+    line1 = taxpayer["child_dep"] * policy["ctc_credit"]
+    line4 = agi
+    line5 = policy["ctc_po_threshold"][taxpayer['filing_status']]
+    if line4 > line5:
+        line6 = math.ceil((line4 - line5) / 1000) * 1000
+    else:
+        line6 = 0
+    line7 = line6 * policy["ctc_po_rate"]
+    if line1 > line7:
+        line8 = line1 - line7
+    else:
+        line8 = 0
+
+    # Additional Child Tax Credit
+    actc_line1 = line8 # ctc
+    actc_line2 = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2'] # Earned income
+    if actc_line2 > policy['additional_ctc_threshold']:
+        actc_line3 = actc_line2 - policy['additional_ctc_threshold']
+        actc_line4 = actc_line3 * policy['additional_ctc_rate']
+    else:
+        actc_line4 = 0 # No qualified ACTC income
+
+
+    ctc = max(0, actc_line1 - actc_line4)
+    actc = min(actc_line1, actc_line4)
+
+    actc_limit = taxpayer["child_dep"] * actc_limit # TODO: confirm $1000 dollar limit
+    if actc > actc_limit:
+        overage = actc - actc_limit
+        #reduce ACTC
+        actc = actc - overage
+        #move to CTC
+        ctc = ctc + overage
+
+
+    if line1 >= policy['additional_ctc_threshold']:
+        if actc_line4 >= actc_line1:
+            return ctc, actc
+        else:
+            print("WARNING: Taxpayer with earned income of $" + str(actc_line2) + " may NOT eligible for the additional child tax credit")
+            # TODO: In this instance, the taxpayer might not actually be eligible for the full additional child tax credit"
+            # To find the real amount of ACTC, we will need withholding and EITC data
+            # This could overestimate the amount of ACTC owed
+            return ctc, actc
+    else:
+        if actc_line4 == 0:
+            return ctc, 0
+        elif actc_line4 > 0:
+            return ctc, actc
+
+
 def fed_eitc(policy, taxpayer):
     # Publication 596 https://www.irs.gov/pub/irs-pdf/p596.pdf
     income = taxpayer["ordinary_income1"] + taxpayer["ordinary_income2"]  # earned income
@@ -430,7 +485,7 @@ def fed_qualified_income(policy, taxpayer, taxable_income, income_tax_before_cre
     return cap_gains_tax
 
 
-def house_2018_qualified_income(policy, taxpayer, taxable_income, income_tax_before_credits, po_amount):
+def house_2018_qualified_income(policy, taxpayer, taxable_income, income_tax_before_credits, po_amount, agi):
     # Qualified Dividends and Capital Gain Tax Worksheet—Line 44, Form 1040
     # https://apps.irs.gov/app/vita/content/globalmedia/capital_gain_tax_worksheet_1040i.pdf
     cap_gains_tax = 0
@@ -458,16 +513,44 @@ def house_2018_qualified_income(policy, taxpayer, taxable_income, income_tax_bef
     line21 = line11 + line19
     line22 = line12 - line21
     line23 = line22 * policy["cap_gains_upper_rate"]
-    line24 = fed_ordinary_income_tax(
-        policy,
-        taxpayer,
-        line7 - taxpayer["business_income"]
-    ) + (taxpayer["business_income"] * 0.25) + po_amount  # tax on line7
+    line24 = house_ordinary_income_tax(policy, taxpayer, line7, agi) + po_amount  # tax on line7
     line25 = line20 + line23 + line24
     line26 = income_tax_before_credits  # tax on line1
     cap_gains_tax = min(line25, line26)
 
     return cap_gains_tax
+
+
+def house_ordinary_income_tax(policy, taxpayer, taxable_income, agi):
+    brackets = get_brackets(taxpayer, policy)
+    rates = list(reversed(policy["income_tax_rates"]))
+    ordinary_income_tax = 0
+    business_income_tax = 0
+    running_taxable_income = taxable_income
+    running_taxable_income = max(0, running_taxable_income - taxpayer["business_income"])
+    running_business_income = taxable_income
+    running_business_income = max(0, running_business_income -  (agi - taxpayer["business_income"]))
+   
+    i = 0
+    for threshold in reversed(brackets):
+        if taxable_income > threshold:            
+            applicable_taxable_income = max(0, running_taxable_income - threshold)
+            ordinary_income_tax = ordinary_income_tax + (applicable_taxable_income * rates[i])
+            running_taxable_income = running_taxable_income - applicable_taxable_income
+        i += 1
+
+    i = 0
+    for threshold in reversed(brackets):
+        if taxable_income > threshold:      
+            business_rate = rates[i]
+            if business_rate > 0.25:
+                business_rate = 0.25
+            applicable_business_income = max(0, running_business_income - threshold)
+            business_income_tax = business_income_tax + (applicable_business_income * business_rate)
+            running_business_income = running_business_income - applicable_business_income
+        i += 1             
+
+    return round(ordinary_income_tax + business_income_tax, 2)
 
 
 def get_brackets(taxpayer, policy):
