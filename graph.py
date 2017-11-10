@@ -19,7 +19,7 @@ for i in range(1, 10000):
                                     ('ordinary_income2', 0),
                                     ('business_income', income * 0.25),
                                     ('ss_income', 0),
-                                    ('qualified_income', income * 0.25)),
+                                    ('qualified_income', income * 0.25),
                                     ('401k_contributions', 0),
                                     ('medical_expenses', 0),
                                     ('sl_income_tax', 0),
