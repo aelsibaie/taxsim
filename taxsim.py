@@ -125,7 +125,6 @@ def calc_house_2018_taxes(taxpayer, policy):
     results["agi"] = agi
 
     # Taxable income
-    taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt = tax_funcs.fed_taxable_income(policy, taxpayer, agi)
     taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt = tax_funcs.house_2018_taxable_income(policy, taxpayer, agi)
     results["taxable_income"] = taxable_income
     results["deduction_type"] = deduction_type
@@ -134,7 +133,7 @@ def calc_house_2018_taxes(taxpayer, policy):
     results["pease_limitation_amt"] = pease_limitation_amt
 
     # Ordinary income tax
-    income_tax_before_credits = tax_funcs.fed_ordinary_income_tax(policy, taxpayer, taxable_income - taxpayer["business_income"]) + (taxpayer["business_income"] * 0.25)
+    income_tax_before_credits = tax_funcs.house_ordinary_income_tax(policy, taxpayer, taxable_income, agi)
 
     # NEW: Phaseout of benefit of the 12-percent bracket
     po_amount = 0
@@ -148,7 +147,7 @@ def calc_house_2018_taxes(taxpayer, policy):
 
     # Qualified income/capital gains
     # NEW: new house_2018_qualified_income function
-    qualified_income_tax = tax_funcs.house_2018_qualified_income(policy, taxpayer, taxable_income, income_tax_before_credits, po_amount)
+    qualified_income_tax = tax_funcs.house_2018_qualified_income(policy, taxpayer, taxable_income, income_tax_before_credits, po_amount, agi)
     income_tax_before_credits = min(income_tax_before_credits, qualified_income_tax)
     results["qualified_income_tax"] = qualified_income_tax
     results["selected_tax_before_credits"] = income_tax_before_credits # form1040_line44 
@@ -203,7 +202,8 @@ def calc_house_2018_taxes(taxpayer, policy):
 
 
 def calc_senate_2018_taxes(taxpayer, policy):
-
+    taxpayer["sl_property_tax"] = 0
+    taxpayer["sl_income_tax"] = 0
     taxpayer["interest_paid"] = 0
 
     results = OrderedDict()
@@ -223,6 +223,8 @@ def calc_senate_2018_taxes(taxpayer, policy):
     # AGI
     agi = tax_funcs.fed_agi(policy, taxpayer, ordinary_income_after_401k)
     results["agi_before_business_income_deduction"] = ordinary_income_after_401k
+
+    # NEW 17.5% business_income deduction
     agi = agi - (taxpayer['business_income'] * 0.175)
     results["agi"] = agi
 

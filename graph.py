@@ -10,13 +10,14 @@ house_2018_result_list = []
 senate_2018_result_list = []
 
 for i in range(1, 10000):
-    STEP = 25
-    default_taxpayer = OrderedDict([('filing_status', 0),
-                                    ('child_dep', 0),
+    STEP = 10
+    income = i * STEP
+    default_taxpayer = OrderedDict([('filing_status', 1),
+                                    ('child_dep', 2),
                                     ('nonchild_dep', 0),
-                                    ('ordinary_income1', i * STEP),
+                                    ('ordinary_income1', income * 0.75),
                                     ('ordinary_income2', 0),
-                                    ('business_income', 0),
+                                    ('business_income', income * 0.25),
                                     ('ss_income', 0),
                                     ('qualified_income', 0),
                                     ('401k_contributions', 0),
@@ -52,7 +53,7 @@ ax.plot(current_law_df["gross_income"], current_law_df["avg_effective_tax_rate_w
 ax.plot(house_2018_df["gross_income"], house_2018_df["avg_effective_tax_rate_wo_payroll"], drawstyle='steps-pre', label='House 2018 Proposal')
 ax.plot(senate_2018_df["gross_income"], senate_2018_df["avg_effective_tax_rate_wo_payroll"], drawstyle='steps-pre', label='Senate 2018 Proposal')
 ax.legend(loc='upper left')
-ax.set_title('Avg Federal Income Tax Rate by Gross Income (Single)')
+ax.set_title('Avg Federal Income Tax Rate by Gross Income (business_income)')
 ax.set_xlabel('Gross Income')
 ax.set_ylabel('Avg Tax Rate (w/o payroll)')
 fig.set_size_inches(12, 6)

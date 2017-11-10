@@ -41,7 +41,7 @@ def fed_agi(policy, taxpayer, ordinary_income_after_401k):
             line13 = min(line10, line11)
             line14 = line13 * policy["taxable_ss_base_amt"]
             line15 = min(line14, taxpayer['ss_income'] / 2)
-            line16 = line12 * policy["taxable_ss_top_amt"]
+            line16 = max(0, line12 * policy["taxable_ss_top_amt"])
             line17 = line15 + line16
             line18 = taxpayer['ss_income'] * policy["taxable_ss_top_amt"]
             ss_income = min(line17, line18)  # aka line19
@@ -286,6 +286,7 @@ def fed_ctc_actc_limited(policy, taxpayer, agi, actc_limit):
         elif actc_line4 > 0:
             return ctc, actc
 
+
 def fed_eitc(policy, taxpayer):
     # Publication 596 https://www.irs.gov/pub/irs-pdf/p596.pdf
     income = taxpayer["ordinary_income1"] + taxpayer["ordinary_income2"]  # earned income
@@ -393,7 +394,7 @@ def fed_qualified_income(policy, taxpayer, taxable_income, income_tax_before_cre
     return cap_gains_tax
 
 
-def house_2018_qualified_income(policy, taxpayer, taxable_income, income_tax_before_credits, po_amount):
+def house_2018_qualified_income(policy, taxpayer, taxable_income, income_tax_before_credits, po_amount, agi):
     # Qualified Dividends and Capital Gain Tax Worksheet—Line 44, Form 1040
     # https://apps.irs.gov/app/vita/content/globalmedia/capital_gain_tax_worksheet_1040i.pdf
     cap_gains_tax = 0
@@ -421,12 +422,44 @@ def house_2018_qualified_income(policy, taxpayer, taxable_income, income_tax_bef
     line21 = line11 + line19
     line22 = line12 - line21
     line23 = line22 * policy["cap_gains_upper_rate"]
-    line24 = fed_ordinary_income_tax(policy, taxpayer, line7 - taxpayer["business_income"]) + (taxpayer["business_income"] * 0.25) + po_amount  # tax on line7
+    line24 = house_ordinary_income_tax(policy, taxpayer, line7, agi) + po_amount  # tax on line7
     line25 = line20 + line23 + line24
     line26 = income_tax_before_credits  # tax on line1
     cap_gains_tax = min(line25, line26)
 
     return cap_gains_tax
+
+
+def house_ordinary_income_tax(policy, taxpayer, taxable_income, agi):
+    brackets = get_brackets(taxpayer, policy)
+    rates = list(reversed(policy["income_tax_rates"]))
+    ordinary_income_tax = 0
+    business_income_tax = 0
+    running_taxable_income = taxable_income
+    running_taxable_income = max(0, running_taxable_income - taxpayer["business_income"])
+    running_business_income = taxable_income
+    running_business_income = max(0, running_business_income -  (agi - taxpayer["business_income"]))
+   
+    i = 0
+    for threshold in reversed(brackets):
+        if taxable_income > threshold:            
+            applicable_taxable_income = max(0, running_taxable_income - threshold)
+            ordinary_income_tax = ordinary_income_tax + (applicable_taxable_income * rates[i])
+            running_taxable_income = running_taxable_income - applicable_taxable_income
+        i += 1
+
+    i = 0
+    for threshold in reversed(brackets):
+        if taxable_income > threshold:      
+            business_rate = rates[i]
+            if business_rate > 0.25:
+                business_rate = 0.25
+            applicable_business_income = max(0, running_business_income - threshold)
+            business_income_tax = business_income_tax + (applicable_business_income * business_rate)
+            running_business_income = running_business_income - applicable_business_income
+        i += 1             
+
+    return round(ordinary_income_tax + business_income_tax, 2)
 
 
 def get_brackets(taxpayer, policy):
