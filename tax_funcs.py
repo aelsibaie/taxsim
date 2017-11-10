@@ -232,6 +232,60 @@ def fed_ctc(policy, taxpayer, agi):
             return ctc, actc
 
 
+def fed_ctc_actc_limited(policy, taxpayer, agi, actc_limit):
+    # Child Tax Credit Worksheet https://www.irs.gov/pub/irs-pdf/p972.pdf
+    # Part 1
+    ctc = 0
+    line1 = taxpayer["child_dep"] * policy["ctc_credit"]
+    line4 = agi
+    line5 = policy["ctc_po_threshold"][taxpayer['filing_status']]
+    if line4 > line5:
+        line6 = math.ceil((line4 - line5) / 1000) * 1000
+    else:
+        line6 = 0
+    line7 = line6 * policy["ctc_po_rate"]
+    if line1 > line7:
+        line8 = line1 - line7
+    else:
+        line8 = 0
+
+    # Additional Child Tax Credit
+    actc_line1 = line8 # ctc
+    actc_line2 = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2'] # Earned income
+    if actc_line2 > policy['additional_ctc_threshold']:
+        actc_line3 = actc_line2 - policy['additional_ctc_threshold']
+        actc_line4 = actc_line3 * policy['additional_ctc_rate']
+    else:
+        actc_line4 = 0 # No qualified ACTC income
+
+
+    ctc = max(0, actc_line1 - actc_line4)
+    actc = min(actc_line1, actc_line4)
+
+    actc_limit = taxpayer["child_dep"] * actc_limit # TODO: confirm $1000 dollar limit
+    if actc > actc_limit:
+        overage = actc - actc_limit
+        #reduce ACTC
+        actc = actc - overage
+        #move to CTC
+        ctc = ctc + overage
+
+
+    if line1 >= policy['additional_ctc_threshold']:
+        if actc_line4 >= actc_line1:
+            return ctc, actc
+        else:
+            print("WARNING: Taxpayer with earned income of $" + str(actc_line2) + " may NOT eligible for the additional child tax credit")
+            # TODO: In this instance, the taxpayer might not actually be eligible for the full additional child tax credit"
+            # To find the real amount of ACTC, we will need withholding and EITC data
+            # This could overestimate the amount of ACTC owed
+            return ctc, actc
+    else:
+        if actc_line4 == 0:
+            return ctc, 0
+        elif actc_line4 > 0:
+            return ctc, actc
+
 def fed_eitc(policy, taxpayer):
     # Publication 596 https://www.irs.gov/pub/irs-pdf/p596.pdf
     income = taxpayer["ordinary_income1"] + taxpayer["ordinary_income2"]  # earned income
