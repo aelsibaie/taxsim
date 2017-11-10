@@ -56,7 +56,9 @@ def fed_agi(policy, taxpayer, ordinary_income_after_401k):
     """
     Get Federal AGI.
 
-    Calculates the Federal Adjusted Gross Income, based on IRS Publication 915.
+    Calculates the Federal Adjusted Gross Income, taking into account Social Security
+    income. Uses worksheet from IRS Publication 915, page 16.
+    See: https://www.irs.gov/pub/irs-pdf/p915.pdf
 
     Args:
         policy (dict): A set of policy parameters, parsed from CSV.
@@ -64,16 +66,20 @@ def fed_agi(policy, taxpayer, ordinary_income_after_401k):
         ordinary_income_after_401k (float): Combined income, less 401k contributions.
 
     Returns:
-        float: Federal adjusted gross income.
+        float: Federal adjusted gross income, including any taxable social security.
     """
     agi = ordinary_income_after_401k + taxpayer['business_income'] + taxpayer['qualified_income']
 
-    # Social security income may not be fully taxable
     if taxpayer['ss_income'] > 0:
-        ss_income = 0
-        combined_income = agi + (taxpayer['ss_income'] * 0.5)
-        # Publication 915 https://www.irs.gov/pub/irs-pdf/p915.pdf
-        line10 = combined_income - policy["taxable_ss_base_threshold"][taxpayer['filing_status']]
+        # Social security income may not be fully taxable.
+        # The following calculates any tax on social security.
+        # Lines 1 through 8 are a calculation of AGI plus half of SS benefits.
+        # If AGI plus half of benefits minus base threshold is negative, no SS tax.
+        line1 = taxpayer['ss_income']
+        line2 = line1 / 2
+        line8 = agi + line2
+        line9 = policy["taxable_ss_base_threshold"][taxpayer['filing_status']]
+        line10 = max(0, line8 - line9)
         if line10 > 0:
             line11 = (
                 policy["taxable_ss_top_threshold"][taxpayer['filing_status']]
@@ -82,13 +88,12 @@ def fed_agi(policy, taxpayer, ordinary_income_after_401k):
             line12 = max(0, line10 - line11)
             line13 = min(line10, line11)
             line14 = line13 * policy["taxable_ss_base_amt"]
-            line15 = min(line14, taxpayer['ss_income'] / 2)
+            line15 = min(line14, line2)
             line16 = line12 * policy["taxable_ss_top_amt"]
             line17 = line15 + line16
             line18 = taxpayer['ss_income'] * policy["taxable_ss_top_amt"]
-            ss_income = min(line17, line18)  # aka line19
-        agi = agi + ss_income
-
+            line19 = min(line17, line18) # Line 20b on 1040
+            return agi + line19
     return agi
 
 
