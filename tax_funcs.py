@@ -530,10 +530,10 @@ def house_ordinary_income_tax(policy, taxpayer, taxable_income, agi):
     running_taxable_income = max(0, running_taxable_income - taxpayer["business_income"])
     running_business_income = taxable_income
     running_business_income = max(0, running_business_income -  (agi - taxpayer["business_income"]))
-   
+
     i = 0
     for threshold in reversed(brackets):
-        if taxable_income > threshold:            
+        if taxable_income > threshold:
             applicable_taxable_income = max(0, running_taxable_income - threshold)
             ordinary_income_tax = ordinary_income_tax + (applicable_taxable_income * rates[i])
             running_taxable_income = running_taxable_income - applicable_taxable_income
@@ -541,17 +541,16 @@ def house_ordinary_income_tax(policy, taxpayer, taxable_income, agi):
 
     i = 0
     for threshold in reversed(brackets):
-        if taxable_income > threshold:      
+        if taxable_income > threshold:
             business_rate = rates[i]
             if business_rate > 0.25:
                 business_rate = 0.25
             applicable_business_income = max(0, running_business_income - threshold)
             business_income_tax = business_income_tax + (applicable_business_income * business_rate)
             running_business_income = running_business_income - applicable_business_income
-        i += 1             
+        i += 1
 
     return round(ordinary_income_tax + business_income_tax, 2)
-
 
 def get_brackets(taxpayer, policy):
     if taxpayer['filing_status'] == 0:
