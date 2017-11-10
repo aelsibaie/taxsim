@@ -110,23 +110,16 @@ def calc_federal_taxes(taxpayer, policy):
     results["income_tax_after_credits"] = income_tax_after_credits
 
     # Tax burden
-    tax_burden = round(income_tax_after_credits + results["employee_payroll_tax"], 2)
-    results["tax_burden"] = tax_burden
+    results["tax_burden"] = tax_funcs.tax_burden_or_wedge(
+        income_tax_after_credits, payroll_taxes, "burden")
 
     # Tax wedge
-    tax_wedge = round(
-        (
-            income_tax_after_credits
-            + results["employee_payroll_tax"]
-            + results["employer_payroll_tax"]
-        ),
-        2
-    )
-    results["tax_wedge"] = tax_wedge
+    results["tax_wedge"] = tax_funcs.tax_burden_or_wedge(
+        income_tax_after_credits, payroll_taxes, "wedge")
 
     # Average effective tax rate
     avg_effective_tax_rate = round(
-        (tax_burden / gross_income),
+        (results["tax_burden"] / gross_income),
         4
     )
     results["avg_effective_tax_rate"] = avg_effective_tax_rate
@@ -266,22 +259,18 @@ def calc_house_2018_taxes(taxpayer, policy):
     results["income_tax_after_credits"] = income_tax_after_credits
 
     # Tax burden
-    tax_burden = round(income_tax_after_credits + results["employee_payroll_tax"], 2)
-    results["tax_burden"] = tax_burden
+    results["tax_burden"] = tax_funcs.tax_burden_or_wedge(
+        income_tax_after_credits, payroll_taxes, "burden")
 
     # Tax wedge
-    tax_wedge = round(
-        (
-            income_tax_after_credits
-            + results["employee_payroll_tax"]
-            + results["employer_payroll_tax"]
-        ),
-        2
-    )
-    results["tax_wedge"] = tax_wedge
+    results["tax_wedge"] = tax_funcs.tax_burden_or_wedge(
+        income_tax_after_credits, payroll_taxes, "wedge")
 
     # Average effective tax rate
-    avg_effective_tax_rate = round((tax_burden / gross_income), 4)
+    avg_effective_tax_rate = round(
+        (results["tax_burden"] / gross_income),
+        4
+    )
     results["avg_effective_tax_rate"] = avg_effective_tax_rate
 
     # Average effective tax rate without payroll
@@ -365,24 +354,16 @@ def calc_senate_2018_taxes(taxpayer, policy):
     results["income_tax_after_credits"] = income_tax_after_credits
 
     # Tax burden
-    tax_burden = round(income_tax_after_credits + results["employee_payroll_tax"], 2)
-
-    results["tax_burden"] = tax_burden
+    results["tax_burden"] = tax_funcs.tax_burden_or_wedge(
+        income_tax_after_credits, payroll_taxes, "burden")
 
     # Tax wedge
-    tax_wedge = round(
-        (
-            income_tax_after_credits
-            + results["employee_payroll_tax"]
-            + results["employer_payroll_tax"]
-        ),
-        2
-    )
-    results["tax_wedge"] = tax_wedge
+    results["tax_wedge"] = tax_funcs.tax_burden_or_wedge(
+        income_tax_after_credits, payroll_taxes, "wedge")
 
     # Average effective tax rate
     avg_effective_tax_rate = round(
-        (tax_burden / gross_income),
+        (results["tax_burden"] / gross_income),
         4
     )
     results["avg_effective_tax_rate"] = avg_effective_tax_rate
