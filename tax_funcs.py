@@ -554,13 +554,11 @@ def house_ordinary_income_tax(policy, taxpayer, taxable_income, agi):
 
 def get_brackets(taxpayer, policy):
     if taxpayer['filing_status'] == 0:
-        brackets = policy["single_brackets"]
+        return policy["single_brackets"]
     elif taxpayer['filing_status'] == 1:
-        brackets = policy["married_brackets"]
+        return policy["married_brackets"]
     else:
-        brackets = policy["hoh_brackets"]
-
-    return brackets
+        return policy["hoh_brackets"]
 
 def tax_burden_or_wedge(income, payroll_taxes, theType):
     if theType == "burden":
