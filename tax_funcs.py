@@ -116,24 +116,22 @@ def fed_taxable_income(policy, taxpayer, agi):
 
     # Personal exemption(s)
     # Publication 501 https://www.irs.gov/pub/irs-pdf/p501.pdf
-    personal_exemption_amt = 0
-    filers = 1
-    if taxpayer["filing_status"] == 1:
-        filers = 2
+    personal_exemption = 0
+    filers = 2 if taxpayer["filing_status"] == 1 else 1
     exemptions_claimed = filers + taxpayer["child_dep"] + taxpayer["nonchild_dep"]
     # Check for phase out of personal exemption
     if agi > policy["personal_exemption_po_threshold"][taxpayer['filing_status']]:
-        personal_exemption_amt = policy["personal_exemption"] * exemptions_claimed
+        personal_exemption = policy["personal_exemption"] * exemptions_claimed
         amt_over_threshold = (
             agi
             - policy["personal_exemption_po_threshold"][taxpayer['filing_status']]
         )
         line6 = math.ceil(amt_over_threshold / policy["personal_exemption_po_amt"])
         line7 = round(line6 * policy["personal_exemption_po_rate"], 3)
-        line8 = personal_exemption_amt * line7
-        personal_exemption_amt = max(0, personal_exemption_amt - line8)  # aka line9
+        line8 = personal_exemption * line7
+        personal_exemption = max(0, personal_exemption - line8)  # aka line9
     else:
-        personal_exemption_amt = policy["personal_exemption"] * exemptions_claimed
+        personal_exemption = policy["personal_exemption"] * exemptions_claimed
 
     # Standard deduction
     standard_deduction = policy["standard_deduction"][taxpayer['filing_status']]
@@ -151,10 +149,10 @@ def fed_taxable_income(policy, taxpayer, agi):
         + taxpayer["interest_paid"]
         + taxpayer["charity_contributions"]
         + taxpayer["other_itemized"]
-        )
+    )
     # Check for phase out of itemized deductions
     # Itemized Deductions Worksheet—Line 29 https://www.irs.gov/pub/irs-pdf/i1040sca.pdf
-    pease_limitation_amt = 0
+    pease_limitation = 0
     line1 = itemized_total
     # line2 could also include investment interest and casualty deductions
     line2 = taxpayer["medical_expenses"]
@@ -167,17 +165,14 @@ def fed_taxable_income(policy, taxpayer, agi):
             line7 = line5 - line6
             line8 = line7 * policy["itemized_limitation_rate"]
             line9 = min(line4, line8)
-            pease_limitation_amt = line9  # used in AMT calc
+            pease_limitation = line9  # used in AMT calc
             itemized_total = line1 - line9  # aka line10
 
     deductions = max(itemized_total, standard_deduction)
-    if deductions != standard_deduction:
-        deduction_type = "itemized"
-    else:
-        deduction_type = "standard"
-    taxable_income = max(0, taxable_income - personal_exemption_amt - deductions)
+    deduction_type = "standard" if deductions == standard_deduction else "itemized"
+    taxable_income = max(0, taxable_income - personal_exemption - deductions)
 
-    return taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt
+    return taxable_income, deduction_type, deductions, personal_exemption, pease_limitation
 
 
 def house_2018_taxable_income(policy, taxpayer, agi):
@@ -185,24 +180,22 @@ def house_2018_taxable_income(policy, taxpayer, agi):
 
     # Personal exemption(s)
     # Publication 501 https://www.irs.gov/pub/irs-pdf/p501.pdf
-    personal_exemption_amt = 0
-    filers = 1
-    if taxpayer["filing_status"] == 1:
-        filers = 2
+    personal_exemption = 0
+    filers = 2 if taxpayer["filing_status"] == 1 else 1
     exemptions_claimed = filers + taxpayer["child_dep"] + taxpayer["nonchild_dep"]
     # Check for phase out of personal exemption
     if agi > policy["personal_exemption_po_threshold"][taxpayer['filing_status']]:
-        personal_exemption_amt = policy["personal_exemption"] * exemptions_claimed
+        personal_exemption = policy["personal_exemption"] * exemptions_claimed
         amt_over_threshold = (
             agi
             - policy["personal_exemption_po_threshold"][taxpayer['filing_status']]
         )
         line6 = math.ceil(amt_over_threshold / policy["personal_exemption_po_amt"])
         line7 = round(line6 * policy["personal_exemption_po_rate"], 3)
-        line8 = personal_exemption_amt * line7
-        personal_exemption_amt = max(0, personal_exemption_amt - line8)  # aka line9
+        line8 = personal_exemption * line7
+        personal_exemption = max(0, personal_exemption - line8)  # aka line9
     else:
-        personal_exemption_amt = policy["personal_exemption"] * exemptions_claimed
+        personal_exemption = policy["personal_exemption"] * exemptions_claimed
 
     # Standard deduction
     standard_deduction = policy["standard_deduction"][taxpayer['filing_status']]
@@ -217,7 +210,7 @@ def house_2018_taxable_income(policy, taxpayer, agi):
         taxpayer["other_itemized"]
     # Check for phase out of itemized deductions
     # Itemized Deductions Worksheet—Line 29 https://www.irs.gov/pub/irs-pdf/i1040sca.pdf
-    pease_limitation_amt = 0
+    pease_limitation = 0
     line1 = itemized_total
     # line2 could also include investment interest and casualty deductions
     line2 = taxpayer["medical_expenses"]
@@ -230,7 +223,7 @@ def house_2018_taxable_income(policy, taxpayer, agi):
             line7 = line5 - line6
             line8 = line7 * policy["itemized_limitation_rate"]
             line9 = min(line4, line8)
-            pease_limitation_amt = line9  # used in AMT calc
+            pease_limitation = line9  # used in AMT calc
             itemized_total = line1 - line9  # aka line10
 
     deductions = max(itemized_total, standard_deduction)
@@ -238,9 +231,9 @@ def house_2018_taxable_income(policy, taxpayer, agi):
         deduction_type = "itemized"
     else:
         deduction_type = "standard"
-    taxable_income = max(0, taxable_income - personal_exemption_amt - deductions)
+    taxable_income = max(0, taxable_income - personal_exemption - deductions)
 
-    return taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt
+    return taxable_income, deduction_type, deductions, personal_exemption, pease_limitation
 
 
 def fed_ordinary_income_tax(policy, taxpayer, taxable_income):
@@ -327,7 +320,7 @@ def fed_eitc(policy, taxpayer):
         )
 
 
-def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits):
+def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation, income_tax_before_credits):
     amt = 0
     # Form 6251 https://www.irs.gov/pub/irs-pdf/f6251.pdf
     # Instructions https://www.irs.gov/pub/irs-pdf/i6251.pdf
@@ -347,7 +340,7 @@ def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_
             line6 = 0
         else:
             # TODO: Check this behavior, it reverses the pease limitation
-            line6 = -pease_limitation_amt
+            line6 = -pease_limitation
         amt_income = line1 + line2 + line3 + line5 + line6
         # only charity and mortgage allowed
     else:
