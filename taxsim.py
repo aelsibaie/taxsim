@@ -266,11 +266,18 @@ def calc_house_2018_taxes(taxpayer, policy):
     results["income_tax_after_credits"] = income_tax_after_credits
 
     # Tax burden
-    tax_burden = round(income_tax_after_credits + employee_payroll_tax, 2)
+    tax_burden = round(income_tax_after_credits + results["employee_payroll_tax"], 2)
     results["tax_burden"] = tax_burden
 
     # Tax wedge
-    tax_wedge = round(income_tax_after_credits + employee_payroll_tax + employer_payroll_tax, 2)
+    tax_wedge = round(
+        (
+            income_tax_after_credits
+            + results["employee_payroll_tax"]
+            + results["employer_payroll_tax"]
+        ),
+        2
+    )
     results["tax_wedge"] = tax_wedge
 
     # Average effective tax rate
@@ -295,9 +302,9 @@ def calc_senate_2018_taxes(taxpayer, policy):
     results["gross_income"] = gross_income
 
     # Payroll taxes
-    employee_payroll_tax, employer_payroll_tax = tax_funcs.fed_payroll(policy, taxpayer)
-    results["employee_payroll_tax"] = employee_payroll_tax
-    results["employer_payroll_tax"] = employer_payroll_tax
+    payroll_taxes = tax_funcs.fed_payroll(policy, taxpayer)
+    results["employee_payroll_tax"] = payroll_taxes['employee']
+    results["employer_payroll_tax"] = payroll_taxes['employer']
 
     # Income after tax-deferred retirement contributions
     ordinary_income_after_401k = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2'] - taxpayer['401k_contributions']
