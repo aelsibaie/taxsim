@@ -22,14 +22,7 @@ senate_2018_policy = csv_parser.load_policy(SENATE_2018_FILE)
 def calc_federal_taxes(taxpayer, policy):
     results = OrderedDict()
     # Gross income
-    gross_income = (
-        taxpayer['ordinary_income1']
-        + taxpayer['ordinary_income2']
-        + taxpayer['business_income']
-        + taxpayer['ss_income']
-        + taxpayer['qualified_income']
-    )
-    results["gross_income"] = gross_income
+    results["gross_income"] = tax_funcs.get_gross_income(taxpayer)
 
     # Payroll taxes
     payroll_taxes = tax_funcs.fed_payroll(policy, taxpayer)
@@ -119,14 +112,14 @@ def calc_federal_taxes(taxpayer, policy):
 
     # Average effective tax rate
     avg_effective_tax_rate = round(
-        (results["tax_burden"] / gross_income),
+        (results["tax_burden"] / results["gross_income"]),
         4
     )
     results["avg_effective_tax_rate"] = avg_effective_tax_rate
 
     # Average effective tax rate without payroll
     avg_effective_tax_rate_wo_payroll = round(
-        (income_tax_after_credits / gross_income),
+        (income_tax_after_credits / results["gross_income"]),
         4
     )
     results["avg_effective_tax_rate_wo_payroll"] = avg_effective_tax_rate_wo_payroll
@@ -141,14 +134,8 @@ def calc_house_2018_taxes(taxpayer, policy):
 
     results = OrderedDict()
     # Gross income
-    gross_income = (
-        taxpayer['ordinary_income1']
-        + taxpayer['ordinary_income2']
-        + taxpayer['business_income']
-        + taxpayer['ss_income']
-        + taxpayer['qualified_income']
-    )
-    results["gross_income"] = gross_income
+    # Gross income
+    results["gross_income"] = tax_funcs.get_gross_income(taxpayer)
 
     # Payroll taxes
     payroll_taxes = tax_funcs.fed_payroll(policy, taxpayer)
@@ -268,13 +255,13 @@ def calc_house_2018_taxes(taxpayer, policy):
 
     # Average effective tax rate
     avg_effective_tax_rate = round(
-        (results["tax_burden"] / gross_income),
+        (results["tax_burden"] / results["gross_income"]),
         4
     )
     results["avg_effective_tax_rate"] = avg_effective_tax_rate
 
     # Average effective tax rate without payroll
-    avg_effective_tax_rate_wo_payroll = round((income_tax_after_credits / gross_income), 4)
+    avg_effective_tax_rate_wo_payroll = round((income_tax_after_credits / results["gross_income"]), 4)
     results["avg_effective_tax_rate_wo_payroll"] = avg_effective_tax_rate_wo_payroll
 
     return results
@@ -287,8 +274,7 @@ def calc_senate_2018_taxes(taxpayer, policy):
 
     results = OrderedDict()
     # Gross income
-    gross_income = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2'] + taxpayer['business_income'] + taxpayer['ss_income'] + taxpayer['qualified_income']
-    results["gross_income"] = gross_income
+    results["gross_income"] = tax_funcs.get_gross_income(taxpayer)
 
     # Payroll taxes
     payroll_taxes = tax_funcs.fed_payroll(policy, taxpayer)
@@ -363,14 +349,14 @@ def calc_senate_2018_taxes(taxpayer, policy):
 
     # Average effective tax rate
     avg_effective_tax_rate = round(
-        (results["tax_burden"] / gross_income),
+        (results["tax_burden"] / results["gross_income"]),
         4
     )
     results["avg_effective_tax_rate"] = avg_effective_tax_rate
 
     # Average effective tax rate without payroll
     avg_effective_tax_rate_wo_payroll = round(
-        (income_tax_after_credits / gross_income),
+        (income_tax_after_credits / results["gross_income"]),
         4
     )
     results["avg_effective_tax_rate_wo_payroll"] = avg_effective_tax_rate_wo_payroll

@@ -552,6 +552,14 @@ def house_ordinary_income_tax(policy, taxpayer, taxable_income, agi):
 
     return round(ordinary_income_tax + business_income_tax, 2)
 
+def get_gross_income(taxpayer):
+    return (
+        taxpayer['ordinary_income1']
+        + taxpayer['ordinary_income2']
+        + taxpayer['business_income']
+        + taxpayer['ss_income']
+        + taxpayer['qualified_income'])
+
 def get_brackets(taxpayer, policy):
     if taxpayer['filing_status'] == 0:
         return policy["single_brackets"]
