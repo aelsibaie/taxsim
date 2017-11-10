@@ -222,14 +222,10 @@ def calc_senate_2018_taxes(taxpayer, policy):
 
     # AGI
     agi = tax_funcs.fed_agi(policy, taxpayer, ordinary_income_after_401k)
-    results["agi_before_business_income_deduction"] = ordinary_income_after_401k
-
-    # NEW 17.5% business_income deduction
-    agi = agi - (taxpayer['business_income'] * 0.175)
     results["agi"] = agi
 
     # Taxable income
-    taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt = tax_funcs.fed_taxable_income(policy, taxpayer, agi)
+    taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt = tax_funcs.senate_2018_taxable_income(policy, taxpayer, agi)
     results["taxable_income"] = taxable_income
     results["deduction_type"] = deduction_type
     results["deductions"] = deductions
@@ -267,7 +263,7 @@ def calc_senate_2018_taxes(taxpayer, policy):
     dep_credit = 500 * taxpayer["nonchild_dep"]
 
     # Tax after nonrefundable credits
-    income_tax_after_credits = round(max(0, income_tax_before_credits - ctc), 2)
+    income_tax_after_credits = round(max(0, income_tax_before_credits - ctc - dep_credit), 2)
     results["income_tax_after_nonrefundable_credits"] = income_tax_after_credits
 
     # Tax after ALL credits
