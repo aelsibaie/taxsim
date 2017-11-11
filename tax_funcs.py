@@ -1,5 +1,5 @@
 import math
-
+import logging
 
 def fed_payroll(policy, taxpayer):
     combined_ordinary_income = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2']
@@ -282,7 +282,7 @@ def fed_ctc(policy, taxpayer, agi):
         if actc_line4 >= actc_line1:
             return ctc, actc
         else:
-            print("WARNING: Taxpayer with earned income of $" + str(actc_line2) + " may NOT eligible for the additional child tax credit")
+            logging.warning("WARNING: Taxpayer with earned income of $" + str(actc_line2) + " may NOT eligible for the additional child tax credit")
             # TODO: In this instance, the taxpayer might not actually be eligible for the full additional child tax credit"
             # To find the real amount of ACTC, we will need withholding and EITC data
             # This could overestimate the amount of ACTC owed
@@ -337,7 +337,7 @@ def fed_ctc_actc_limited(policy, taxpayer, agi, actc_limit):
         if actc_line4 >= actc_line1:
             return ctc, actc
         else:
-            print("WARNING: Taxpayer with earned income of $" + str(actc_line2) + " may NOT eligible for the additional child tax credit")
+            logging.warning("WARNING: Taxpayer with earned income of $" + str(actc_line2) + " may NOT eligible for the additional child tax credit")
             # TODO: In this instance, the taxpayer might not actually be eligible for the full additional child tax credit"
             # To find the real amount of ACTC, we will need withholding and EITC data
             # This could overestimate the amount of ACTC owed

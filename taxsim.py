@@ -2,7 +2,11 @@ import csv_parser
 import tax_funcs
 import misc_funcs
 from collections import OrderedDict
-from pprint import pprint
+import logging
+from datetime import datetime
+import os
+import json
+
 
 TAXPAYERS_FILE = "taxpayers.csv"
 
@@ -13,6 +17,14 @@ SENATE_2018_FILE = "./params/senate_2018.csv"
 CURRENT_LAW_RESULTS = "current_law_results.csv"
 HOUSE_2018_RESULTS = "house_2018_results.csv"
 SENATE_2018_RESULTS = "senate_2018_results.csv"
+
+LOGS_DIR = "./logs/"
+
+if not os.path.exists(LOGS_DIR):
+    os.makedirs(LOGS_DIR)
+current_datetime = datetime.now().strftime("%Y%m%dT%H%M%S") # ISO 8601
+logging.basicConfig(filename=LOGS_DIR + current_datetime + '.log',
+                    level=logging.DEBUG)
 
 taxpayers = csv_parser.load_taxpayers(TAXPAYERS_FILE)
 current_law_policy = csv_parser.load_policy(CURRENT_LAW_FILE)
@@ -278,18 +290,22 @@ if __name__ == '__main__':
     senate_2018_results = []
     for i in range(len(taxpayers)):
         filer = taxpayers[i]
-        print("\n" + "Current law - filer #" + str(i + 1))
+        filer_number = str(i + 1)
+        
+        logging.info("Running calc_federal_taxes for filer #" + filer_number)
         current_law_result = calc_federal_taxes(filer, current_law_policy)
         current_law_results.append(current_law_result)
-        pprint(current_law_result)
-        print("\n" + "House 2018 - filer #" + str(i + 1))
+        logging.debug(json.dumps(current_law_result, indent=4))
+
+        logging.info("Running calc_house_2018_taxes for filer #" + filer_number)
         house_2018_result = calc_house_2018_taxes(filer, house_2018_policy)
         house_2018_results.append(house_2018_result)
-        pprint(house_2018_result)
-        print("\n" + "Senate 2018 - filer #" + str(i + 1))
+        logging.debug(json.dumps(house_2018_result, indent=4))
+
+        logging.info("Running calc_senate_2018_taxes for filer #" + filer_number)
         senate_2018_result = calc_senate_2018_taxes(filer, senate_2018_policy)
         senate_2018_results.append(senate_2018_result)
-        pprint(senate_2018_result)
+        logging.debug(json.dumps(senate_2018_result, indent=4))
 
     csv_parser.write_results(current_law_results, CURRENT_LAW_RESULTS)
     csv_parser.write_results(house_2018_results, HOUSE_2018_RESULTS)

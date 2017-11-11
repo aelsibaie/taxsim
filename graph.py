@@ -4,12 +4,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 from collections import OrderedDict
+from tqdm import tqdm
 
 current_law_result_list = []
 house_2018_result_list = []
 senate_2018_result_list = []
 
-for i in range(1, 10000):
+for i in tqdm(range(1, 10000)):
     STEP = 10
     income = i * STEP
     default_taxpayer = OrderedDict([('filing_status', 1),
