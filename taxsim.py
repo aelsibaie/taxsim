@@ -1,5 +1,6 @@
 import csv_parser
 import tax_funcs
+import misc_funcs
 from collections import OrderedDict
 from pprint import pprint
 
@@ -81,21 +82,15 @@ def calc_federal_taxes(taxpayer, policy):
     income_tax_after_credits = round(income_tax_after_credits - actc - eitc, 2) # TODO: check if the EITC is fully refundable
     results["income_tax_after_credits"] = income_tax_after_credits
 
-    # Tax burden
-    tax_burden = round(income_tax_after_credits + employee_payroll_tax, 2)
-    results["tax_burden"] = tax_burden
-
-    # Tax wedge
-    tax_wedge = round(income_tax_after_credits + employee_payroll_tax + employer_payroll_tax, 2)
-    results["tax_wedge"] = tax_wedge
-
-    # Average effective tax rate
-    avg_effective_tax_rate = round((tax_burden / gross_income), 4)
-    results["avg_effective_tax_rate"] = avg_effective_tax_rate
-
-    # Average effective tax rate without payroll
-    avg_effective_tax_rate_wo_payroll = round((income_tax_after_credits / gross_income), 4)
-    results["avg_effective_tax_rate_wo_payroll"] = avg_effective_tax_rate_wo_payroll
+    # Fetch final rates
+    rates = misc_funcs.calc_effective_rates(income_tax_after_credits, 
+                                            employee_payroll_tax, 
+                                            employer_payroll_tax, 
+                                            gross_income)
+    results["tax_burden"] = rates["tax_burden"]
+    results["tax_wedge"] = rates["tax_wedge"]
+    results["avg_effective_tax_rate"] = rates["avg_effective_tax_rate"]
+    results["avg_effective_tax_rate_wo_payroll"] = rates["avg_effective_tax_rate_wo_payroll"]
 
     return results
 
@@ -182,21 +177,15 @@ def calc_house_2018_taxes(taxpayer, policy):
     income_tax_after_credits = round(income_tax_after_credits - actc - eitc, 2) # TODO: check if the EITC is fully refundable
     results["income_tax_after_credits"] = income_tax_after_credits
 
-    # Tax burden
-    tax_burden = round(income_tax_after_credits + employee_payroll_tax, 2)
-    results["tax_burden"] = tax_burden
-
-    # Tax wedge
-    tax_wedge = round(income_tax_after_credits + employee_payroll_tax + employer_payroll_tax, 2)
-    results["tax_wedge"] = tax_wedge
-
-    # Average effective tax rate
-    avg_effective_tax_rate = round((tax_burden / gross_income), 4)
-    results["avg_effective_tax_rate"] = avg_effective_tax_rate
-
-    # Average effective tax rate without payroll
-    avg_effective_tax_rate_wo_payroll = round((income_tax_after_credits / gross_income), 4)
-    results["avg_effective_tax_rate_wo_payroll"] = avg_effective_tax_rate_wo_payroll
+    # Fetch final rates
+    rates = misc_funcs.calc_effective_rates(income_tax_after_credits, 
+                                            employee_payroll_tax, 
+                                            employer_payroll_tax, 
+                                            gross_income) 
+    results["tax_burden"] = rates["tax_burden"]
+    results["tax_wedge"] = rates["tax_wedge"]
+    results["avg_effective_tax_rate"] = rates["avg_effective_tax_rate"]
+    results["avg_effective_tax_rate_wo_payroll"] = rates["avg_effective_tax_rate_wo_payroll"]
 
     return results
 
@@ -270,21 +259,15 @@ def calc_senate_2018_taxes(taxpayer, policy):
     income_tax_after_credits = round(income_tax_after_credits - actc - eitc, 2) # TODO: check if the EITC is fully refundable
     results["income_tax_after_credits"] = income_tax_after_credits
 
-    # Tax burden
-    tax_burden = round(income_tax_after_credits + employee_payroll_tax, 2)
-    results["tax_burden"] = tax_burden
-
-    # Tax wedge
-    tax_wedge = round(income_tax_after_credits + employee_payroll_tax + employer_payroll_tax, 2)
-    results["tax_wedge"] = tax_wedge
-
-    # Average effective tax rate
-    avg_effective_tax_rate = round((tax_burden / gross_income), 4)
-    results["avg_effective_tax_rate"] = avg_effective_tax_rate
-
-    # Average effective tax rate without payroll
-    avg_effective_tax_rate_wo_payroll = round((income_tax_after_credits / gross_income), 4)
-    results["avg_effective_tax_rate_wo_payroll"] = avg_effective_tax_rate_wo_payroll
+    # Fetch final rates
+    rates = misc_funcs.calc_effective_rates(income_tax_after_credits, 
+                                            employee_payroll_tax, 
+                                            employer_payroll_tax, 
+                                            gross_income) 
+    results["tax_burden"] = rates["tax_burden"]
+    results["tax_wedge"] = rates["tax_wedge"]
+    results["avg_effective_tax_rate"] = rates["avg_effective_tax_rate"]
+    results["avg_effective_tax_rate_wo_payroll"] = rates["avg_effective_tax_rate_wo_payroll"]
 
     return results
 
