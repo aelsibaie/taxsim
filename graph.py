@@ -1,6 +1,5 @@
 import taxsim
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 from collections import OrderedDict
@@ -14,7 +13,7 @@ def make_graph(main_income_type, file_name, filing_status, child_dep, income_rat
     house_2018_result_list = []
     senate_2018_result_list = []
 
-    for i in tqdm(range(1, top_range), leave=False):
+    for i in tqdm(range(1, top_range), desc=file_name, unit='taxpayer', leave=False):
         income = i * step
         default_taxpayer = OrderedDict([('filing_status', filing_status),
                                         ('child_dep', child_dep),
@@ -190,5 +189,6 @@ graphs = [
     }
 ]
 
-for graph in tqdm(graphs):
-    make_graph(graph["main_income_type"], graph["file_name"], graph["filing_status"], graph["child_dep"], graph["income_ratios"], graph["payroll"], graph["step"])
+if __name__ == '__main__':
+    for graph in tqdm(graphs, desc='Rendering graphs', unit='graph'):
+        make_graph(graph["main_income_type"], graph["file_name"], graph["filing_status"], graph["child_dep"], graph["income_ratios"], graph["payroll"], graph["step"])
