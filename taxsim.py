@@ -19,9 +19,13 @@ HOUSE_2018_RESULTS = "house_2018_results.csv"
 SENATE_2018_RESULTS = "senate_2018_results.csv"
 
 LOGS_DIR = "./logs/"
+RESULTS_DIR = "./results/"
 
 if not os.path.exists(LOGS_DIR):
     os.makedirs(LOGS_DIR)
+if not os.path.exists(RESULTS_DIR):
+    os.makedirs(RESULTS_DIR)
+
 current_datetime = datetime.now().strftime("%Y%m%dT%H%M%S") # ISO 8601
 logging.basicConfig(filename=LOGS_DIR + current_datetime + '.log',
                     level=logging.DEBUG)
@@ -307,6 +311,6 @@ if __name__ == '__main__':
         senate_2018_results.append(senate_2018_result)
         logging.debug(json.dumps(senate_2018_result, indent=4))
 
-    csv_parser.write_results(current_law_results, CURRENT_LAW_RESULTS)
-    csv_parser.write_results(house_2018_results, HOUSE_2018_RESULTS)
-    csv_parser.write_results(senate_2018_results, SENATE_2018_RESULTS)
+    csv_parser.write_results(current_law_results, RESULTS_DIR + CURRENT_LAW_RESULTS)
+    csv_parser.write_results(house_2018_results, RESULTS_DIR + HOUSE_2018_RESULTS)
+    csv_parser.write_results(senate_2018_results, RESULTS_DIR + SENATE_2018_RESULTS)
