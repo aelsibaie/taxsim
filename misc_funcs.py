@@ -1,6 +1,7 @@
 from collections import OrderedDict
 import logging
 
+
 def calc_effective_rates(income_tax_after_credits, employee_payroll_tax, employer_payroll_tax, gross_income):
     rates = OrderedDict()
     # Tax burden

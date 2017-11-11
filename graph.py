@@ -47,7 +47,6 @@ def make_graph(main_income_type, file_name, filing_status, child_dep, income_rat
     house_2018_df.to_csv(taxsim.RESULTS_DIR + file_name + '-house_2018_graph_data.csv')
     senate_2018_df.to_csv(taxsim.RESULTS_DIR + file_name + '-senate_2018_graph_data.csv')
 
-
     filing_status_string = "Single"
     if filing_status == 1:
         filing_status_string = "Married"
@@ -79,115 +78,115 @@ def make_graph(main_income_type, file_name, filing_status, child_dep, income_rat
     ax.legend(loc='upper left')
     ax.set_title('Average Federal Income Tax Rate by Gross Income, ' + filing_status_string + " Filer, " + child_string + ", " + main_income_type)
     ax.set_xlabel('Gross Income')
-    ax.set_ylabel('Average Tax Rate ('+payroll_string+')')
+    ax.set_ylabel('Average Tax Rate (' + payroll_string + ')')
     fig.set_size_inches(12, 6)
-    fig.savefig(taxsim.RESULTS_DIR +file_name+".png", dpi=100)
+    fig.savefig(taxsim.RESULTS_DIR + file_name + ".png", dpi=100)
 
 
 graphs = [
     {
-    "main_income_type":"Ordinary Income",
-    "file_name":"single_0_ordinary",
-    "filing_status":0,
-    "child_dep":0,
-    "income_ratios": {
-        "ordinary": 1.0,
-        "business": 0.0,
-        "ss": 0.0,
-        "qualified": 0.0},
-    "payroll": 0,
-    "step": 25
+        "main_income_type": "Ordinary Income",
+        "file_name": "single_0_ordinary",
+        "filing_status": 0,
+        "child_dep": 0,
+        "income_ratios": {
+            "ordinary": 1.0,
+            "business": 0.0,
+            "ss": 0.0,
+            "qualified": 0.0},
+        "payroll": 0,
+        "step": 25
     },
     {
-    "main_income_type":"Business Income",
-    "file_name":"single_0_business",
-    "filing_status":0,
-    "child_dep":0,
-    "income_ratios": {
-        "ordinary": 0.0,
-        "business": 1.0,
-        "ss": 0.0,
-        "qualified": 0.0},
-    "payroll": 0,
-    "step": 100
+        "main_income_type": "Business Income",
+        "file_name": "single_0_business",
+        "filing_status": 0,
+        "child_dep": 0,
+        "income_ratios": {
+            "ordinary": 0.0,
+            "business": 1.0,
+            "ss": 0.0,
+            "qualified": 0.0},
+        "payroll": 0,
+        "step": 100
     },
     {
-    "main_income_type":"Qualified Income",
-    "file_name":"single_0_qualified",
-    "filing_status":0,
-    "child_dep":0,
-    "income_ratios": {
-        "ordinary": 0.0,
-        "business": 0.0,
-        "ss": 0.0,
-        "qualified": 1.0},
-    "payroll": 0,
-    "step": 100
+        "main_income_type": "Qualified Income",
+        "file_name": "single_0_qualified",
+        "filing_status": 0,
+        "child_dep": 0,
+        "income_ratios": {
+            "ordinary": 0.0,
+            "business": 0.0,
+            "ss": 0.0,
+            "qualified": 1.0},
+        "payroll": 0,
+        "step": 100
     },
     {
-    "main_income_type":"50% Business & 50% Qualified Income",
-    "file_name":"single_0_bus_and_qual",
-    "filing_status":0,
-    "child_dep":0,
-    "income_ratios": {
-        "ordinary": 0.0,
-        "business": 0.5,
-        "ss": 0.0,
-        "qualified": 0.5},
-    "payroll": 0,
-    "step": 100
+        "main_income_type": "50% Business & 50% Qualified Income",
+        "file_name": "single_0_bus_and_qual",
+        "filing_status": 0,
+        "child_dep": 0,
+        "income_ratios": {
+            "ordinary": 0.0,
+            "business": 0.5,
+            "ss": 0.0,
+            "qualified": 0.5},
+        "payroll": 0,
+        "step": 100
     },
     {
-    "main_income_type":"Ordinary Income",
-    "file_name":"married_0_ordinary",
-    "filing_status":1,
-    "child_dep":0,
-    "income_ratios": {
-        "ordinary": 1.0,
-        "business": 0.0,
-        "ss": 0.0,
-        "qualified": 0.0},
-    "payroll": 0,
-    "step": 10
+        "main_income_type": "Ordinary Income",
+        "file_name": "married_0_ordinary",
+        "filing_status": 1,
+        "child_dep": 0,
+        "income_ratios": {
+            "ordinary": 1.0,
+            "business": 0.0,
+            "ss": 0.0,
+            "qualified": 0.0},
+        "payroll": 0,
+        "step": 10
     },
     {
-    "main_income_type":"Ordinary Income",
-    "file_name":"hoh_0_ordinary",
-    "filing_status":2,
-    "child_dep":0,
-    "income_ratios": {
-        "ordinary": 1.0,
-        "business": 0.0,
-        "ss": 0.0,
-        "qualified": 0.0},
-    "payroll": 0,
-    "step": 10
+        "main_income_type": "Ordinary Income",
+        "file_name": "hoh_0_ordinary",
+        "filing_status": 2,
+        "child_dep": 0,
+        "income_ratios": {
+            "ordinary": 1.0,
+            "business": 0.0,
+            "ss": 0.0,
+            "qualified": 0.0},
+        "payroll": 0,
+        "step": 10
     },
     {
-    "main_income_type":"Ordinary Income",
-    "file_name":"married_2_ordinary",
-    "filing_status":1,
-    "child_dep":2,
-    "income_ratios": {
-        "ordinary": 1.0,
-        "business": 0.0,
-        "ss": 0.0,
-        "qualified": 0.0},
-    "payroll": 0,
-    "step": 10
+        "main_income_type": "Ordinary Income",
+        "file_name": "married_2_ordinary",
+        "filing_status": 1,
+        "child_dep": 2,
+        "income_ratios": {
+            "ordinary": 1.0,
+            "business": 0.0,
+            "ss": 0.0,
+            "qualified": 0.0},
+        "payroll": 0,
+        "step": 10
     },
     {
-    "main_income_type":"Ordinary Income",
-    "file_name":"hoh_2_ordinary",
-    "filing_status":2,
-    "child_dep":2,
-    "income_ratios": {
-        "ordinary": 1.0,
-        "business": 0.0,
-        "ss": 0.0,
-        "qualified": 0.0},
-    "payroll": 0,
-    "step": 10
+        "main_income_type": "Ordinary Income",
+        "file_name": "hoh_2_ordinary",
+        "filing_status": 2,
+        "child_dep": 2,
+        "income_ratios": {
+            "ordinary": 1.0,
+            "business": 0.0,
+            "ss": 0.0,
+            "qualified": 0.0},
+        "payroll": 0,
+        "step": 10
     }
 ]
 

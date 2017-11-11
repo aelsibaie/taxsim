@@ -26,7 +26,7 @@ if not os.path.exists(LOGS_DIR):
 if not os.path.exists(RESULTS_DIR):
     os.makedirs(RESULTS_DIR)
 
-current_datetime = datetime.now().strftime("%Y%m%dT%H%M%S") # ISO 8601
+current_datetime = datetime.now().strftime("%Y%m%dT%H%M%S")  # ISO 8601
 logging.basicConfig(filename=LOGS_DIR + current_datetime + '.log',
                     level=logging.DEBUG)
 
@@ -72,7 +72,7 @@ def calc_federal_taxes(taxpayer, policy):
     qualified_income_tax = tax_funcs.fed_qualified_income(policy, taxpayer, taxable_income, income_tax_before_credits)
     income_tax_before_credits = min(income_tax_before_credits, qualified_income_tax)
     results["qualified_income_tax"] = qualified_income_tax
-    results["selected_tax_before_credits"] = income_tax_before_credits # form1040_line44
+    results["selected_tax_before_credits"] = income_tax_before_credits  # form1040_line44
 
     # AMT
     amt = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits)
@@ -95,13 +95,13 @@ def calc_federal_taxes(taxpayer, policy):
     results["income_tax_after_nonrefundable_credits"] = income_tax_after_credits
 
     # Tax after ALL credits
-    income_tax_after_credits = round(income_tax_after_credits - actc - eitc, 2) # TODO: check if the EITC is fully refundable
+    income_tax_after_credits = round(income_tax_after_credits - actc - eitc, 2)  # TODO: check if the EITC is fully refundable
     results["income_tax_after_credits"] = income_tax_after_credits
 
     # Fetch final rates
-    rates = misc_funcs.calc_effective_rates(income_tax_after_credits, 
-                                            employee_payroll_tax, 
-                                            employer_payroll_tax, 
+    rates = misc_funcs.calc_effective_rates(income_tax_after_credits,
+                                            employee_payroll_tax,
+                                            employer_payroll_tax,
                                             gross_income)
     results["tax_burden"] = rates["tax_burden"]
     results["tax_wedge"] = rates["tax_wedge"]
@@ -161,19 +161,19 @@ def calc_house_2018_taxes(taxpayer, policy):
     qualified_income_tax = tax_funcs.house_2018_qualified_income(policy, taxpayer, taxable_income, income_tax_before_credits, po_amount, agi)
     income_tax_before_credits = min(income_tax_before_credits, qualified_income_tax)
     results["qualified_income_tax"] = qualified_income_tax
-    results["selected_tax_before_credits"] = income_tax_before_credits # form1040_line44 
+    results["selected_tax_before_credits"] = income_tax_before_credits  # form1040_line44
 
     # AMT
     amt = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits)
     results["amt"] = amt
 
-    income_tax_before_credits += amt 
-    results["income_tax_before_credits_with_amt"] = income_tax_before_credits 
+    income_tax_before_credits += amt
+    results["income_tax_before_credits_with_amt"] = income_tax_before_credits
 
     # CTC
-    ctc, actc = tax_funcs.fed_ctc_actc_limited(policy, taxpayer, agi, 1000) # TODO: Confirm this
+    ctc, actc = tax_funcs.fed_ctc_actc_limited(policy, taxpayer, agi, 1000)  # TODO: Confirm this
     results["ctc"] = ctc
-    results["actc"] = actc 
+    results["actc"] = actc
 
     # EITC
     eitc = tax_funcs.fed_eitc(policy, taxpayer)
@@ -190,14 +190,14 @@ def calc_house_2018_taxes(taxpayer, policy):
     results["income_tax_after_nonrefundable_credits"] = income_tax_after_credits
 
     # Tax after ALL credits
-    income_tax_after_credits = round(income_tax_after_credits - actc - eitc, 2) # TODO: check if the EITC is fully refundable
+    income_tax_after_credits = round(income_tax_after_credits - actc - eitc, 2)  # TODO: check if the EITC is fully refundable
     results["income_tax_after_credits"] = income_tax_after_credits
 
     # Fetch final rates
-    rates = misc_funcs.calc_effective_rates(income_tax_after_credits, 
-                                            employee_payroll_tax, 
-                                            employer_payroll_tax, 
-                                            gross_income) 
+    rates = misc_funcs.calc_effective_rates(income_tax_after_credits,
+                                            employee_payroll_tax,
+                                            employer_payroll_tax,
+                                            gross_income)
     results["tax_burden"] = rates["tax_burden"]
     results["tax_wedge"] = rates["tax_wedge"]
     results["avg_effective_tax_rate"] = rates["avg_effective_tax_rate"]
@@ -246,7 +246,7 @@ def calc_senate_2018_taxes(taxpayer, policy):
     qualified_income_tax = tax_funcs.fed_qualified_income(policy, taxpayer, taxable_income, income_tax_before_credits)
     income_tax_before_credits = min(income_tax_before_credits, qualified_income_tax)
     results["qualified_income_tax"] = qualified_income_tax
-    results["selected_tax_before_credits"] = income_tax_before_credits # form1040_line44
+    results["selected_tax_before_credits"] = income_tax_before_credits  # form1040_line44
 
     # AMT
     amt = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits)
@@ -256,7 +256,7 @@ def calc_senate_2018_taxes(taxpayer, policy):
     results["income_tax_before_credits_with_amt"] = income_tax_before_credits
 
     # CTC
-    ctc, actc = tax_funcs.fed_ctc_actc_limited(policy, taxpayer, agi, 1000) # TODO: Confirm this
+    ctc, actc = tax_funcs.fed_ctc_actc_limited(policy, taxpayer, agi, 1000)  # TODO: Confirm this
     results["ctc"] = ctc
     results["actc"] = actc
 
@@ -272,14 +272,14 @@ def calc_senate_2018_taxes(taxpayer, policy):
     results["income_tax_after_nonrefundable_credits"] = income_tax_after_credits
 
     # Tax after ALL credits
-    income_tax_after_credits = round(income_tax_after_credits - actc - eitc, 2) # TODO: check if the EITC is fully refundable
+    income_tax_after_credits = round(income_tax_after_credits - actc - eitc, 2)  # TODO: check if the EITC is fully refundable
     results["income_tax_after_credits"] = income_tax_after_credits
 
     # Fetch final rates
-    rates = misc_funcs.calc_effective_rates(income_tax_after_credits, 
-                                            employee_payroll_tax, 
-                                            employer_payroll_tax, 
-                                            gross_income) 
+    rates = misc_funcs.calc_effective_rates(income_tax_after_credits,
+                                            employee_payroll_tax,
+                                            employer_payroll_tax,
+                                            gross_income)
     results["tax_burden"] = rates["tax_burden"]
     results["tax_wedge"] = rates["tax_wedge"]
     results["avg_effective_tax_rate"] = rates["avg_effective_tax_rate"]
@@ -295,7 +295,7 @@ if __name__ == '__main__':
     for i in range(len(taxpayers)):
         filer = taxpayers[i]
         filer_number = str(i + 1)
-        
+
         logging.info("Running calc_federal_taxes for filer #" + filer_number)
         current_law_result = calc_federal_taxes(filer, current_law_policy)
         current_law_results.append(current_law_result)

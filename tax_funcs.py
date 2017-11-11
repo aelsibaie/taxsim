@@ -1,6 +1,7 @@
 import math
 import logging
 
+
 def fed_payroll(policy, taxpayer):
     combined_ordinary_income = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2']
 
@@ -133,8 +134,8 @@ def house_2018_taxable_income(policy, taxpayer, agi):
 
     # Standard deduction
     standard_deduction = policy["standard_deduction"][taxpayer['filing_status']]
-    # NEW: Eliminate additional standard deduction    
-    #if taxpayer["ss_income"] > 0:
+    # NEW: Eliminate additional standard deduction
+    # if taxpayer["ss_income"] > 0:
     #    standard_deduction = standard_deduction + (filers * policy["additional_standard_deduction"][taxpayer['filing_status']])
 
     # Itemized deductions
@@ -267,13 +268,13 @@ def fed_ctc(policy, taxpayer, agi):
         line8 = 0
 
     # Additional Child Tax Credit
-    actc_line1 = line8 # ctc
-    actc_line2 = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2'] # Earned income
+    actc_line1 = line8  # ctc
+    actc_line2 = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2']  # Earned income
     if actc_line2 > policy['additional_ctc_threshold']:
         actc_line3 = actc_line2 - policy['additional_ctc_threshold']
         actc_line4 = actc_line3 * policy['additional_ctc_rate']
     else:
-        actc_line4 = 0 # No qualified ACTC income
+        actc_line4 = 0  # No qualified ACTC income
 
     ctc = max(0, actc_line1 - actc_line4)
     actc = min(actc_line1, actc_line4)
@@ -312,26 +313,24 @@ def fed_ctc_actc_limited(policy, taxpayer, agi, actc_limit):
         line8 = 0
 
     # Additional Child Tax Credit
-    actc_line1 = line8 # ctc
-    actc_line2 = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2'] # Earned income
+    actc_line1 = line8  # ctc
+    actc_line2 = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2']  # Earned income
     if actc_line2 > policy['additional_ctc_threshold']:
         actc_line3 = actc_line2 - policy['additional_ctc_threshold']
         actc_line4 = actc_line3 * policy['additional_ctc_rate']
     else:
-        actc_line4 = 0 # No qualified ACTC income
-
+        actc_line4 = 0  # No qualified ACTC income
 
     ctc = max(0, actc_line1 - actc_line4)
     actc = min(actc_line1, actc_line4)
 
-    actc_limit = taxpayer["child_dep"] * actc_limit # TODO: confirm $1000 dollar limit
+    actc_limit = taxpayer["child_dep"] * actc_limit  # TODO: confirm $1000 dollar limit
     if actc > actc_limit:
         overage = actc - actc_limit
-        #reduce ACTC
+        # reduce ACTC
         actc = actc - overage
-        #move to CTC
+        # move to CTC
         ctc = ctc + overage
-
 
     if line1 >= policy['additional_ctc_threshold']:
         if actc_line4 >= actc_line1:
@@ -406,7 +405,7 @@ def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_
     else:
         line29 = amt_exemption
     amt_taxable_income = max(0, amt_income - line29)
-    
+
     # Step 3: Calculate AMT
     # After this if statement, amt is equivalent to line 31 and 33 of form 6251
     if amt_taxable_income < policy["amt_rate_threshold"]:
@@ -416,7 +415,7 @@ def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_
         amt = amt_taxable_income * policy["amt_rates"][1] - rate_diff  # 28% rate
 
     line34 = income_tax_before_credits
-    amt = max(0, amt - line34) # aka line35
+    amt = max(0, amt - line34)  # aka line35
 
     return amt
 
@@ -466,19 +465,19 @@ def house_2018_qualified_income(policy, taxpayer, taxable_income, income_tax_bef
     line4 = line3 + line2
     line5 = 0  # investment interest expense deduction
     line6 = max(0, line4 - line5)
-    line7 = max(0, line1 - line6)  # taxable_income - qualified_income 
+    line7 = max(0, line1 - line6)  # taxable_income - qualified_income
     line8 = policy["cap_gains_lower_threshold"][taxpayer['filing_status']]
     line9 = min(line1, line8)
     line10 = min(line7, line9)
     line11 = line9 - line10  # this amount is taxed at 0%
     line12 = min(line1, line6)
-    line13 = line11 
-    line14 = line12 - line13 
+    line13 = line11
+    line14 = line12 - line13
     line15 = policy["cap_gains_upper_threshold"][taxpayer['filing_status']]
     line16 = min(line15, line1)
     line17 = line7 + line11
-    line18 = line16 - line17 
-    line18 = max(0, line16 - line17) 
+    line18 = line16 - line17
+    line18 = max(0, line16 - line17)
     line19 = min(line14, line18)
     line20 = line19 * policy["cap_gains_lower_rate"]
     line21 = line11 + line19
@@ -500,11 +499,11 @@ def house_ordinary_income_tax(policy, taxpayer, taxable_income, agi):
     running_taxable_income = taxable_income
     running_taxable_income = max(0, running_taxable_income - taxpayer["business_income"])
     running_business_income = taxable_income
-    running_business_income = max(0, running_business_income -  (agi - taxpayer["business_income"]))
-   
+    running_business_income = max(0, running_business_income - (agi - taxpayer["business_income"]))
+
     i = 0
     for threshold in reversed(brackets):
-        if taxable_income > threshold:            
+        if taxable_income > threshold:
             applicable_taxable_income = max(0, running_taxable_income - threshold)
             ordinary_income_tax = ordinary_income_tax + (applicable_taxable_income * rates[i])
             running_taxable_income = running_taxable_income - applicable_taxable_income
@@ -512,14 +511,14 @@ def house_ordinary_income_tax(policy, taxpayer, taxable_income, agi):
 
     i = 0
     for threshold in reversed(brackets):
-        if taxable_income > threshold:      
+        if taxable_income > threshold:
             business_rate = rates[i]
             if business_rate > 0.25:
                 business_rate = 0.25
             applicable_business_income = max(0, running_business_income - threshold)
             business_income_tax = business_income_tax + (applicable_business_income * business_rate)
             running_business_income = running_business_income - applicable_business_income
-        i += 1             
+        i += 1
 
     return round(ordinary_income_tax + business_income_tax, 2)
 
