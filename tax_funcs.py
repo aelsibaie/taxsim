@@ -1,4 +1,5 @@
 import math
+import logging
 
 
 def fed_payroll(policy, taxpayer):
@@ -41,7 +42,7 @@ def fed_agi(policy, taxpayer, ordinary_income_after_401k):
             line13 = min(line10, line11)
             line14 = line13 * policy["taxable_ss_base_amt"]
             line15 = min(line14, taxpayer['ss_income'] / 2)
-            line16 = line12 * policy["taxable_ss_top_amt"]
+            line16 = max(0, line12 * policy["taxable_ss_top_amt"])
             line17 = line15 + line16
             line18 = taxpayer['ss_income'] * policy["taxable_ss_top_amt"]
             ss_income = min(line17, line18)  # aka line19
@@ -133,8 +134,8 @@ def house_2018_taxable_income(policy, taxpayer, agi):
 
     # Standard deduction
     standard_deduction = policy["standard_deduction"][taxpayer['filing_status']]
-    # NEW: Eliminate additional standard deduction    
-    #if taxpayer["ss_income"] > 0:
+    # NEW: Eliminate additional standard deduction
+    # if taxpayer["ss_income"] > 0:
     #    standard_deduction = standard_deduction + (filers * policy["additional_standard_deduction"][taxpayer['filing_status']])
 
     # Itemized deductions
@@ -167,6 +168,68 @@ def house_2018_taxable_income(policy, taxpayer, agi):
     else:
         deduction_type = "standard"
     taxable_income = max(0, taxable_income - personal_exemption_amt - deductions)
+
+    return taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt
+
+
+def senate_2018_taxable_income(policy, taxpayer, agi):
+    taxable_income = agi
+
+    # Personal exemption(s)
+    # Publication 501 https://www.irs.gov/pub/irs-pdf/p501.pdf
+    personal_exemption_amt = 0
+    filers = 1
+    if taxpayer["filing_status"] == 1:
+        filers = 2
+    exemptions_claimed = filers + taxpayer["child_dep"] + taxpayer["nonchild_dep"]
+    # Check for phase out of personal exemption
+    if agi > policy["personal_exemption_po_threshold"][taxpayer['filing_status']]:
+        personal_exemption_amt = policy["personal_exemption"] * exemptions_claimed
+        amt_over_threshold = agi - policy["personal_exemption_po_threshold"][taxpayer['filing_status']]
+        line6 = math.ceil(amt_over_threshold / policy["personal_exemption_po_amt"])
+        line7 = round(line6 * policy["personal_exemption_po_rate"], 3)
+        line8 = personal_exemption_amt * line7
+        personal_exemption_amt = max(0, personal_exemption_amt - line8)  # aka line9
+    else:
+        personal_exemption_amt = policy["personal_exemption"] * exemptions_claimed
+
+    # Standard deduction
+    standard_deduction = policy["standard_deduction"][taxpayer['filing_status']]
+    if taxpayer["ss_income"] > 0:
+        standard_deduction = standard_deduction + (filers * policy["additional_standard_deduction"][taxpayer['filing_status']])
+
+    # Itemized deductions
+    itemized_total = taxpayer["medical_expenses"] + \
+        taxpayer["sl_income_tax"] + \
+        taxpayer["sl_property_tax"] + \
+        taxpayer["interest_paid"] + \
+        taxpayer["charity_contributions"] + \
+        taxpayer["other_itemized"]
+    # Check for phase out of itemized deductions
+    # Itemized Deductions Worksheet—Line 29 https://www.irs.gov/pub/irs-pdf/i1040sca.pdf
+    pease_limitation_amt = 0
+    line1 = itemized_total
+    line2 = taxpayer["medical_expenses"]  # could also include investment interest and casualty deductions
+    if line2 < line1:
+        line3 = line1 - line2
+        line4 = line3 * policy["itemized_limitation_amt"]
+        line5 = agi
+        line6 = policy["itemized_limitation_threshold"][taxpayer['filing_status']]
+        if line6 < line5:
+            line7 = line5 - line6
+            line8 = line7 * policy["itemized_limitation_rate"]
+            line9 = min(line4, line8)
+            pease_limitation_amt = line9  # used in AMT calc
+            itemized_total = line1 - line9  # aka line10
+
+    deductions = max(itemized_total, standard_deduction)
+    if deductions != standard_deduction:
+        deduction_type = "itemized"
+    else:
+        deduction_type = "standard"
+    taxable_income = max(0, taxable_income - personal_exemption_amt - deductions)\
+
+    deductions = deductions + taxpayer['business_income'] * 0.175
 
     return taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt
 
@@ -205,13 +268,13 @@ def fed_ctc(policy, taxpayer, agi):
         line8 = 0
 
     # Additional Child Tax Credit
-    actc_line1 = line8 # ctc
-    actc_line2 = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2'] # Earned income
+    actc_line1 = line8  # ctc
+    actc_line2 = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2']  # Earned income
     if actc_line2 > policy['additional_ctc_threshold']:
         actc_line3 = actc_line2 - policy['additional_ctc_threshold']
         actc_line4 = actc_line3 * policy['additional_ctc_rate']
     else:
-        actc_line4 = 0 # No qualified ACTC income
+        actc_line4 = 0  # No qualified ACTC income
 
     ctc = max(0, actc_line1 - actc_line4)
     actc = min(actc_line1, actc_line4)
@@ -220,7 +283,60 @@ def fed_ctc(policy, taxpayer, agi):
         if actc_line4 >= actc_line1:
             return ctc, actc
         else:
-            print("WARNING: Taxpayer with earned income of $" + str(actc_line2) + " may NOT eligible for the additional child tax credit")
+            logging.warning("Taxpayer with earned income of $" + str(actc_line2) + " may NOT eligible for the additional child tax credit")
+            # TODO: In this instance, the taxpayer might not actually be eligible for the full additional child tax credit"
+            # To find the real amount of ACTC, we will need withholding and EITC data
+            # This could overestimate the amount of ACTC owed
+            return ctc, actc
+    else:
+        if actc_line4 == 0:
+            return ctc, 0
+        elif actc_line4 > 0:
+            return ctc, actc
+
+
+def fed_ctc_actc_limited(policy, taxpayer, agi, actc_limit):
+    # Child Tax Credit Worksheet https://www.irs.gov/pub/irs-pdf/p972.pdf
+    # Part 1
+    ctc = 0
+    line1 = taxpayer["child_dep"] * policy["ctc_credit"]
+    line4 = agi
+    line5 = policy["ctc_po_threshold"][taxpayer['filing_status']]
+    if line4 > line5:
+        line6 = math.ceil((line4 - line5) / 1000) * 1000
+    else:
+        line6 = 0
+    line7 = line6 * policy["ctc_po_rate"]
+    if line1 > line7:
+        line8 = line1 - line7
+    else:
+        line8 = 0
+
+    # Additional Child Tax Credit
+    actc_line1 = line8  # ctc
+    actc_line2 = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2']  # Earned income
+    if actc_line2 > policy['additional_ctc_threshold']:
+        actc_line3 = actc_line2 - policy['additional_ctc_threshold']
+        actc_line4 = actc_line3 * policy['additional_ctc_rate']
+    else:
+        actc_line4 = 0  # No qualified ACTC income
+
+    ctc = max(0, actc_line1 - actc_line4)
+    actc = min(actc_line1, actc_line4)
+
+    actc_limit = taxpayer["child_dep"] * actc_limit  # TODO: confirm $1000 dollar limit
+    if actc > actc_limit:
+        overage = actc - actc_limit
+        # reduce ACTC
+        actc = actc - overage
+        # move to CTC
+        ctc = ctc + overage
+
+    if line1 >= policy['additional_ctc_threshold']:
+        if actc_line4 >= actc_line1:
+            return ctc, actc
+        else:
+            logging.warning("Taxpayer with earned income of $" + str(actc_line2) + " may NOT eligible for the additional child tax credit")
             # TODO: In this instance, the taxpayer might not actually be eligible for the full additional child tax credit"
             # To find the real amount of ACTC, we will need withholding and EITC data
             # This could overestimate the amount of ACTC owed
@@ -289,7 +405,7 @@ def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_
     else:
         line29 = amt_exemption
     amt_taxable_income = max(0, amt_income - line29)
-    
+
     # Step 3: Calculate AMT
     # After this if statement, amt is equivalent to line 31 and 33 of form 6251
     if amt_taxable_income < policy["amt_rate_threshold"]:
@@ -299,7 +415,7 @@ def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_
         amt = amt_taxable_income * policy["amt_rates"][1] - rate_diff  # 28% rate
 
     line34 = income_tax_before_credits
-    amt = max(0, amt - line34) # aka line35
+    amt = max(0, amt - line34)  # aka line35
 
     return amt
 
@@ -339,7 +455,7 @@ def fed_qualified_income(policy, taxpayer, taxable_income, income_tax_before_cre
     return cap_gains_tax
 
 
-def house_2018_qualified_income(policy, taxpayer, taxable_income, income_tax_before_credits, po_amount):
+def house_2018_qualified_income(policy, taxpayer, taxable_income, income_tax_before_credits, po_amount, agi):
     # Qualified Dividends and Capital Gain Tax Worksheet—Line 44, Form 1040
     # https://apps.irs.gov/app/vita/content/globalmedia/capital_gain_tax_worksheet_1040i.pdf
     cap_gains_tax = 0
@@ -349,30 +465,61 @@ def house_2018_qualified_income(policy, taxpayer, taxable_income, income_tax_bef
     line4 = line3 + line2
     line5 = 0  # investment interest expense deduction
     line6 = max(0, line4 - line5)
-    line7 = max(0, line1 - line6)  # taxable_income - qualified_income 
+    line7 = max(0, line1 - line6)  # taxable_income - qualified_income
     line8 = policy["cap_gains_lower_threshold"][taxpayer['filing_status']]
     line9 = min(line1, line8)
     line10 = min(line7, line9)
     line11 = line9 - line10  # this amount is taxed at 0%
     line12 = min(line1, line6)
-    line13 = line11 
-    line14 = line12 - line13 
+    line13 = line11
+    line14 = line12 - line13
     line15 = policy["cap_gains_upper_threshold"][taxpayer['filing_status']]
     line16 = min(line15, line1)
     line17 = line7 + line11
-    line18 = line16 - line17 
-    line18 = max(0, line16 - line17) 
+    line18 = max(0, line16 - line17)
     line19 = min(line14, line18)
     line20 = line19 * policy["cap_gains_lower_rate"]
     line21 = line11 + line19
     line22 = line12 - line21
     line23 = line22 * policy["cap_gains_upper_rate"]
-    line24 = fed_ordinary_income_tax(policy, taxpayer, line7 - taxpayer["business_income"]) + (taxpayer["business_income"] * 0.25) + po_amount  # tax on line7
+    line24 = house_ordinary_income_tax(policy, taxpayer, line7, agi) + po_amount  # tax on line7
     line25 = line20 + line23 + line24
     line26 = income_tax_before_credits  # tax on line1
     cap_gains_tax = min(line25, line26)
 
     return cap_gains_tax
+
+
+def house_ordinary_income_tax(policy, taxpayer, taxable_income, agi):
+    brackets = get_brackets(taxpayer, policy)
+    rates = list(reversed(policy["income_tax_rates"]))
+    ordinary_income_tax = 0
+    business_income_tax = 0
+    running_taxable_income = taxable_income
+    running_taxable_income = max(0, running_taxable_income - taxpayer["business_income"])
+    running_business_income = taxable_income
+    running_business_income = max(0, running_business_income - (agi - taxpayer["business_income"]))
+
+    i = 0
+    for threshold in reversed(brackets):
+        if taxable_income > threshold:
+            applicable_taxable_income = max(0, running_taxable_income - threshold)
+            ordinary_income_tax = ordinary_income_tax + (applicable_taxable_income * rates[i])
+            running_taxable_income = running_taxable_income - applicable_taxable_income
+        i += 1
+
+    i = 0
+    for threshold in reversed(brackets):
+        if taxable_income > threshold:
+            business_rate = rates[i]
+            if business_rate > 0.25:
+                business_rate = 0.25
+            applicable_business_income = max(0, running_business_income - threshold)
+            business_income_tax = business_income_tax + (applicable_business_income * business_rate)
+            running_business_income = running_business_income - applicable_business_income
+        i += 1
+
+    return round(ordinary_income_tax + business_income_tax, 2)
 
 
 def get_brackets(taxpayer, policy):
