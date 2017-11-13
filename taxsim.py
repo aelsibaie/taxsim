@@ -168,7 +168,7 @@ def calc_house_2018_taxes(taxpayer, policy):
     results["income_tax_before_credits_with_amt"] = income_tax_before_credits
 
     # CTC
-    ctc, actc = tax_funcs.fed_ctc_actc_limited(policy, taxpayer, agi, 1000)  # TODO: Confirm this
+    ctc, actc = tax_funcs.fed_ctc_actc_limited(policy, taxpayer, agi, 1100)
     results["ctc"] = ctc
     results["actc"] = actc
 
@@ -187,7 +187,7 @@ def calc_house_2018_taxes(taxpayer, policy):
     results["income_tax_after_nonrefundable_credits"] = income_tax_after_credits
 
     # Tax after ALL credits
-    income_tax_after_credits = round(income_tax_after_credits - actc - eitc, 2)  # TODO: check if the EITC is fully refundable
+    income_tax_after_credits = round(income_tax_after_credits - actc - eitc, 2)
     results["income_tax_after_credits"] = income_tax_after_credits
 
     # Fetch final rates
@@ -253,7 +253,7 @@ def calc_senate_2018_taxes(taxpayer, policy):
     results["income_tax_before_credits_with_amt"] = income_tax_before_credits
 
     # CTC
-    ctc, actc = tax_funcs.fed_ctc_actc_limited(policy, taxpayer, agi, 1000)  # TODO: Confirm this
+    ctc, actc = tax_funcs.fed_ctc_actc_limited(policy, taxpayer, agi, 1100)
     results["ctc"] = ctc
     results["actc"] = actc
 
@@ -269,7 +269,7 @@ def calc_senate_2018_taxes(taxpayer, policy):
     results["income_tax_after_nonrefundable_credits"] = income_tax_after_credits
 
     # Tax after ALL credits
-    income_tax_after_credits = round(income_tax_after_credits - actc - eitc, 2)  # TODO: check if the EITC is fully refundable
+    income_tax_after_credits = round(income_tax_after_credits - actc - eitc, 2)
     results["income_tax_after_credits"] = income_tax_after_credits
 
     # Fetch final rates

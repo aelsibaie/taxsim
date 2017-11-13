@@ -16,20 +16,13 @@ def make_graph(main_income_type,
                income_ratios,
                payroll,
                step,
-               top_range=10000,
-               position=0):
+               top_range=10000):
 
     current_law_result_list = []
     house_2018_result_list = []
     senate_2018_result_list = []
 
-    for i in tqdm(
-            range(1, top_range),
-            desc=file_name,
-            unit='taxpayer',
-            leave=True,
-            ascii=True,
-            position=position):
+    for i in range(1, top_range):
         income = i * step
         default_taxpayer = OrderedDict(
             [('filing_status', filing_status),
@@ -251,15 +244,12 @@ graphs = [
 
 if __name__ == '__main__':
     logging.info("Begining graph calculations. This should reasonably take 1-5 seconds per graph.")
-    position = 0
-    for graph in tqdm(graphs, desc='Rendering graphs', unit='graph', ascii=True, leave=True, position=position):
+    for graph in tqdm(graphs, desc='Rendering graphs', unit='graph'):
         logging.info("Rendering: " + graph["file_name"])
-        position =+ 1
         make_graph(graph["main_income_type"],
                    graph["file_name"],
                    graph["filing_status"],
                    graph["child_dep"],
                    graph["income_ratios"],
                    graph["payroll"],
-                   graph["step"],
-                   position)
+                   graph["step"])
