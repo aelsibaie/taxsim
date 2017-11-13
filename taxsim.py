@@ -4,31 +4,28 @@ import misc_funcs
 from collections import OrderedDict
 import logging
 from datetime import datetime
-import os
 import json
 
-
+# Config
+# Input taxpayers
 TAXPAYERS_FILE = "taxpayers.csv"
-
+# Policy parameters
 CURRENT_LAW_FILE = "./params/current_law_2018.csv"
 HOUSE_2018_FILE = "./params/house_2018.csv"
 SENATE_2018_FILE = "./params/senate_2018.csv"
-
+# Name of results files
 CURRENT_LAW_RESULTS = "current_law_results.csv"
 HOUSE_2018_RESULTS = "house_2018_results.csv"
 SENATE_2018_RESULTS = "senate_2018_results.csv"
-
-LOGS_DIR = "./logs/"
-RESULTS_DIR = "./results/"
-
-if not os.path.exists(LOGS_DIR):
-    os.makedirs(LOGS_DIR)
-if not os.path.exists(RESULTS_DIR):
-    os.makedirs(RESULTS_DIR)
+# Directories - These must be wrapped in misc_funcs.require_dir()
+LOGS_DIR = misc_funcs.require_dir("./logs/")
+RESULTS_DIR = misc_funcs.require_dir("./results/")
+GRAPH_DATA_RESULTS_DIR = misc_funcs.require_dir("./results/graph_data/")
 
 current_datetime = datetime.now().strftime("%Y%m%dT%H%M%S")  # ISO 8601
 logging.basicConfig(filename=LOGS_DIR + current_datetime + '.log',
-                    level=logging.DEBUG)
+                    level=logging.DEBUG,
+                    format='%(asctime)s %(levelname)s: %(message)s')
 
 taxpayers = csv_parser.load_taxpayers(TAXPAYERS_FILE)
 current_law_policy = csv_parser.load_policy(CURRENT_LAW_FILE)
@@ -289,6 +286,7 @@ def calc_senate_2018_taxes(taxpayer, policy):
 
 
 if __name__ == '__main__':
+    logging.info("Begining calculation for taxpayers in: " + TAXPAYERS_FILE)
     current_law_results = []
     house_2018_results = []
     senate_2018_results = []

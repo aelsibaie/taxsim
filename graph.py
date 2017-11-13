@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 from collections import OrderedDict
 from tqdm import tqdm
+import logging
 
 plt.style.use('ggplot')
 
@@ -15,7 +16,8 @@ def make_graph(main_income_type,
                income_ratios,
                payroll,
                step,
-               top_range=10000):
+               top_range=10000,
+               position=0):
 
     current_law_result_list = []
     house_2018_result_list = []
@@ -25,7 +27,9 @@ def make_graph(main_income_type,
             range(1, top_range),
             desc=file_name,
             unit='taxpayer',
-            leave=False):
+            leave=True,
+            ascii=True,
+            position=position):
         income = i * step
         default_taxpayer = OrderedDict(
             [('filing_status', filing_status),
@@ -59,15 +63,15 @@ def make_graph(main_income_type,
 
     # Save CSVs
     current_law_df.to_csv(
-        taxsim.RESULTS_DIR +
+        taxsim.GRAPH_DATA_RESULTS_DIR +
         file_name +
         '-current_law_graph_data.csv')
     house_2018_df.to_csv(
-        taxsim.RESULTS_DIR +
+        taxsim.GRAPH_DATA_RESULTS_DIR +
         file_name +
         '-house_2018_graph_data.csv')
     senate_2018_df.to_csv(
-        taxsim.RESULTS_DIR +
+        taxsim.GRAPH_DATA_RESULTS_DIR +
         file_name +
         '-senate_2018_graph_data.csv')
 
@@ -206,6 +210,19 @@ graphs = [
     },
     {
         "main_income_type": "Ordinary Income",
+        "file_name": "hoh_2_ordinary_payroll",
+        "filing_status": 2,
+        "child_dep": 0,
+        "income_ratios": {
+            "ordinary": 1.0,
+            "business": 0.0,
+            "ss": 0.0,
+            "qualified": 0.0},
+        "payroll": 1,
+        "step": 10
+    },
+    {
+        "main_income_type": "Ordinary Income",
         "file_name": "married_2_ordinary",
         "filing_status": 1,
         "child_dep": 2,
@@ -233,11 +250,16 @@ graphs = [
 ]
 
 if __name__ == '__main__':
-    for graph in tqdm(graphs, desc='Rendering graphs', unit='graph'):
+    logging.info("Begining graph calculations. This should reasonably take 1-5 seconds per graph.")
+    position = 0
+    for graph in tqdm(graphs, desc='Rendering graphs', unit='graph', ascii=True, leave=True, position=position):
+        logging.info("Rendering: " + graph["file_name"])
+        position =+ 1
         make_graph(graph["main_income_type"],
                    graph["file_name"],
                    graph["filing_status"],
                    graph["child_dep"],
                    graph["income_ratios"],
                    graph["payroll"],
-                   graph["step"])
+                   graph["step"],
+                   position)
