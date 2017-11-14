@@ -203,9 +203,9 @@ graphs = [
     },
     {
         "main_income_type": "Ordinary Income",
-        "file_name": "hoh_0_ordinary",
+        "file_name": "hoh_1_ordinary",
         "filing_status": 2,
-        "child_dep": 0,
+        "child_dep": 1,
         "income_ratios": {
             "ordinary": 1.0,
             "business": 0.0,
@@ -218,7 +218,7 @@ graphs = [
         "main_income_type": "Ordinary Income",
         "file_name": "hoh_2_ordinary_payroll",
         "filing_status": 2,
-        "child_dep": 0,
+        "child_dep": 2,
         "income_ratios": {
             "ordinary": 1.0,
             "business": 0.0,

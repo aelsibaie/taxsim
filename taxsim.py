@@ -13,7 +13,7 @@ current_datetime = datetime.now().strftime("%Y%m%dT%H%M%S")  # ISO 8601
 ############################################## Config ##############################################
 
 # Input taxpayers
-TAXPAYERS_FILE = "test_taxpayers.csv"
+TAXPAYERS_FILE = "taxpayers.csv"
 # Policy parameters
 CURRENT_LAW_FILE = "./params/current_law_2018.csv"
 HOUSE_2018_FILE = "./params/house_2018.csv"
