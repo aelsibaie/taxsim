@@ -210,7 +210,7 @@ def calc_house_2018_taxes(taxpayer, policy):
         # Hardcoded policy
         po_amount = min(
             benefit,
-            0.06 * (agi - lower_rate_po_threshold[taxpayer["filing_status"]]))  
+            0.06 * (agi - lower_rate_po_threshold[taxpayer["filing_status"]]))
     income_tax_before_credits = income_tax_before_credits + po_amount
     results["income_tax_before_credits"] = income_tax_before_credits
 
@@ -259,8 +259,8 @@ def calc_house_2018_taxes(taxpayer, policy):
 
     # Tax after nonrefundable credits
     income_tax_after_credits = round(max(
-            0,
-            income_tax_before_credits - ctc - personal_credit), 2)
+        0,
+        income_tax_before_credits - ctc - personal_credit), 2)
     results["income_tax_after_nonrefundable_credits"] = income_tax_after_credits
 
 # Tax after ALL credits

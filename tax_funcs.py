@@ -91,7 +91,7 @@ def fed_agi(policy, taxpayer, ordinary_income_after_401k):
             line16 = max(0, line12 * policy["taxable_ss_top_amt"])
             line17 = line15 + line16
             line18 = taxpayer['ss_income'] * policy["taxable_ss_top_amt"]
-            line19 = min(line17, line18) # Line 20b on 1040
+            line19 = min(line17, line18)  # Line 20b on 1040
             return agi + line19
     return agi
 
@@ -631,6 +631,7 @@ def house_ordinary_income_tax(policy, taxpayer, taxable_income, agi):
 
     return round(ordinary_income_tax + business_income_tax, 2)
 
+
 def get_gross_income(taxpayer,
                      incomes=("ordinary_income1",
                               "ordinary_income2",
@@ -642,6 +643,7 @@ def get_gross_income(taxpayer,
         income += taxpayer[incomeType]
     return income
 
+
 def get_brackets(taxpayer, policy):
     if taxpayer['filing_status'] == 0:
         return policy["single_brackets"]
@@ -649,4 +651,3 @@ def get_brackets(taxpayer, policy):
         return policy["married_brackets"]
     else:
         return policy["hoh_brackets"]
-
