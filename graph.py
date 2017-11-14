@@ -173,6 +173,19 @@ graphs = [
             "ss": 0.0,
             "qualified": 0.5},
         "payroll": 0,
+        "step": 100
+    },
+    {
+        "main_income_type": "50% Business & 50% Ordinary Income",
+        "file_name": "single_0_bus_and_ord",
+        "filing_status": 0,
+        "child_dep": 0,
+        "income_ratios": {
+            "ordinary": 0.5,
+            "business": 0.5,
+            "ss": 0.0,
+            "qualified": 0.0},
+        "payroll": 0,
         "step": 200
     },
     {

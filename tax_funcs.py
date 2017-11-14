@@ -588,32 +588,49 @@ def house_2018_qualified_income(policy, taxpayer, taxable_income, income_tax_bef
 def house_ordinary_income_tax(policy, taxpayer, taxable_income, agi):
     brackets = get_brackets(taxpayer, policy)
     rates = list(reversed(policy["income_tax_rates"]))
+
     ordinary_income_tax = 0
     business_income_tax = 0
-    running_taxable_income = taxable_income
-    running_taxable_income = max(0, running_taxable_income - taxpayer["business_income"])
-    running_business_income = taxable_income
-    running_business_income = max(0, running_business_income - (agi - taxpayer["business_income"]))
+
+    taxable_ordinary_income = max(0, taxable_income - taxpayer["business_income"])
+    running_taxable_income = taxable_ordinary_income
+
+    taxable_business_income = max(0, taxable_income - (taxable_ordinary_income))
+    running_business_income = taxable_business_income
 
     i = 0
+    marginal_rates = []
+    applicable_incomes = []
     for threshold in reversed(brackets):
         if taxable_income > threshold:
+            marginal_rates.append(rates[i])
             applicable_taxable_income = max(0, running_taxable_income - threshold)
+            applicable_incomes.append(applicable_taxable_income)
             ordinary_income_tax = ordinary_income_tax + (applicable_taxable_income * rates[i])
             running_taxable_income = running_taxable_income - applicable_taxable_income
         i += 1
+    
+    try:
+        top_marginal_rate = marginal_rates[0]
+        applicable_top_income = applicable_incomes[0]
+    except IndexError:
+        top_marginal_rate = 0
+        applicable_top_income = 0
 
-    i = 0
-    for threshold in reversed(brackets):
-        if taxable_income > threshold:
-            business_rate = rates[i]
-            if business_rate > 0.25:
-                business_rate = 0.25
-            applicable_business_income = max(0, running_business_income - threshold)
-            business_income_tax = business_income_tax + (applicable_business_income * business_rate)
-            running_business_income = running_business_income - applicable_business_income
-        i += 1
-
+    if top_marginal_rate > 0.12: # from only ordinary income
+        business_income_tax = (taxable_business_income * 0.25)
+    elif top_marginal_rate == 0.12: # from only ordinary income
+        business_income_over_25 = taxable_income - brackets[2]
+        business_income_under_25 = taxable_business_income - business_income_over_25
+        business_income_tax = (business_income_over_25 * 0.25) + (business_income_under_25 * 0.12)
+    else:
+        if taxable_income < brackets[2]:
+            business_income_tax = taxable_business_income * rates[5]  # 12%
+        else:
+            business_income_over_25 = taxable_income - brackets[2]
+            business_income_under_25 = taxable_business_income - business_income_over_25
+            business_income_tax = (business_income_over_25 * 0.25) + (business_income_under_25 * 0.12)
+    
     return round(ordinary_income_tax + business_income_tax, 2)
 
 def get_gross_income(taxpayer,

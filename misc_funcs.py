@@ -29,6 +29,7 @@ def calc_effective_rates(income_tax_after_credits, employee_payroll_tax, employe
 
     return rates
 
+
 def require_dir(directory):
     if not os.path.exists(directory):
         logging.warning(directory + " Does not exist.")
