@@ -227,9 +227,10 @@ def senate_2018_taxable_income(policy, taxpayer, agi):
         deduction_type = "itemized"
     else:
         deduction_type = "standard"
-    taxable_income = max(0, taxable_income - personal_exemption_amt - deductions)\
 
-    deductions = deductions + taxpayer['business_income'] * 0.175
+    deductions = deductions + taxpayer['business_income'] * 0.174
+
+    taxable_income = max(0, taxable_income - personal_exemption_amt - deductions)
 
     return taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt
 
