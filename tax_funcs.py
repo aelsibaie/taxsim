@@ -1,4 +1,5 @@
 import math
+import logging
 
 
 def fed_payroll(policy, taxpayer):
@@ -354,13 +355,13 @@ def fed_ctc(policy, taxpayer, agi):
         line8 = 0
 
     # Additional Child Tax Credit
-    actc_line1 = line8 # ctc
-    actc_line2 = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2'] # Earned income
+    actc_line1 = line8  # ctc
+    actc_line2 = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2']  # Earned income
     if actc_line2 > policy['additional_ctc_threshold']:
         actc_line3 = actc_line2 - policy['additional_ctc_threshold']
         actc_line4 = actc_line3 * policy['additional_ctc_rate']
     else:
-        actc_line4 = 0 # No qualified ACTC income
+        actc_line4 = 0  # No qualified ACTC income
 
     ctc = max(0, actc_line1 - actc_line4)
     actc = min(actc_line1, actc_line4)
@@ -369,14 +370,10 @@ def fed_ctc(policy, taxpayer, agi):
         if actc_line4 >= actc_line1:
             return ctc, actc
         else:
-            print(
-                "WARNING: Taxpayer with earned income of $"
-                + str(actc_line2)
-                + " may NOT eligible for the additional child tax credit")
-            # TODO: In this instance, the taxpayer might not actually be eligible
-            # for the full additional child tax credit.
-            # To find the real amount of ACTC, we will need withholding and EITC data.
-            # This could overestimate the amount of ACTC owed.
+            logging.warning("Taxpayer with earned income of $" + str(actc_line2) + " may NOT eligible for the additional child tax credit")
+            # TODO: In this instance, the taxpayer might not actually be eligible for the full additional child tax credit"
+            # To find the real amount of ACTC, we will need withholding and EITC data
+            # This could overestimate the amount of ACTC owed
             return ctc, actc
     else:
         if actc_line4 == 0:
@@ -403,39 +400,33 @@ def fed_ctc_actc_limited(policy, taxpayer, agi, actc_limit):
         line8 = 0
 
     # Additional Child Tax Credit
-    actc_line1 = line8 # ctc
-    actc_line2 = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2'] # Earned income
+    actc_line1 = line8  # ctc
+    actc_line2 = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2']  # Earned income
     if actc_line2 > policy['additional_ctc_threshold']:
         actc_line3 = actc_line2 - policy['additional_ctc_threshold']
         actc_line4 = actc_line3 * policy['additional_ctc_rate']
     else:
-        actc_line4 = 0 # No qualified ACTC income
-
+        actc_line4 = 0  # No qualified ACTC income
 
     ctc = max(0, actc_line1 - actc_line4)
     actc = min(actc_line1, actc_line4)
 
-    actc_limit = taxpayer["child_dep"] * actc_limit # TODO: confirm $1000 dollar limit
+    actc_limit = taxpayer["child_dep"] * actc_limit  # TODO: confirm $1000 dollar limit
     if actc > actc_limit:
         overage = actc - actc_limit
-        #reduce ACTC
+        # reduce ACTC
         actc = actc - overage
-        #move to CTC
+        # move to CTC
         ctc = ctc + overage
-
 
     if line1 >= policy['additional_ctc_threshold']:
         if actc_line4 >= actc_line1:
             return ctc, actc
         else:
-            print(
-                "WARNING: Taxpayer with earned income of $"
-                + str(actc_line2)
-                + " may NOT eligible for the additional child tax credit")
-            # TODO: In this instance, the taxpayer might not actually be eligible
-            # for the full additional child tax credit.
-            # To find the real amount of ACTC, we will need withholding and EITC data.
-            # This could overestimate the amount of ACTC owed.
+            logging.warning("Taxpayer with earned income of $" + str(actc_line2) + " may NOT eligible for the additional child tax credit")
+            # TODO: In this instance, the taxpayer might not actually be eligible for the full additional child tax credit"
+            # To find the real amount of ACTC, we will need withholding and EITC data
+            # This could overestimate the amount of ACTC owed
             return ctc, actc
     else:
         if actc_line4 == 0:
@@ -519,7 +510,7 @@ def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation,
         amt = amt_taxable_income * policy["amt_rates"][1] - rate_diff  # 28% rate
 
     line34 = income_tax_before_credits
-    amt = max(0, amt - line34) # aka line35
+    amt = max(0, amt - line34)  # aka line35
 
     return amt
 
@@ -580,7 +571,6 @@ def house_2018_qualified_income(policy, taxpayer, taxable_income, income_tax_bef
     line15 = policy["cap_gains_upper_threshold"][taxpayer['filing_status']]
     line16 = min(line15, line1)
     line17 = line7 + line11
-    line18 = line16 - line17
     line18 = max(0, line16 - line17)
     line19 = min(line14, line18)
     line20 = line19 * policy["cap_gains_lower_rate"]
@@ -603,7 +593,7 @@ def house_ordinary_income_tax(policy, taxpayer, taxable_income, agi):
     running_taxable_income = taxable_income
     running_taxable_income = max(0, running_taxable_income - taxpayer["business_income"])
     running_business_income = taxable_income
-    running_business_income = max(0, running_business_income -  (agi - taxpayer["business_income"]))
+    running_business_income = max(0, running_business_income - (agi - taxpayer["business_income"]))
 
     i = 0
     for threshold in reversed(brackets):
