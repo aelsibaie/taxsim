@@ -60,5 +60,5 @@ target/
 # Local virtualenv named venv
 venv/
 
-# matplotlib outputs
-graphs/
+# matplotlib csv outputs
+results/graph_data/
