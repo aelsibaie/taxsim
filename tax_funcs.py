@@ -3,92 +3,156 @@ import logging
 
 
 def fed_payroll(policy, taxpayer):
+    """
+    Get Federal payroll tax liabilities.
+
+    Calculates total Federal payroll tax liabilities of both employees
+    and employers. Adds any applicable medicare surtax to employees' liability
+    if the combined ordinary income exceeds the defined threshold for the
+    filing status.
+
+    Args:
+        policy (dict): A set of policy parameters, parsed from CSV.
+        taxpayer (dict): An example taxpayer household, parsed from CSV.
+
+    Returns:
+        dict: Payroll tax values for employee and employer.
+    """
     combined_ordinary_income = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2']
+    payroll_taxes = {
+        "employee": 0,
+        "employer": 0
+    }
 
     # Withholding Taxes
-    employee_payroll_tax = 0
-    employer_payroll_tax = 0
-    for income in [taxpayer['ordinary_income1'], taxpayer['ordinary_income2']]:
-        employee_ss = policy['ss_withholding_rate_employee'] * min(income, policy['ss_wage_base'])
-        employer_ss = policy['ss_withholding_rate_employer'] * min(income, policy['ss_wage_base'])
-        employee_med = policy['medicare_withholding_rate_employee'] * min(income, policy['medicare_wage_base'])
-        employer_med = policy['medicare_withholding_rate_employer'] * min(income, policy['medicare_wage_base'])
-        employee_payroll_tax = employee_payroll_tax + employee_ss + employee_med
-        employer_payroll_tax = employer_payroll_tax + employer_ss + employer_med
+    for party in payroll_taxes:
+        for income in [taxpayer['ordinary_income1'], taxpayer['ordinary_income2']]:
+            social_security = (
+                policy['ss_withholding_rate_{party}'.format(party=party)]
+                * min(income, policy['ss_wage_base'])
+            )
+            medicare = (
+                policy['medicare_withholding_rate_{party}'.format(party=party)]
+                * min(income, policy['medicare_wage_base'])
+            )
+            payroll_taxes[party] += social_security + medicare
 
     # Additional Medicare Tax
+    filing_status = taxpayer['filing_status']
+    medicare_thresholds = policy['additional_medicare_tax_threshold']
+    additional_medicare_tax_threshold = medicare_thresholds[filing_status]
     medicare_surtax = 0
-    if combined_ordinary_income > policy['additional_medicare_tax_threshold'][taxpayer['filing_status']]:
-        taxable_medicare_surtax = combined_ordinary_income - policy['additional_medicare_tax_threshold'][taxpayer['filing_status']]
+    if combined_ordinary_income > additional_medicare_tax_threshold:
+        taxable_medicare_surtax = (
+            combined_ordinary_income
+            - additional_medicare_tax_threshold)
         medicare_surtax = taxable_medicare_surtax * policy['additional_medicare_tax_rate']
-    employee_payroll_tax = employee_payroll_tax + medicare_surtax
+    payroll_taxes['employee'] += medicare_surtax
 
-    return employee_payroll_tax, employer_payroll_tax
+    return payroll_taxes
 
 
 def fed_agi(policy, taxpayer, ordinary_income_after_401k):
+    """
+    Get Federal AGI.
 
+    Calculates the Federal Adjusted Gross Income, taking into account Social Security
+    income. Uses worksheet from IRS Publication 915, page 16.
+    See: https://www.irs.gov/pub/irs-pdf/p915.pdf
+
+    Args:
+        policy (dict): A set of policy parameters, parsed from CSV.
+        taxpayer (dict): An example taxpayer household, parsed from CSV.
+        ordinary_income_after_401k (float): Combined income, less 401k contributions.
+
+    Returns:
+        float: Federal adjusted gross income, including any taxable social security.
+    """
     agi = ordinary_income_after_401k + taxpayer['business_income'] + taxpayer['qualified_income']
 
-    # Social security income may not be fully taxable
     if taxpayer['ss_income'] > 0:
-        ss_income = 0
-        combined_income = agi + (taxpayer['ss_income'] * 0.5)
-        # Publication 915 https://www.irs.gov/pub/irs-pdf/p915.pdf
-        line10 = combined_income - policy["taxable_ss_base_threshold"][taxpayer['filing_status']]
+        # Social security income may not be fully taxable.
+        # The following calculates any tax on social security.
+        # Lines 1 through 8 are a calculation of AGI plus half of SS benefits.
+        # If AGI plus half of benefits minus base threshold is negative, no SS tax.
+        line1 = taxpayer['ss_income']
+        line2 = line1 / 2
+        line8 = agi + line2
+        line9 = policy["taxable_ss_base_threshold"][taxpayer['filing_status']]
+        line10 = max(0, line8 - line9)
         if line10 > 0:
-            line11 = policy["taxable_ss_top_threshold"][taxpayer['filing_status']] - policy["taxable_ss_base_threshold"][taxpayer['filing_status']]
+            line11 = (
+                policy["taxable_ss_top_threshold"][taxpayer['filing_status']]
+                - policy["taxable_ss_base_threshold"][taxpayer['filing_status']])
             line12 = max(0, line10 - line11)
             line13 = min(line10, line11)
             line14 = line13 * policy["taxable_ss_base_amt"]
-            line15 = min(line14, taxpayer['ss_income'] / 2)
+            line15 = min(line14, line2)
             line16 = max(0, line12 * policy["taxable_ss_top_amt"])
             line17 = line15 + line16
             line18 = taxpayer['ss_income'] * policy["taxable_ss_top_amt"]
-            ss_income = min(line17, line18)  # aka line19
-        agi = agi + ss_income
-
+            line19 = min(line17, line18) # Line 20b on 1040
+            return agi + line19
     return agi
 
 
 def fed_taxable_income(policy, taxpayer, agi):
+    """
+    Get Federal taxable income.
+
+    Takes a taxpayer's info, a given policy, and AGI to calculate taxable income,
+    deductions, and exemptions under current law.
+
+    Args:
+        policy (dict): A set of policy parameters, parsed from CSV.
+        taxpayer (dict): An example taxpayer household, parsed from CSV.
+        agi (float): Adjusted gross income of taxpayer household.
+
+    Returns:
+        Too many variables.
+    """
     taxable_income = agi
 
     # Personal exemption(s)
     # Publication 501 https://www.irs.gov/pub/irs-pdf/p501.pdf
-    personal_exemption_amt = 0
-    filers = 1
-    if taxpayer["filing_status"] == 1:
-        filers = 2
+    personal_exemption = 0
+    filers = 2 if taxpayer["filing_status"] == 1 else 1
     exemptions_claimed = filers + taxpayer["child_dep"] + taxpayer["nonchild_dep"]
     # Check for phase out of personal exemption
-    if agi > policy["personal_exemption_po_threshold"][taxpayer['filing_status']]:
-        personal_exemption_amt = policy["personal_exemption"] * exemptions_claimed
-        amt_over_threshold = agi - policy["personal_exemption_po_threshold"][taxpayer['filing_status']]
+    phaseout_threshold = policy["personal_exemption_po_threshold"][taxpayer['filing_status']]
+    if agi > phaseout_threshold:
+        personal_exemption = policy["personal_exemption"] * exemptions_claimed
+        amt_over_threshold = agi - phaseout_threshold
         line6 = math.ceil(amt_over_threshold / policy["personal_exemption_po_amt"])
         line7 = round(line6 * policy["personal_exemption_po_rate"], 3)
-        line8 = personal_exemption_amt * line7
-        personal_exemption_amt = max(0, personal_exemption_amt - line8)  # aka line9
+        line8 = personal_exemption * line7
+        personal_exemption = max(0, personal_exemption - line8)  # aka line9
     else:
-        personal_exemption_amt = policy["personal_exemption"] * exemptions_claimed
+        personal_exemption = policy["personal_exemption"] * exemptions_claimed
 
     # Standard deduction
     standard_deduction = policy["standard_deduction"][taxpayer['filing_status']]
     if taxpayer["ss_income"] > 0:
-        standard_deduction = standard_deduction + (filers * policy["additional_standard_deduction"][taxpayer['filing_status']])
+        standard_deduction = (
+            standard_deduction
+            + filers
+            * policy["additional_standard_deduction"][taxpayer['filing_status']])
 
     # Itemized deductions
-    itemized_total = taxpayer["medical_expenses"] + \
-        taxpayer["sl_income_tax"] + \
-        taxpayer["sl_property_tax"] + \
-        taxpayer["interest_paid"] + \
-        taxpayer["charity_contributions"] + \
-        taxpayer["other_itemized"]
+    itemized_total = (
+        taxpayer["medical_expenses"]
+        + taxpayer["sl_income_tax"]
+        + taxpayer["sl_property_tax"]
+        + taxpayer["interest_paid"]
+        + taxpayer["charity_contributions"]
+        + taxpayer["other_itemized"]
+    )
     # Check for phase out of itemized deductions
     # Itemized Deductions Worksheet—Line 29 https://www.irs.gov/pub/irs-pdf/i1040sca.pdf
-    pease_limitation_amt = 0
+    pease_limitation = 0
     line1 = itemized_total
-    line2 = taxpayer["medical_expenses"]  # could also include investment interest and casualty deductions
+    # line2 could also include investment interest and casualty deductions
+    line2 = taxpayer["medical_expenses"]
     if line2 < line1:
         line3 = line1 - line2
         line4 = line3 * policy["itemized_limitation_amt"]
@@ -98,58 +162,68 @@ def fed_taxable_income(policy, taxpayer, agi):
             line7 = line5 - line6
             line8 = line7 * policy["itemized_limitation_rate"]
             line9 = min(line4, line8)
-            pease_limitation_amt = line9  # used in AMT calc
+            pease_limitation = line9  # used in AMT calc
             itemized_total = line1 - line9  # aka line10
 
     deductions = max(itemized_total, standard_deduction)
-    if deductions != standard_deduction:
-        deduction_type = "itemized"
-    else:
-        deduction_type = "standard"
-    taxable_income = max(0, taxable_income - personal_exemption_amt - deductions)
+    deduction_type = "standard" if deductions == standard_deduction else "itemized"
+    taxable_income = max(0, taxable_income - personal_exemption - deductions)
 
-    return taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt
+    return taxable_income, deduction_type, deductions, personal_exemption, pease_limitation
 
 
 def house_2018_taxable_income(policy, taxpayer, agi):
+    """
+    Get Federal taxable income.
+
+    Takes a taxpayer's info, a given policy, and AGI to calculate taxable income,
+    deductions, and exemptions under proposed HR1 bill.
+
+    Args:
+        policy (dict): A set of policy parameters, parsed from CSV.
+        taxpayer (dict): An example taxpayer household, parsed from CSV.
+        agi (float): Adjusted gross income of taxpayer household.
+
+    Returns:
+        Too many variables.
+    """
     taxable_income = agi
 
     # Personal exemption(s)
     # Publication 501 https://www.irs.gov/pub/irs-pdf/p501.pdf
-    personal_exemption_amt = 0
-    filers = 1
-    if taxpayer["filing_status"] == 1:
-        filers = 2
+    personal_exemption = 0
+    filers = 2 if taxpayer["filing_status"] == 1 else 1
     exemptions_claimed = filers + taxpayer["child_dep"] + taxpayer["nonchild_dep"]
     # Check for phase out of personal exemption
-    if agi > policy["personal_exemption_po_threshold"][taxpayer['filing_status']]:
-        personal_exemption_amt = policy["personal_exemption"] * exemptions_claimed
-        amt_over_threshold = agi - policy["personal_exemption_po_threshold"][taxpayer['filing_status']]
+    phaseout_threshold = policy["personal_exemption_po_threshold"][taxpayer['filing_status']]
+    if agi > phaseout_threshold:
+        personal_exemption = policy["personal_exemption"] * exemptions_claimed
+        amt_over_threshold = agi - phaseout_threshold
         line6 = math.ceil(amt_over_threshold / policy["personal_exemption_po_amt"])
         line7 = round(line6 * policy["personal_exemption_po_rate"], 3)
-        line8 = personal_exemption_amt * line7
-        personal_exemption_amt = max(0, personal_exemption_amt - line8)  # aka line9
+        line8 = personal_exemption * line7
+        personal_exemption = max(0, personal_exemption - line8)  # aka line9
     else:
-        personal_exemption_amt = policy["personal_exemption"] * exemptions_claimed
+        personal_exemption = policy["personal_exemption"] * exemptions_claimed
 
     # Standard deduction
     standard_deduction = policy["standard_deduction"][taxpayer['filing_status']]
     # NEW: Eliminate additional standard deduction
-    # if taxpayer["ss_income"] > 0:
-    #    standard_deduction = standard_deduction + (filers * policy["additional_standard_deduction"][taxpayer['filing_status']])
 
     # Itemized deductions
-    itemized_total = taxpayer["medical_expenses"] + \
-        taxpayer["sl_income_tax"] + \
-        taxpayer["sl_property_tax"] + \
-        taxpayer["interest_paid"] + \
-        taxpayer["charity_contributions"] + \
-        taxpayer["other_itemized"]
+    itemized_total = (
+        taxpayer["medical_expenses"]
+        + taxpayer["sl_income_tax"]
+        + taxpayer["sl_property_tax"]
+        + taxpayer["interest_paid"]
+        + taxpayer["charity_contributions"]
+        + taxpayer["other_itemized"])
     # Check for phase out of itemized deductions
     # Itemized Deductions Worksheet—Line 29 https://www.irs.gov/pub/irs-pdf/i1040sca.pdf
-    pease_limitation_amt = 0
+    pease_limitation = 0
     line1 = itemized_total
-    line2 = taxpayer["medical_expenses"]  # could also include investment interest and casualty deductions
+    # line2 could also include investment interest and casualty deductions
+    line2 = taxpayer["medical_expenses"]
     if line2 < line1:
         line3 = line1 - line2
         line4 = line3 * policy["itemized_limitation_amt"]
@@ -159,33 +233,43 @@ def house_2018_taxable_income(policy, taxpayer, agi):
             line7 = line5 - line6
             line8 = line7 * policy["itemized_limitation_rate"]
             line9 = min(line4, line8)
-            pease_limitation_amt = line9  # used in AMT calc
+            pease_limitation = line9  # used in AMT calc
             itemized_total = line1 - line9  # aka line10
 
     deductions = max(itemized_total, standard_deduction)
-    if deductions != standard_deduction:
-        deduction_type = "itemized"
-    else:
-        deduction_type = "standard"
-    taxable_income = max(0, taxable_income - personal_exemption_amt - deductions)
+    deduction_type = "standard" if deductions == standard_deduction else "itemized"
+    taxable_income = max(0, taxable_income - personal_exemption - deductions)
 
-    return taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt
+    return taxable_income, deduction_type, deductions, personal_exemption, pease_limitation
 
 
 def senate_2018_taxable_income(policy, taxpayer, agi):
+    """
+    Get Federal taxable income.
+
+    Takes a taxpayer's info, a given policy, and AGI to calculate taxable income,
+    deductions, and exemptions under proposed Senate bill.
+
+    Args:
+        policy (dict): A set of policy parameters, parsed from CSV.
+        taxpayer (dict): An example taxpayer household, parsed from CSV.
+        agi (float): Adjusted gross income of taxpayer household.
+
+    Returns:
+        Too many variables.
+    """
     taxable_income = agi
 
     # Personal exemption(s)
     # Publication 501 https://www.irs.gov/pub/irs-pdf/p501.pdf
     personal_exemption_amt = 0
-    filers = 1
-    if taxpayer["filing_status"] == 1:
-        filers = 2
+    filers = 2 if taxpayer["filing_status"] == 1 else 1
     exemptions_claimed = filers + taxpayer["child_dep"] + taxpayer["nonchild_dep"]
     # Check for phase out of personal exemption
-    if agi > policy["personal_exemption_po_threshold"][taxpayer['filing_status']]:
-        personal_exemption_amt = policy["personal_exemption"] * exemptions_claimed
-        amt_over_threshold = agi - policy["personal_exemption_po_threshold"][taxpayer['filing_status']]
+    phaseout_threshold = policy["personal_exemption_po_threshold"][taxpayer['filing_status']]
+    if agi > phaseout_threshold:
+        personal_exemption = policy["personal_exemption"] * exemptions_claimed
+        amt_over_threshold = agi - phaseout_threshold
         line6 = math.ceil(amt_over_threshold / policy["personal_exemption_po_amt"])
         line7 = round(line6 * policy["personal_exemption_po_rate"], 3)
         line8 = personal_exemption_amt * line7
@@ -196,20 +280,24 @@ def senate_2018_taxable_income(policy, taxpayer, agi):
     # Standard deduction
     standard_deduction = policy["standard_deduction"][taxpayer['filing_status']]
     if taxpayer["ss_income"] > 0:
-        standard_deduction = standard_deduction + (filers * policy["additional_standard_deduction"][taxpayer['filing_status']])
-
+        standard_deduction = (
+            standard_deduction
+            + filers
+            * policy["additional_standard_deduction"][taxpayer['filing_status']])
     # Itemized deductions
-    itemized_total = taxpayer["medical_expenses"] + \
-        taxpayer["sl_income_tax"] + \
-        taxpayer["sl_property_tax"] + \
-        taxpayer["interest_paid"] + \
-        taxpayer["charity_contributions"] + \
-        taxpayer["other_itemized"]
+    itemized_total = (
+        taxpayer["medical_expenses"]
+        + taxpayer["sl_income_tax"]
+        + taxpayer["sl_property_tax"]
+        + taxpayer["interest_paid"]
+        + taxpayer["charity_contributions"]
+        + taxpayer["other_itemized"])
     # Check for phase out of itemized deductions
     # Itemized Deductions Worksheet—Line 29 https://www.irs.gov/pub/irs-pdf/i1040sca.pdf
     pease_limitation_amt = 0
     line1 = itemized_total
-    line2 = taxpayer["medical_expenses"]  # could also include investment interest and casualty deductions
+    # Line 2 could also include investment interest and casualty deductions
+    line2 = taxpayer["medical_expenses"]
     if line2 < line1:
         line3 = line1 - line2
         line4 = line3 * policy["itemized_limitation_amt"]
@@ -223,12 +311,8 @@ def senate_2018_taxable_income(policy, taxpayer, agi):
             itemized_total = line1 - line9  # aka line10
 
     deductions = max(itemized_total, standard_deduction)
-    if deductions != standard_deduction:
-        deduction_type = "itemized"
-    else:
-        deduction_type = "standard"
-
-    deductions = deductions + taxpayer['business_income'] * 0.174
+    deduction_type = "standard" if deductions == standard_deduction else "itemized"
+    deductions += taxpayer['business_income'] * 0.174
 
     taxable_income = max(0, taxable_income - personal_exemption_amt - deductions)
 
@@ -360,13 +444,16 @@ def fed_eitc(policy, taxpayer):
     EITC_MAX_INCOME = policy["eitc_max_income_" + status][dependentCount]
     if income < EITC_THRESHOLD:
         return income * (EITC_MAX / EITC_THRESHOLD)
-    if (income >= EITC_THRESHOLD) and (income <= EITC_PHASEOUT):
+    if income >= EITC_THRESHOLD and income <= EITC_PHASEOUT:
         return EITC_MAX
-    if (income > EITC_PHASEOUT):
-        return max(0, EITC_MAX + ((EITC_PHASEOUT - income) * (EITC_MAX / (EITC_MAX_INCOME - EITC_PHASEOUT))))
+    if income > EITC_PHASEOUT:
+        return max(
+            0, EITC_MAX + (
+                (EITC_PHASEOUT - income)
+                * (EITC_MAX / (EITC_MAX_INCOME - EITC_PHASEOUT))))
 
 
-def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits):
+def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation, income_tax_before_credits):
     amt = 0
     # Form 6251 https://www.irs.gov/pub/irs-pdf/f6251.pdf
     # Instructions https://www.irs.gov/pub/irs-pdf/i6251.pdf
@@ -380,11 +467,13 @@ def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_
         else:
             line2 = 0
         line3 = taxpayer["sl_income_tax"] + taxpayer["sl_property_tax"]
-        line5 = taxpayer["other_itemized"]  # TODO: check this logic before use
+        # TODO: check this logic before use
+        line5 = taxpayer["other_itemized"]
         if agi < policy["itemized_limitation_threshold"][taxpayer['filing_status']]:
             line6 = 0
         else:
-            line6 = -pease_limitation_amt  # TODO: Check this behavior, it reverses the pease limitation
+            # TODO: Check this behavior, it reverses the pease limitation
+            line6 = -pease_limitation
         amt_income = line1 + line2 + line3 + line5 + line6
         # only charity and mortgage allowed
     else:
@@ -395,7 +484,8 @@ def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_
     amt_exemption = policy["amt_exemption"][taxpayer['filing_status']]
     amt_exemption_po_threshold = policy["amt_exemption_po_threshold"][taxpayer['filing_status']]
     if amt_income > amt_exemption_po_threshold:
-        # Exemption Worksheet https://www.irs.gov/pub/irs-pdf/i6251.pdf#en_US_2016_publink64277pd0e1980
+        # Exemption Worksheet
+        # https://www.irs.gov/pub/irs-pdf/i6251.pdf#en_US_2016_publink64277pd0e1980
         ws_line1 = amt_exemption
         ws_line2 = amt_income
         ws_line3 = amt_exemption_po_threshold
@@ -412,7 +502,9 @@ def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_
     if amt_taxable_income < policy["amt_rate_threshold"]:
         amt = amt_taxable_income * policy["amt_rates"][0]  # 26% rate
     else:
-        rate_diff = (policy["amt_rate_threshold"] * policy["amt_rates"][1]) - (policy["amt_rate_threshold"] * policy["amt_rates"][0])
+        rate_diff = (
+            (policy["amt_rate_threshold"] * policy["amt_rates"][1])
+            - (policy["amt_rate_threshold"] * policy["amt_rates"][0]))
         amt = amt_taxable_income * policy["amt_rates"][1] - rate_diff  # 28% rate
 
     line34 = income_tax_before_credits
@@ -539,13 +631,22 @@ def house_ordinary_income_tax(policy, taxpayer, taxable_income, agi):
 
     return round(ordinary_income_tax + business_income_tax, 2)
 
+def get_gross_income(taxpayer,
+                     incomes=("ordinary_income1",
+                              "ordinary_income2",
+                              "business_income",
+                              "ss_income",
+                              "qualified_income")):
+    income = 0
+    for incomeType in incomes:
+        income += taxpayer[incomeType]
+    return income
 
 def get_brackets(taxpayer, policy):
     if taxpayer['filing_status'] == 0:
-        brackets = policy["single_brackets"]
+        return policy["single_brackets"]
     elif taxpayer['filing_status'] == 1:
-        brackets = policy["married_brackets"]
+        return policy["married_brackets"]
     else:
-        brackets = policy["hoh_brackets"]
+        return policy["hoh_brackets"]
 
-    return brackets

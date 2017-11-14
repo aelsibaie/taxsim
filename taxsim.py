@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import csv_parser
 import tax_funcs
 import misc_funcs
@@ -62,16 +63,18 @@ senate_2018_policy = csv_parser.load_policy(SENATE_2018_FILE)
 def calc_federal_taxes(taxpayer, policy):
     results = OrderedDict()
     # Gross income
-    gross_income = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2'] + taxpayer['business_income'] + taxpayer['ss_income'] + taxpayer['qualified_income']
-    results["gross_income"] = gross_income
+    results["gross_income"] = tax_funcs.get_gross_income(taxpayer)
 
     # Payroll taxes
-    employee_payroll_tax, employer_payroll_tax = tax_funcs.fed_payroll(policy, taxpayer)
-    results["employee_payroll_tax"] = employee_payroll_tax
-    results["employer_payroll_tax"] = employer_payroll_tax
+    payroll_taxes = tax_funcs.fed_payroll(policy, taxpayer)
+    results["employee_payroll_tax"] = payroll_taxes['employee']
+    results["employer_payroll_tax"] = payroll_taxes['employer']
 
     # Income after tax-deferred retirement contributions
-    ordinary_income_after_401k = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2'] - taxpayer['401k_contributions']
+    ordinary_income_after_401k = (
+        taxpayer['ordinary_income1']
+        + taxpayer['ordinary_income2']
+        - taxpayer['401k_contributions'])
     results["ordinary_income_after_401k"] = ordinary_income_after_401k
 
     # AGI
@@ -92,13 +95,27 @@ def calc_federal_taxes(taxpayer, policy):
 
     # Qualified income/capital gains
     # TODO: Check for bugs
-    qualified_income_tax = tax_funcs.fed_qualified_income(policy, taxpayer, taxable_income, income_tax_before_credits)
-    income_tax_before_credits = min(income_tax_before_credits, qualified_income_tax)
+    qualified_income_tax = tax_funcs.fed_qualified_income(
+        policy,
+        taxpayer,
+        taxable_income,
+        income_tax_before_credits)
+    income_tax_before_credits = min(
+        income_tax_before_credits,
+        qualified_income_tax)
     results["qualified_income_tax"] = qualified_income_tax
-    results["selected_tax_before_credits"] = income_tax_before_credits  # form1040_line44
+    # form1040_line44
+    results["selected_tax_before_credits"] = income_tax_before_credits
 
     # AMT
-    amt = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits)
+    amt = tax_funcs.fed_amt(
+        policy,
+        taxpayer,
+        deduction_type,
+        deductions,
+        agi,
+        pease_limitation_amt,
+        income_tax_before_credits)
     results["amt"] = amt
 
     income_tax_before_credits += amt
@@ -117,18 +134,23 @@ def calc_federal_taxes(taxpayer, policy):
     income_tax_after_credits = round(max(0, income_tax_before_credits - ctc), 2)
     results["income_tax_after_nonrefundable_credits"] = income_tax_after_credits
 
-    # Tax after ALL credits
-    income_tax_after_credits = round(income_tax_after_credits - actc - eitc, 2)  # TODO: check if the EITC is fully refundable
-    results["income_tax_after_credits"] = income_tax_after_credits
+# Tax after ALL credits
+    results["income_tax_after_credits"] = round(
+        income_tax_after_credits - actc - eitc, 2)
 
-    # Fetch final rates
-    rates = misc_funcs.calc_effective_rates(income_tax_after_credits,
-                                            employee_payroll_tax,
-                                            employer_payroll_tax,
-                                            gross_income)
+    rates = misc_funcs.calc_effective_rates(results["income_tax_after_credits"],
+                                            payroll_taxes,
+                                            results["gross_income"])
+    # Tax burden
     results["tax_burden"] = rates["tax_burden"]
+
+    # Tax wedge
     results["tax_wedge"] = rates["tax_wedge"]
+
+    # Average effective tax rate
     results["avg_effective_tax_rate"] = rates["avg_effective_tax_rate"]
+
+    # Average effective tax rate without payroll
     results["avg_effective_tax_rate_wo_payroll"] = rates["avg_effective_tax_rate_wo_payroll"]
 
     return results
@@ -146,16 +168,19 @@ def calc_house_2018_taxes(taxpayer, policy):
 
     results = OrderedDict()
     # Gross income
-    gross_income = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2'] + taxpayer['business_income'] + taxpayer['ss_income'] + taxpayer['qualified_income']
-    results["gross_income"] = gross_income
+    # Gross income
+    results["gross_income"] = tax_funcs.get_gross_income(taxpayer)
 
     # Payroll taxes
-    employee_payroll_tax, employer_payroll_tax = tax_funcs.fed_payroll(policy, taxpayer)
-    results["employee_payroll_tax"] = employee_payroll_tax
-    results["employer_payroll_tax"] = employer_payroll_tax
+    payroll_taxes = tax_funcs.fed_payroll(policy, taxpayer)
+    results["employee_payroll_tax"] = payroll_taxes['employee']
+    results["employer_payroll_tax"] = payroll_taxes['employer']
 
     # Income after tax-deferred retirement contributions
-    ordinary_income_after_401k = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2'] - taxpayer['401k_contributions']
+    ordinary_income_after_401k = (
+        taxpayer['ordinary_income1']
+        + taxpayer['ordinary_income2']
+        - taxpayer['401k_contributions'])
     results["ordinary_income_after_401k"] = ordinary_income_after_401k
 
     # AGI
@@ -175,23 +200,43 @@ def calc_house_2018_taxes(taxpayer, policy):
 
     # NEW: Phaseout of benefit of the 12-percent bracket
     po_amount = 0
-    lower_rate_po_threshold = [1000000, 1200000, 1000000]  # Hardcoded policy
+    # Hardcoded policy
+    lower_rate_po_threshold = [1000000, 1200000, 1000000]
     if agi > lower_rate_po_threshold[taxpayer["filing_status"]]:
         brackets = tax_funcs.get_brackets(taxpayer, policy)
-        benefit = policy["income_tax_rates"][-1] * brackets[2] - policy["income_tax_rates"][0] * brackets[2]
-        po_amount = min(benefit, 0.06 * (agi - lower_rate_po_threshold[taxpayer["filing_status"]]))  # Hardcoded policy
+        benefit = (
+            policy["income_tax_rates"][-1] * brackets[2]
+            - policy["income_tax_rates"][0] * brackets[2])
+        # Hardcoded policy
+        po_amount = min(
+            benefit,
+            0.06 * (agi - lower_rate_po_threshold[taxpayer["filing_status"]]))  
     income_tax_before_credits = income_tax_before_credits + po_amount
     results["income_tax_before_credits"] = income_tax_before_credits
 
     # Qualified income/capital gains
     # NEW: new house_2018_qualified_income function
-    qualified_income_tax = tax_funcs.house_2018_qualified_income(policy, taxpayer, taxable_income, income_tax_before_credits, po_amount, agi)
+    qualified_income_tax = tax_funcs.house_2018_qualified_income(
+        policy,
+        taxpayer,
+        taxable_income,
+        income_tax_before_credits,
+        po_amount,
+        agi)
     income_tax_before_credits = min(income_tax_before_credits, qualified_income_tax)
     results["qualified_income_tax"] = qualified_income_tax
-    results["selected_tax_before_credits"] = income_tax_before_credits  # form1040_line44
+    # form1040_line44
+    results["selected_tax_before_credits"] = income_tax_before_credits
 
     # AMT
-    amt = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits)
+    amt = tax_funcs.fed_amt(
+        policy,
+        taxpayer,
+        deduction_type,
+        deductions,
+        agi,
+        pease_limitation_amt,
+        income_tax_before_credits)
     results["amt"] = amt
 
     income_tax_before_credits += amt
@@ -213,21 +258,28 @@ def calc_house_2018_taxes(taxpayer, policy):
     results["personal_credit"] = personal_credit
 
     # Tax after nonrefundable credits
-    income_tax_after_credits = round(max(0, income_tax_before_credits - ctc - personal_credit), 2)
+    income_tax_after_credits = round(max(
+            0,
+            income_tax_before_credits - ctc - personal_credit), 2)
     results["income_tax_after_nonrefundable_credits"] = income_tax_after_credits
 
-    # Tax after ALL credits
-    income_tax_after_credits = round(income_tax_after_credits - actc - eitc, 2)
-    results["income_tax_after_credits"] = income_tax_after_credits
+# Tax after ALL credits
+    results["income_tax_after_credits"] = round(
+        income_tax_after_credits - actc - eitc, 2)
 
-    # Fetch final rates
-    rates = misc_funcs.calc_effective_rates(income_tax_after_credits,
-                                            employee_payroll_tax,
-                                            employer_payroll_tax,
-                                            gross_income)
+    rates = misc_funcs.calc_effective_rates(results["income_tax_after_credits"],
+                                            payroll_taxes,
+                                            results["gross_income"])
+    # Tax burden
     results["tax_burden"] = rates["tax_burden"]
+
+    # Tax wedge
     results["tax_wedge"] = rates["tax_wedge"]
+
+    # Average effective tax rate
     results["avg_effective_tax_rate"] = rates["avg_effective_tax_rate"]
+
+    # Average effective tax rate without payroll
     results["avg_effective_tax_rate_wo_payroll"] = rates["avg_effective_tax_rate_wo_payroll"]
 
     return results
@@ -244,13 +296,12 @@ def calc_senate_2018_taxes(taxpayer, policy):
 
     results = OrderedDict()
     # Gross income
-    gross_income = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2'] + taxpayer['business_income'] + taxpayer['ss_income'] + taxpayer['qualified_income']
-    results["gross_income"] = gross_income
+    results["gross_income"] = tax_funcs.get_gross_income(taxpayer)
 
     # Payroll taxes
-    employee_payroll_tax, employer_payroll_tax = tax_funcs.fed_payroll(policy, taxpayer)
-    results["employee_payroll_tax"] = employee_payroll_tax
-    results["employer_payroll_tax"] = employer_payroll_tax
+    payroll_taxes = tax_funcs.fed_payroll(policy, taxpayer)
+    results["employee_payroll_tax"] = payroll_taxes['employee']
+    results["employer_payroll_tax"] = payroll_taxes['employer']
 
     # Income after tax-deferred retirement contributions
     ordinary_income_after_401k = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2'] - taxpayer['401k_contributions']
@@ -303,17 +354,22 @@ def calc_senate_2018_taxes(taxpayer, policy):
     results["income_tax_after_nonrefundable_credits"] = income_tax_after_credits
 
     # Tax after ALL credits
-    income_tax_after_credits = round(income_tax_after_credits - actc - eitc, 2)
-    results["income_tax_after_credits"] = income_tax_after_credits
+    results["income_tax_after_credits"] = round(
+        income_tax_after_credits - actc - eitc, 2)
 
-    # Fetch final rates
-    rates = misc_funcs.calc_effective_rates(income_tax_after_credits,
-                                            employee_payroll_tax,
-                                            employer_payroll_tax,
-                                            gross_income)
+    rates = misc_funcs.calc_effective_rates(results["income_tax_after_credits"],
+                                            payroll_taxes,
+                                            results["gross_income"])
+    # Tax burden
     results["tax_burden"] = rates["tax_burden"]
+
+    # Tax wedge
     results["tax_wedge"] = rates["tax_wedge"]
+
+    # Average effective tax rate
     results["avg_effective_tax_rate"] = rates["avg_effective_tax_rate"]
+
+    # Average effective tax rate without payroll
     results["avg_effective_tax_rate_wo_payroll"] = rates["avg_effective_tax_rate_wo_payroll"]
 
     return results
