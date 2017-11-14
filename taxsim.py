@@ -178,10 +178,8 @@ def calc_house_2018_taxes(taxpayer, policy):
     if agi > lower_rate_po_threshold[taxpayer["filing_status"]]:
         brackets = tax_funcs.get_brackets(taxpayer, policy)
         benefit = (
-            policy["income_tax_rates"][-1]
-            * brackets[2]
-            - policy["income_tax_rates"][0]
-            * brackets[2])
+            policy["income_tax_rates"][-1] * brackets[2]
+            - policy["income_tax_rates"][0] * brackets[2])
         # Hardcoded policy
         po_amount = min(
             benefit,
@@ -233,11 +231,9 @@ def calc_house_2018_taxes(taxpayer, policy):
     results["personal_credit"] = personal_credit
 
     # Tax after nonrefundable credits
-    income_tax_after_credits = round(
-        max(
+    income_tax_after_credits = round(max(
             0,
-            income_tax_before_credits - ctc - personal_credit),
-        2)
+            income_tax_before_credits - ctc - personal_credit), 2)
     results["income_tax_after_nonrefundable_credits"] = income_tax_after_credits
 
 # Tax after ALL credits
