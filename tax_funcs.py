@@ -501,41 +501,41 @@ def house_ordinary_income_tax(policy, taxpayer, taxable_income, agi):
     running_taxable_income = taxable_ordinary_income
 
     taxable_business_income = max(0, taxable_income - (taxable_ordinary_income))
-    running_business_income = taxable_business_income
 
     i = 0
     marginal_rates = []
     applicable_incomes = []
     for threshold in reversed(brackets):
         if taxable_income > threshold:
-            marginal_rates.append(rates[i])
             applicable_taxable_income = max(0, running_taxable_income - threshold)
-            applicable_incomes.append(applicable_taxable_income)
+            if applicable_taxable_income > 0:
+                marginal_rates.append(rates[i])
+                if rates[i] != 0.12:
+                    applicable_incomes.append(applicable_taxable_income)
+
             ordinary_income_tax = ordinary_income_tax + (applicable_taxable_income * rates[i])
             running_taxable_income = running_taxable_income - applicable_taxable_income
         i += 1
-    
+
     try:
         top_marginal_rate = marginal_rates[0]
-        applicable_top_income = applicable_incomes[0]
-    except IndexError:
+        applicable_income = sum(applicable_incomes)
+    except IndexError:  # taxpayer must have 0 ordinary income in this case
         top_marginal_rate = 0
-        applicable_top_income = 0
+        applicable_income = 0
 
-    if top_marginal_rate > 0.12: # from only ordinary income
-        business_income_tax = (taxable_business_income * 0.25)
-    elif top_marginal_rate == 0.12: # from only ordinary income
-        business_income_over_25 = taxable_income - brackets[2]
+    if top_marginal_rate >= 0.25:  # taxpayer's ordinary is already in the 25% bracket
+        business_income_over_25 = taxable_income - brackets[2] - applicable_income
         business_income_under_25 = taxable_business_income - business_income_over_25
         business_income_tax = (business_income_over_25 * 0.25) + (business_income_under_25 * 0.12)
     else:
-        if taxable_income < brackets[2]:
+        if taxable_income <= brackets[2]:  # bracket at which 25% rate kicks in
             business_income_tax = taxable_business_income * rates[5]  # 12%
         else:
             business_income_over_25 = taxable_income - brackets[2]
             business_income_under_25 = taxable_business_income - business_income_over_25
             business_income_tax = (business_income_over_25 * 0.25) + (business_income_under_25 * 0.12)
-    
+
     return round(ordinary_income_tax + business_income_tax, 2)
 
 
