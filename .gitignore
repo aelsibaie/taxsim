@@ -57,8 +57,5 @@ docs/_build/
 # PyBuilder
 target/
 
-# Local virtualenv named venv
-venv/
-
-# matplotlib csv outputs
+# TaxSim
 results/graph_data/
