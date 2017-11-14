@@ -61,4 +61,4 @@ target/
 venv/
 
 # matplotlib outputs
-graphs/
+results/graph_data/
