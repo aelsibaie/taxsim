@@ -119,12 +119,10 @@ def fed_taxable_income(policy, taxpayer, agi):
     filers = 2 if taxpayer["filing_status"] == 1 else 1
     exemptions_claimed = filers + taxpayer["child_dep"] + taxpayer["nonchild_dep"]
     # Check for phase out of personal exemption
-    if agi > policy["personal_exemption_po_threshold"][taxpayer['filing_status']]:
+    phaseout_threshold = policy["personal_exemption_po_threshold"][taxpayer['filing_status']]
+    if agi > phaseout_threshold:
         personal_exemption = policy["personal_exemption"] * exemptions_claimed
-        amt_over_threshold = (
-            agi
-            - policy["personal_exemption_po_threshold"][taxpayer['filing_status']]
-        )
+        amt_over_threshold = agi - phaseout_threshold
         line6 = math.ceil(amt_over_threshold / policy["personal_exemption_po_amt"])
         line7 = round(line6 * policy["personal_exemption_po_rate"], 3)
         line8 = personal_exemption * line7
@@ -197,11 +195,10 @@ def house_2018_taxable_income(policy, taxpayer, agi):
     filers = 2 if taxpayer["filing_status"] == 1 else 1
     exemptions_claimed = filers + taxpayer["child_dep"] + taxpayer["nonchild_dep"]
     # Check for phase out of personal exemption
-    if agi > policy["personal_exemption_po_threshold"][taxpayer['filing_status']]:
+    phaseout_threshold = policy["personal_exemption_po_threshold"][taxpayer['filing_status']]
+    if agi > phaseout_threshold:
         personal_exemption = policy["personal_exemption"] * exemptions_claimed
-        amt_over_threshold = (
-            agi
-            - policy["personal_exemption_po_threshold"][taxpayer['filing_status']])
+        amt_over_threshold = agi - phaseout_threshold
         line6 = math.ceil(amt_over_threshold / policy["personal_exemption_po_amt"])
         line7 = round(line6 * policy["personal_exemption_po_rate"], 3)
         line8 = personal_exemption * line7
@@ -269,9 +266,10 @@ def senate_2018_taxable_income(policy, taxpayer, agi):
     filers = 2 if taxpayer["filing_status"] == 1 else 1
     exemptions_claimed = filers + taxpayer["child_dep"] + taxpayer["nonchild_dep"]
     # Check for phase out of personal exemption
-    if agi > policy["personal_exemption_po_threshold"][taxpayer['filing_status']]:
-        personal_exemption_amt = policy["personal_exemption"] * exemptions_claimed
-        amt_over_threshold = agi - policy["personal_exemption_po_threshold"][taxpayer['filing_status']]
+    phaseout_threshold = policy["personal_exemption_po_threshold"][taxpayer['filing_status']]
+    if agi > phaseout_threshold:
+        personal_exemption = policy["personal_exemption"] * exemptions_claimed
+        amt_over_threshold = agi - phaseout_threshold
         line6 = math.ceil(amt_over_threshold / policy["personal_exemption_po_amt"])
         line7 = round(line6 * policy["personal_exemption_po_rate"], 3)
         line8 = personal_exemption_amt * line7
