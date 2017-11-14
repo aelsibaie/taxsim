@@ -5,11 +5,12 @@ from collections import OrderedDict
 import logging
 from datetime import datetime
 import json
+import argparse
 
 current_datetime = datetime.now().strftime("%Y%m%dT%H%M%S")  # ISO 8601
 
-############################################## Config ##############################################
 
+##### Default Configuration #####
 # Input taxpayers
 TAXPAYERS_FILE = "taxpayers.csv"
 # Policy parameters
@@ -29,14 +30,35 @@ logging.basicConfig(filename=LOGS_DIR + current_datetime + '.log',
                     level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s: %(message)s')
 
-########################################### End Config ##############################################
 
-taxpayers = csv_parser.load_taxpayers(TAXPAYERS_FILE)
+##### Argument Parsing #####
+parser = argparse.ArgumentParser()
+parser.add_argument('-i', '--input',
+                    type=str,
+                    default=TAXPAYERS_FILE,
+                    metavar="InputFile.csv",
+                    help='Specify location of input taxpayer(s) CSV file.')
+parser.add_argument('-g', '--gencsv',
+                    type=str,
+                    default="",
+                    metavar="OutputFile.csv",
+                    help='Generate blank input CSV file using specified filename.')
+args = parser.parse_args()
+
+if args.gencsv != "":
+    logging.info("Generating input CSV file: " + args.gencsv)
+    csv_parser.gen_csv(args.gencsv)
+    quit()
+
+
+##### Globals #####
+taxpayers = csv_parser.load_taxpayers(args.input)
 current_law_policy = csv_parser.load_policy(CURRENT_LAW_FILE)
 house_2018_policy = csv_parser.load_policy(HOUSE_2018_FILE)
 senate_2018_policy = csv_parser.load_policy(SENATE_2018_FILE)
 
 
+##### Current Law #####
 def calc_federal_taxes(taxpayer, policy):
     results = OrderedDict()
     # Gross income
@@ -112,6 +134,10 @@ def calc_federal_taxes(taxpayer, policy):
     return results
 
 
+##### House 2018 #####
+# Description Of H.R.1, The "Tax Cuts And Jobs Act"
+# November 03, 2017 (before November 6, 2017 markup)
+# https://www.jct.gov/publications.html?func=startdown&id=5031
 def calc_house_2018_taxes(taxpayer, policy):
     # NEW: Itemized deduction limitations
     taxpayer["sl_property_tax"] = min(10000, taxpayer["sl_property_tax"])
@@ -207,6 +233,10 @@ def calc_house_2018_taxes(taxpayer, policy):
     return results
 
 
+##### Senate 2018 #####
+# Description Of The Chairman's Mark Of The "Tax Cuts And Jobs Act"
+# November 09, 2017 (before November 13, 2017 markup)
+# https://www.jct.gov/publications.html?func=startdown&id=5032
 def calc_senate_2018_taxes(taxpayer, policy):
     taxpayer["sl_property_tax"] = 0
     taxpayer["sl_income_tax"] = 0
@@ -289,6 +319,7 @@ def calc_senate_2018_taxes(taxpayer, policy):
     return results
 
 
+##### Main Script #####
 if __name__ == '__main__':
     logging.info("Begining calculation for taxpayers in: " + TAXPAYERS_FILE)
     current_law_results = []

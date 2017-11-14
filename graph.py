@@ -24,7 +24,7 @@ def make_graph(main_income_type,
 
     for i in range(1, top_range):
         income = i * step
-        default_taxpayer = OrderedDict(
+        default_taxpayer = OrderedDict(  # TODO: add function that returns this
             [('filing_status', filing_status),
              ('child_dep', child_dep),
              ('nonchild_dep', 0),
@@ -58,15 +58,18 @@ def make_graph(main_income_type,
     current_law_df.to_csv(
         taxsim.GRAPH_DATA_RESULTS_DIR +
         file_name +
-        '-current_law_graph_data.csv')
+        '-current_law_graph_data.csv',
+        index=False)
     house_2018_df.to_csv(
         taxsim.GRAPH_DATA_RESULTS_DIR +
         file_name +
-        '-house_2018_graph_data.csv')
+        '-house_2018_graph_data.csv',
+        index=False)
     senate_2018_df.to_csv(
         taxsim.GRAPH_DATA_RESULTS_DIR +
         file_name +
-        '-senate_2018_graph_data.csv')
+        '-senate_2018_graph_data.csv',
+        index=False)
 
     filing_status_string = "Single"
     if filing_status == 1:

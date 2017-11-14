@@ -56,3 +56,6 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# TaxSim
+results/graph_data/
