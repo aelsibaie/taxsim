@@ -650,10 +650,3 @@ def get_brackets(taxpayer, policy):
     else:
         return policy["hoh_brackets"]
 
-def tax_burden_or_wedge(income, payroll_taxes, theType):
-    if theType == "burden":
-        return round(income + payroll_taxes["employee"], 2)
-    elif theType == "wedge":
-        return round(
-            income + payroll_taxes["employee"] + payroll_taxes["employer"],
-            2)
