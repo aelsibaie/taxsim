@@ -1,2 +1,2 @@
 gross_income,employee_payroll_tax,employer_payroll_tax,ordinary_income_after_401k,agi,taxable_income,deduction_type,deductions,personal_exemption_amt,pease_limitation_amt,income_tax_before_credits,qualified_income_tax,selected_tax_before_credits,amt,income_tax_before_credits_with_amt,ctc,actc,eitc,personal_credit,income_tax_after_nonrefundable_credits,income_tax_after_credits,tax_burden,tax_wedge,avg_effective_tax_rate,avg_effective_tax_rate_wo_payroll
-200000,7650.0,7650.0,100000,200000,187800.0,standard,12200.0,0.0,0,46664.0,46664.0,46664.0,0,46664.0,0,0,0,300,46364.0,46364.0,54014.0,61664.0,0.2701,0.2318
+200000,7650.0,7650.0,100000,200000,187800.0,standard,12200.0,0.0,0,41100.0,41100.0,41100.0,0,41100.0,0,0,0,300,40800.0,40800.0,48450.0,56100.0,0.2422,0.204

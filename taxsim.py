@@ -340,27 +340,23 @@ def calc_senate_2018_taxes(taxpayer, policy):
 
     # Tax after ALL credits
     # TODO: check if the EITC is fully refundable
-    income_tax_after_credits = round(income_tax_after_credits - actc - eitc, 2)
-    results["income_tax_after_credits"] = income_tax_after_credits
+    results["income_tax_after_credits"] = round(
+        income_tax_after_credits - actc - eitc, 2)
 
+    rates = misc_funcs.calc_effective_rates(results["income_tax_after_credits"],
+                                            payroll_taxes,
+                                            results["gross_income"])
     # Tax burden
-    results["tax_burden"] = tax_funcs.tax_burden_or_wedge(
-        income_tax_after_credits, payroll_taxes, "burden")
+    results["tax_burden"] = rates["tax_burden"]
 
     # Tax wedge
-    results["tax_wedge"] = tax_funcs.tax_burden_or_wedge(
-        income_tax_after_credits, payroll_taxes, "wedge")
+    results["tax_wedge"] = rates["tax_wedge"]
 
     # Average effective tax rate
-    results["avg_effective_tax_rate"] = round(
-        (results["tax_burden"] / results["gross_income"]),
-        4
-    )
+    results["avg_effective_tax_rate"] = rates["avg_effective_tax_rate"]
 
     # Average effective tax rate without payroll
-    results["avg_effective_tax_rate_wo_payroll"] = round(
-        income_tax_after_credits / results["gross_income"],
-        4)
+    results["avg_effective_tax_rate_wo_payroll"] = rates["avg_effective_tax_rate_wo_payroll"]
 
     return results
 
