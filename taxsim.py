@@ -6,7 +6,10 @@ import logging
 from datetime import datetime
 import json
 
-# Config
+current_datetime = datetime.now().strftime("%Y%m%dT%H%M%S")  # ISO 8601
+
+############################################## Config ##############################################
+
 # Input taxpayers
 TAXPAYERS_FILE = "taxpayers.csv"
 # Policy parameters
@@ -21,11 +24,12 @@ SENATE_2018_RESULTS = "senate_2018_results.csv"
 LOGS_DIR = misc_funcs.require_dir("./logs/")
 RESULTS_DIR = misc_funcs.require_dir("./results/")
 GRAPH_DATA_RESULTS_DIR = misc_funcs.require_dir("./results/graph_data/")
-
-current_datetime = datetime.now().strftime("%Y%m%dT%H%M%S")  # ISO 8601
+# Logging
 logging.basicConfig(filename=LOGS_DIR + current_datetime + '.log',
                     level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s: %(message)s')
+
+########################################### End Config ##############################################
 
 taxpayers = csv_parser.load_taxpayers(TAXPAYERS_FILE)
 current_law_policy = csv_parser.load_policy(CURRENT_LAW_FILE)
