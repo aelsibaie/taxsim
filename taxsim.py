@@ -31,7 +31,7 @@ logging.basicConfig(filename=LOGS_DIR + current_datetime + '.log',
                     level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s: %(message)s')
 
-
+'''
 ##### Argument Parsing #####
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', '--input',
@@ -51,9 +51,9 @@ if args.gencsv != "":
     csv_parser.gen_csv(args.gencsv)
     quit()
 
-
+'''
 ##### Globals #####
-taxpayers = csv_parser.load_taxpayers(args.input)
+taxpayers = csv_parser.load_taxpayers(TAXPAYERS_FILE) # TAXPAYERS_FILE args.input
 current_law_policy = csv_parser.load_policy(CURRENT_LAW_FILE)
 house_2018_policy = csv_parser.load_policy(HOUSE_2018_FILE)
 senate_2018_policy = csv_parser.load_policy(SENATE_2018_FILE)
@@ -61,6 +61,8 @@ senate_2018_policy = csv_parser.load_policy(SENATE_2018_FILE)
 
 ##### Current Law #####
 def calc_federal_taxes(taxpayer, policy):
+    taxpayer["interest_paid"] = min(17500 * 2, taxpayer["interest_paid"])
+    
     results = OrderedDict()
     # Gross income
     results["gross_income"] = tax_funcs.get_gross_income(taxpayer)
@@ -134,7 +136,7 @@ def calc_federal_taxes(taxpayer, policy):
     income_tax_after_credits = round(max(0, income_tax_before_credits - ctc), 2)
     results["income_tax_after_nonrefundable_credits"] = income_tax_after_credits
 
-# Tax after ALL credits
+    # Tax after ALL credits
     results["income_tax_after_credits"] = round(
         income_tax_after_credits - actc - eitc, 2)
 
@@ -163,6 +165,7 @@ def calc_federal_taxes(taxpayer, policy):
 def calc_house_2018_taxes(taxpayer, policy):
     # NEW: Itemized deduction limitations
     taxpayer["sl_property_tax"] = min(10000, taxpayer["sl_property_tax"])
+    taxpayer["interest_paid"] = min(17500, taxpayer["interest_paid"])
     taxpayer["sl_income_tax"] = 0
     taxpayer["medical_expenses"] = 0
 
@@ -263,7 +266,7 @@ def calc_house_2018_taxes(taxpayer, policy):
         income_tax_before_credits - ctc - personal_credit), 2)
     results["income_tax_after_nonrefundable_credits"] = income_tax_after_credits
 
-# Tax after ALL credits
+    # Tax after ALL credits
     results["income_tax_after_credits"] = round(
         income_tax_after_credits - actc - eitc, 2)
 
@@ -292,7 +295,7 @@ def calc_house_2018_taxes(taxpayer, policy):
 def calc_senate_2018_taxes(taxpayer, policy):
     taxpayer["sl_property_tax"] = 0
     taxpayer["sl_income_tax"] = 0
-    taxpayer["interest_paid"] = 0
+    taxpayer["interest_paid"] = min(17500 * 2, taxpayer["interest_paid"])
 
     results = OrderedDict()
     # Gross income

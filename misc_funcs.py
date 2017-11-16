@@ -36,3 +36,22 @@ def require_dir(directory):
         os.makedirs(directory)
         logging.info(directory + " Successfully created.")
     return directory
+
+def create_taxpayer():
+    default_taxpayer = OrderedDict(
+        [('filing_status', 0),
+         ('child_dep', 0),
+         ('nonchild_dep', 0),
+         ('ordinary_income1', 0),
+         ('ordinary_income2', 0),
+         ('business_income', 0),
+         ('ss_income', 0),
+         ('qualified_income', 0),
+         ('401k_contributions', 0),
+         ('medical_expenses', 0),
+         ('sl_income_tax', 0),
+         ('sl_property_tax', 0),
+         ('interest_paid', 0),
+         ('charity_contributions', 0),
+         ('other_itemized', 0)])
+    return default_taxpayer
