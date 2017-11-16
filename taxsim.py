@@ -32,28 +32,10 @@ logging.basicConfig(filename=LOGS_DIR + current_datetime + '.log',
                     format='%(asctime)s %(levelname)s: %(message)s')
 
 '''
-##### Argument Parsing #####
-parser = argparse.ArgumentParser()
-parser.add_argument('-i', '--input',
-                    type=str,
-                    default=TAXPAYERS_FILE,
-                    metavar="InputFile.csv",
-                    help='Specify location of input taxpayer(s) CSV file.')
-parser.add_argument('-g', '--gencsv',
-                    type=str,
-                    default="",
-                    metavar="OutputFile.csv",
-                    help='Generate blank input CSV file using specified filename.')
-args = parser.parse_args()
 
-if args.gencsv != "":
-    logging.info("Generating input CSV file: " + args.gencsv)
-    csv_parser.gen_csv(args.gencsv)
-    quit()
 
 '''
 ##### Globals #####
-taxpayers = csv_parser.load_taxpayers(TAXPAYERS_FILE) # TAXPAYERS_FILE args.input
 current_law_policy = csv_parser.load_policy(CURRENT_LAW_FILE)
 house_2018_policy = csv_parser.load_policy(HOUSE_2018_FILE)
 senate_2018_policy = csv_parser.load_policy(SENATE_2018_FILE)
@@ -378,8 +360,29 @@ def calc_senate_2018_taxes(taxpayer, policy):
     return results
 
 
-##### Main Script #####
 if __name__ == '__main__':
+    ##### Argument Parsing #####
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--input',
+                        type=str,
+                        default=TAXPAYERS_FILE,
+                        metavar="InputFile.csv",
+                        help='Specify location of input taxpayer(s) CSV file.')
+    parser.add_argument('-g', '--gencsv',
+                        type=str,
+                        default="",
+                        metavar="OutputFile.csv",
+                        help='Generate blank input CSV file using specified filename.')
+    args = parser.parse_args()
+
+    if args.gencsv != "":
+        logging.info("Generating input CSV file: " + args.gencsv)
+        csv_parser.gen_csv(args.gencsv)
+        quit()
+
+    taxpayers = csv_parser.load_taxpayers(args.input)
+
+    ##### Main Script #####
     logging.info("Begining calculation for taxpayers in: " + TAXPAYERS_FILE)
     current_law_results = []
     house_2018_results = []
