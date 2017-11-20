@@ -1,7 +1,8 @@
 from collections import OrderedDict
 import pandas as pd
 import csv
-import misc_funcs
+from . import misc_funcs
+import os
 
 
 def load_policy(file_location):

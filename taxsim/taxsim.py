@@ -1,7 +1,7 @@
 from collections import OrderedDict
-import csv_parser
-import tax_funcs
-import misc_funcs
+from . import csv_parser
+from . import tax_funcs
+from . import misc_funcs
 from collections import OrderedDict
 import logging
 from datetime import datetime
@@ -9,37 +9,6 @@ import json
 import argparse
 
 current_datetime = datetime.now().strftime("%Y%m%dT%H%M%S")  # ISO 8601
-
-
-##### Default Configuration #####
-# Input taxpayers
-TAXPAYERS_FILE = "taxpayers.csv"
-# Policy parameters
-CURRENT_LAW_FILE = "./params/current_law_2018.csv"
-HOUSE_2018_FILE = "./params/house_2018.csv"
-SENATE_2018_FILE = "./params/senate_2018.csv"
-# Name of results files
-CURRENT_LAW_RESULTS = "current_law_results.csv"
-HOUSE_2018_RESULTS = "house_2018_results.csv"
-SENATE_2018_RESULTS = "senate_2018_results.csv"
-# Directories - These must be wrapped in misc_funcs.require_dir()
-LOGS_DIR = misc_funcs.require_dir("./logs/")
-RESULTS_DIR = misc_funcs.require_dir("./results/")
-GRAPH_DATA_RESULTS_DIR = misc_funcs.require_dir("./results/graph_data/")
-# Logging
-logging.basicConfig(filename=LOGS_DIR + current_datetime + '.log',
-                    level=logging.DEBUG,
-                    format='%(asctime)s %(levelname)s: %(message)s')
-
-'''
-
-
-'''
-##### Globals #####
-current_law_policy = csv_parser.load_policy(CURRENT_LAW_FILE)
-house_2018_policy = csv_parser.load_policy(HOUSE_2018_FILE)
-senate_2018_policy = csv_parser.load_policy(SENATE_2018_FILE)
-
 
 ##### Current Law #####
 def calc_federal_taxes(taxpayer, policy):
@@ -361,6 +330,26 @@ def calc_senate_2018_taxes(taxpayer, policy):
 
 
 if __name__ == '__main__':
+    ##### Default Configuration #####
+    # Input taxpayers
+    TAXPAYERS_FILE = "taxpayers.csv"
+    # Policy parameters
+    CURRENT_LAW_FILE = "../params/current_law_2018.csv"
+    HOUSE_2018_FILE = "../params/house_2018.csv"
+    SENATE_2018_FILE = "../params/senate_2018.csv"
+    # Name of results files
+    CURRENT_LAW_RESULTS = "current_law_results.csv"
+    HOUSE_2018_RESULTS = "house_2018_results.csv"
+    SENATE_2018_RESULTS = "senate_2018_results.csv"
+    # Directories - These must be wrapped in misc_funcs.require_dir()
+    LOGS_DIR = misc_funcs.require_dir("../logs/")
+    RESULTS_DIR = misc_funcs.require_dir("../results/")
+    GRAPH_DATA_RESULTS_DIR = misc_funcs.require_dir("../results/graph_data/")
+    # Logging
+    logging.basicConfig(filename=LOGS_DIR + current_datetime + '.log',
+                        level=logging.DEBUG,
+                        format='%(asctime)s %(levelname)s: %(message)s')
+
     ##### Argument Parsing #####
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input',
@@ -381,6 +370,11 @@ if __name__ == '__main__':
         quit()
 
     taxpayers = csv_parser.load_taxpayers(args.input)
+
+    ##### Globals #####
+    current_law_policy = csv_parser.load_policy(CURRENT_LAW_FILE)
+    house_2018_policy = csv_parser.load_policy(HOUSE_2018_FILE)
+    senate_2018_policy = csv_parser.load_policy(SENATE_2018_FILE)
 
     ##### Main Script #####
     logging.info("Begining calculation for taxpayers in: " + TAXPAYERS_FILE)
