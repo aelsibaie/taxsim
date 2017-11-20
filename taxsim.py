@@ -31,29 +31,11 @@ logging.basicConfig(filename=LOGS_DIR + current_datetime + '.log',
                     level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s: %(message)s')
 
-
-##### Argument Parsing #####
-parser = argparse.ArgumentParser()
-parser.add_argument('-i', '--input',
-                    type=str,
-                    default=TAXPAYERS_FILE,
-                    metavar="InputFile.csv",
-                    help='Specify location of input taxpayer(s) CSV file.')
-parser.add_argument('-g', '--gencsv',
-                    type=str,
-                    default="",
-                    metavar="OutputFile.csv",
-                    help='Generate blank input CSV file using specified filename.')
-args = parser.parse_args()
-
-if args.gencsv != "":
-    logging.info("Generating input CSV file: " + args.gencsv)
-    csv_parser.gen_csv(args.gencsv)
-    quit()
+'''
 
 
+'''
 ##### Globals #####
-taxpayers = csv_parser.load_taxpayers(args.input)
 current_law_policy = csv_parser.load_policy(CURRENT_LAW_FILE)
 house_2018_policy = csv_parser.load_policy(HOUSE_2018_FILE)
 senate_2018_policy = csv_parser.load_policy(SENATE_2018_FILE)
@@ -61,6 +43,8 @@ senate_2018_policy = csv_parser.load_policy(SENATE_2018_FILE)
 
 ##### Current Law #####
 def calc_federal_taxes(taxpayer, policy):
+    taxpayer["interest_paid"] = min(17500 * 2, taxpayer["interest_paid"])
+
     results = OrderedDict()
     # Gross income
     results["gross_income"] = tax_funcs.get_gross_income(taxpayer)
@@ -134,7 +118,7 @@ def calc_federal_taxes(taxpayer, policy):
     income_tax_after_credits = round(max(0, income_tax_before_credits - ctc), 2)
     results["income_tax_after_nonrefundable_credits"] = income_tax_after_credits
 
-# Tax after ALL credits
+    # Tax after ALL credits
     results["income_tax_after_credits"] = round(
         income_tax_after_credits - actc - eitc, 2)
 
@@ -163,6 +147,7 @@ def calc_federal_taxes(taxpayer, policy):
 def calc_house_2018_taxes(taxpayer, policy):
     # NEW: Itemized deduction limitations
     taxpayer["sl_property_tax"] = min(10000, taxpayer["sl_property_tax"])
+    taxpayer["interest_paid"] = min(17500, taxpayer["interest_paid"])
     taxpayer["sl_income_tax"] = 0
     taxpayer["medical_expenses"] = 0
 
@@ -263,7 +248,7 @@ def calc_house_2018_taxes(taxpayer, policy):
         income_tax_before_credits - ctc - personal_credit), 2)
     results["income_tax_after_nonrefundable_credits"] = income_tax_after_credits
 
-# Tax after ALL credits
+    # Tax after ALL credits
     results["income_tax_after_credits"] = round(
         income_tax_after_credits - actc - eitc, 2)
 
@@ -292,7 +277,7 @@ def calc_house_2018_taxes(taxpayer, policy):
 def calc_senate_2018_taxes(taxpayer, policy):
     taxpayer["sl_property_tax"] = 0
     taxpayer["sl_income_tax"] = 0
-    taxpayer["interest_paid"] = 0
+    taxpayer["interest_paid"] = min(17500 * 2, taxpayer["interest_paid"])
 
     results = OrderedDict()
     # Gross income
@@ -375,8 +360,29 @@ def calc_senate_2018_taxes(taxpayer, policy):
     return results
 
 
-##### Main Script #####
 if __name__ == '__main__':
+    ##### Argument Parsing #####
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--input',
+                        type=str,
+                        default=TAXPAYERS_FILE,
+                        metavar="InputFile.csv",
+                        help='Specify location of input taxpayer(s) CSV file.')
+    parser.add_argument('-g', '--gencsv',
+                        type=str,
+                        default="",
+                        metavar="OutputFile.csv",
+                        help='Generate blank input CSV file using specified filename.')
+    args = parser.parse_args()
+
+    if args.gencsv != "":
+        logging.info("Generating input CSV file: " + args.gencsv)
+        csv_parser.gen_csv(args.gencsv)
+        quit()
+
+    taxpayers = csv_parser.load_taxpayers(args.input)
+
+    ##### Main Script #####
     logging.info("Begining calculation for taxpayers in: " + TAXPAYERS_FILE)
     current_law_results = []
     house_2018_results = []

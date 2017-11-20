@@ -5,6 +5,7 @@ from matplotlib.ticker import FuncFormatter
 from collections import OrderedDict
 from tqdm import tqdm
 import logging
+import misc_funcs
 
 plt.style.use('ggplot')
 
@@ -24,22 +25,13 @@ def make_graph(main_income_type,
 
     for i in range(1, top_range):
         income = i * step
-        default_taxpayer = OrderedDict(  # TODO: add function that returns this
-            [('filing_status', filing_status),
-             ('child_dep', child_dep),
-             ('nonchild_dep', 0),
-             ('ordinary_income1', income * income_ratios["ordinary"]),
-             ('ordinary_income2', 0),
-             ('business_income', income * income_ratios["business"]),
-             ('ss_income', income * income_ratios["ss"]),
-             ('qualified_income', income * income_ratios["qualified"]),
-             ('401k_contributions', 0),
-             ('medical_expenses', 0),
-             ('sl_income_tax', 0),
-             ('sl_property_tax', 0),
-             ('interest_paid', 0),
-             ('charity_contributions', 0),
-             ('other_itemized', 0)])
+        default_taxpayer = misc_funcs.create_taxpayer()
+        default_taxpayer['filing_status'] = filing_status
+        default_taxpayer['child_dep'] = child_dep
+        default_taxpayer['ordinary_income1'] = income * income_ratios["ordinary"]
+        default_taxpayer['business_income'] = income * income_ratios["business"]
+        default_taxpayer['ss_income'] = income * income_ratios["ss"]
+        default_taxpayer['qualified_income'] = income * income_ratios["qualified"]
         current_law_result = taxsim.calc_federal_taxes(
             default_taxpayer, taxsim.current_law_policy)
         current_law_result_list.append(current_law_result)

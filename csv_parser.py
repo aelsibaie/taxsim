@@ -1,6 +1,7 @@
 from collections import OrderedDict
 import pandas as pd
 import csv
+import misc_funcs
 
 
 def load_policy(file_location):
@@ -42,22 +43,7 @@ def write_results(results_list, results_file):
 
 def gen_csv(filename):
     taxpayers = []
-    default_taxpayer = OrderedDict(
-        [('filing_status', 0),
-         ('child_dep', 0),
-         ('nonchild_dep', 0),
-         ('ordinary_income1', 0),
-         ('ordinary_income2', 0),
-         ('business_income', 0),
-         ('ss_income', 0),
-         ('qualified_income', 0),
-         ('401k_contributions', 0),
-         ('medical_expenses', 0),
-         ('sl_income_tax', 0),
-         ('sl_property_tax', 0),
-         ('interest_paid', 0),
-         ('charity_contributions', 0),
-         ('other_itemized', 0)])
+    default_taxpayer = misc_funcs.create_taxpayer()
     taxpayers.append(default_taxpayer)
     default_taxpayer_df = pd.DataFrame(taxpayers)
     default_taxpayer_df.to_csv(filename, index=False)
