@@ -38,6 +38,7 @@ def require_dir(directory):
         logging.info(directory + " Successfully created.")
     return directory
 
+
 def create_taxpayer():
     default_taxpayer = OrderedDict(
         [('filing_status', 0),
@@ -59,6 +60,8 @@ def create_taxpayer():
 
 # Return the git revision as a string
 # https://github.com/numpy/numpy/blob/20c3c2a11d4fbbff1db5717c9fc7c3e35c671ed4/setup.py#L71-L93
+
+
 def git_version():
     def _minimal_ext_cmd(cmd):
         # construct minimal environment
@@ -71,7 +74,7 @@ def git_version():
         env['LANGUAGE'] = 'C'
         env['LANG'] = 'C'
         env['LC_ALL'] = 'C'
-        out = subprocess.Popen(cmd, stdout = subprocess.PIPE, env=env).communicate()[0]
+        out = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=env).communicate()[0]
         return out
 
     try:

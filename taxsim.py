@@ -44,7 +44,7 @@ senate_2018_policy = csv_parser.load_policy(SENATE_2018_FILE)
 ##### Current Law #####
 def calc_federal_taxes(taxpayer, policy):
     taxpayer["interest_paid"] = min(17500 * 2, taxpayer["interest_paid"])
-    
+
     results = OrderedDict()
     # Gross income
     results["gross_income"] = tax_funcs.get_gross_income(taxpayer)
