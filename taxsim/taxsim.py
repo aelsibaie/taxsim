@@ -1,14 +1,43 @@
 from collections import OrderedDict
-from . import csv_parser
-from . import tax_funcs
-from . import misc_funcs
-from collections import OrderedDict
 import logging
 from datetime import datetime
 import json
 import argparse
 
+from . import csv_parser
+from . import tax_funcs
+from . import misc_funcs
+from . import graph
+
+
 current_datetime = datetime.now().strftime("%Y%m%dT%H%M%S")  # ISO 8601
+
+##### Default Configuration #####
+# Input taxpayers
+TAXPAYERS_FILE = "taxpayers.csv"
+# Policy parameters
+CURRENT_LAW_FILE = "current_law_2018.csv"
+HOUSE_2018_FILE = "house_2018.csv"
+SENATE_2018_FILE = "senate_2018.csv"
+# Name of results files
+CURRENT_LAW_RESULTS = "current_law_results.csv"
+HOUSE_2018_RESULTS = "house_2018_results.csv"
+SENATE_2018_RESULTS = "senate_2018_results.csv"
+# Directories - These must be wrapped in misc_funcs.require_dir()
+PARAMS_DIR = misc_funcs.require_dir("./params/")
+LOGS_DIR = misc_funcs.require_dir("./logs/")
+RESULTS_DIR = misc_funcs.require_dir("./results/")
+GRAPH_DATA_RESULTS_DIR = misc_funcs.require_dir("./results/graph_data/")
+# Logging
+logging.basicConfig(filename=LOGS_DIR + current_datetime + '.log',
+                    level=logging.DEBUG,
+                    format='%(asctime)s %(levelname)s: %(message)s')
+
+##### Globals #####
+current_law_policy = csv_parser.load_policy(PARAMS_DIR + CURRENT_LAW_FILE)
+house_2018_policy = csv_parser.load_policy(PARAMS_DIR + HOUSE_2018_FILE)
+senate_2018_policy = csv_parser.load_policy(PARAMS_DIR + SENATE_2018_FILE)
+
 
 ##### Current Law #####
 def calc_federal_taxes(taxpayer, policy):
@@ -329,27 +358,7 @@ def calc_senate_2018_taxes(taxpayer, policy):
     return results
 
 
-if __name__ == '__main__':
-    ##### Default Configuration #####
-    # Input taxpayers
-    TAXPAYERS_FILE = "taxpayers.csv"
-    # Policy parameters
-    CURRENT_LAW_FILE = "../params/current_law_2018.csv"
-    HOUSE_2018_FILE = "../params/house_2018.csv"
-    SENATE_2018_FILE = "../params/senate_2018.csv"
-    # Name of results files
-    CURRENT_LAW_RESULTS = "current_law_results.csv"
-    HOUSE_2018_RESULTS = "house_2018_results.csv"
-    SENATE_2018_RESULTS = "senate_2018_results.csv"
-    # Directories - These must be wrapped in misc_funcs.require_dir()
-    LOGS_DIR = misc_funcs.require_dir("../logs/")
-    RESULTS_DIR = misc_funcs.require_dir("../results/")
-    GRAPH_DATA_RESULTS_DIR = misc_funcs.require_dir("../results/graph_data/")
-    # Logging
-    logging.basicConfig(filename=LOGS_DIR + current_datetime + '.log',
-                        level=logging.DEBUG,
-                        format='%(asctime)s %(levelname)s: %(message)s')
-
+def main():
     ##### Argument Parsing #####
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input',
@@ -362,21 +371,23 @@ if __name__ == '__main__':
                         default="",
                         metavar="OutputFile.csv",
                         help='Generate blank input CSV file using specified filename.')
+    parser.add_argument('-p', '--plot', action='store_true',  
+                        help='Render plots.')
     args = parser.parse_args()
 
+    # Generate blank CSV
     if args.gencsv != "":
         logging.info("Generating input CSV file: " + args.gencsv)
         csv_parser.gen_csv(args.gencsv)
         quit()
 
-    taxpayers = csv_parser.load_taxpayers(args.input)
-
-    ##### Globals #####
-    current_law_policy = csv_parser.load_policy(CURRENT_LAW_FILE)
-    house_2018_policy = csv_parser.load_policy(HOUSE_2018_FILE)
-    senate_2018_policy = csv_parser.load_policy(SENATE_2018_FILE)
+    # Render plots
+    if args.plot is True:
+        graph.render_graphs()
+        quit()
 
     ##### Main Script #####
+    taxpayers = csv_parser.load_taxpayers(args.input)
     logging.info("Begining calculation for taxpayers in: " + TAXPAYERS_FILE)
     current_law_results = []
     house_2018_results = []
@@ -403,3 +414,7 @@ if __name__ == '__main__':
     csv_parser.write_results(current_law_results, RESULTS_DIR + CURRENT_LAW_RESULTS)
     csv_parser.write_results(house_2018_results, RESULTS_DIR + HOUSE_2018_RESULTS)
     csv_parser.write_results(senate_2018_results, RESULTS_DIR + SENATE_2018_RESULTS)
+
+
+if __name__ == '__main__':
+    main()
