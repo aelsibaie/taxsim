@@ -21,20 +21,17 @@ def fed_payroll(policy, taxpayer):
     combined_ordinary_income = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2']
     payroll_taxes = {
         "employee": 0,
-        "employer": 0
-    }
+        "employer": 0}
 
     # Withholding Taxes
     for party in payroll_taxes:
         for income in [taxpayer['ordinary_income1'], taxpayer['ordinary_income2']]:
             social_security = (
                 policy['ss_withholding_rate_{party}'.format(party=party)]
-                * min(income, policy['ss_wage_base'])
-            )
+                * min(income, policy['ss_wage_base']))
             medicare = (
                 policy['medicare_withholding_rate_{party}'.format(party=party)]
-                * min(income, policy['medicare_wage_base'])
-            )
+                * min(income, policy['medicare_wage_base']))
             payroll_taxes[party] += social_security + medicare
 
     # Additional Medicare Tax
@@ -44,8 +41,7 @@ def fed_payroll(policy, taxpayer):
     medicare_surtax = 0
     if combined_ordinary_income > additional_medicare_tax_threshold:
         taxable_medicare_surtax = (
-            combined_ordinary_income
-            - additional_medicare_tax_threshold)
+            combined_ordinary_income - additional_medicare_tax_threshold)
         medicare_surtax = taxable_medicare_surtax * policy['additional_medicare_tax_rate']
     payroll_taxes['employee'] += medicare_surtax
 
