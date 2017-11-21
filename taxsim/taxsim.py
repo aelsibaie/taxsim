@@ -41,6 +41,7 @@ senate_2018_policy = csv_parser.load_policy(PARAMS_DIR + SENATE_2018_FILE)
 
 ##### Current Law #####
 def calc_federal_taxes(taxpayer, policy):
+    misc_funcs.validate_taxpayer(taxpayer)
     taxpayer["interest_paid"] = min(17500 * 2, taxpayer["interest_paid"])
 
     results = OrderedDict()
@@ -143,6 +144,7 @@ def calc_federal_taxes(taxpayer, policy):
 # November 03, 2017 (before November 6, 2017 markup)
 # https://www.jct.gov/publications.html?func=startdown&id=5031
 def calc_house_2018_taxes(taxpayer, policy):
+    misc_funcs.validate_taxpayer(taxpayer)
     # NEW: Itemized deduction limitations
     taxpayer["sl_property_tax"] = min(10000, taxpayer["sl_property_tax"])
     taxpayer["interest_paid"] = min(17500, taxpayer["interest_paid"])
@@ -273,6 +275,7 @@ def calc_house_2018_taxes(taxpayer, policy):
 # November 09, 2017 (before November 13, 2017 markup)
 # https://www.jct.gov/publications.html?func=startdown&id=5032
 def calc_senate_2018_taxes(taxpayer, policy):
+    misc_funcs.validate_taxpayer(taxpayer)
     taxpayer["sl_property_tax"] = 0
     taxpayer["sl_income_tax"] = 0
     taxpayer["interest_paid"] = min(17500 * 2, taxpayer["interest_paid"])
@@ -388,6 +391,7 @@ def main():
 
     ##### Main Script #####
     taxpayers = csv_parser.load_taxpayers(args.input)
+
     logging.info("Begining calculation for taxpayers in: " + TAXPAYERS_FILE)
     current_law_results = []
     house_2018_results = []

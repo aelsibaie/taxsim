@@ -84,3 +84,11 @@ def git_version():
         GIT_REVISION = "Unknown"
 
     return GIT_REVISION
+
+
+def validate_taxpayer(taxpayer):
+    # Check for proper inputs
+    if ((taxpayer['filing_status'] == 2) and (taxpayer['child_dep'] == 0)):
+        raise ValueError
+    elif ((taxpayer['filing_status'] == 0) and (taxpayer['child_dep'] > 0)):
+        raise ValueError
