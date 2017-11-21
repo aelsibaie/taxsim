@@ -1,6 +1,6 @@
 **TaxSim**
 
-[![Build Status](https://travis-ci.com/TaxFoundation/TaxSim.svg?token=yexSBERtR4Ec1WprzQ72&branch=master)](https://travis-ci.com/TaxFoundation/TaxSim)
+[![Build Status](https://travis-ci.com/TaxFoundation/taxsim.svg?token=yexSBERtR4Ec1WprzQ72&branch=master)](https://travis-ci.com/TaxFoundation/taxsim)
 
 Usage notes:
 

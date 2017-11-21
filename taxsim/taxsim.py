@@ -371,7 +371,7 @@ def main():
                         default="",
                         metavar="OutputFile.csv",
                         help='Generate blank input CSV file using specified filename.')
-    parser.add_argument('-p', '--plot', action='store_true',  
+    parser.add_argument('-p', '--plot', action='store_true',
                         help='Render plots.')
     args = parser.parse_args()
 

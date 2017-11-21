@@ -1,5 +1,6 @@
 from context import *
 
+
 def test_amt():
     taxpayer = misc_funcs.create_taxpayer()
     taxpayer['qualified_income'] = 1000000

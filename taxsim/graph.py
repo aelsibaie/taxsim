@@ -143,6 +143,7 @@ graphs = [
     }
 ]
 
+
 def make_graph(main_income_type,
                file_name,
                filing_status,
