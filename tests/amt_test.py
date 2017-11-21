@@ -1,11 +1,8 @@
-import pytest
-
-from taxsim import current_law_policy, calc_federal_taxes
-from misc_funcs import create_taxpayer
+from context import *
 
 
 def test_amt():
-    taxpayer = create_taxpayer()
+    taxpayer = misc_funcs.create_taxpayer()
     taxpayer['qualified_income'] = 1000000
-    result = calc_federal_taxes(taxpayer, current_law_policy)
+    result = taxsim.calc_federal_taxes(taxpayer, taxsim.current_law_policy)
     assert result['amt'] > 0
