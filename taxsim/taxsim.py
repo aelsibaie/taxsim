@@ -367,15 +367,15 @@ def main():
     parser.add_argument('-i', '--input',
                         type=str,
                         default=TAXPAYERS_FILE,
-                        metavar="InputFile.csv",
-                        help='Specify location of input taxpayer(s) CSV file.')
+                        metavar="input_file.csv",
+                        help='specify location of input taxpayer(s) CSV file')
     parser.add_argument('-g', '--gencsv',
                         type=str,
                         default="",
-                        metavar="OutputFile.csv",
-                        help='Generate blank input CSV file using specified filename.')
+                        metavar="default_taxpayer.csv",
+                        help='generate blank input CSV file using specified filename')
     parser.add_argument('-p', '--plot', action='store_true',
-                        help='Render plots.')
+                        help='render plots')
     args = parser.parse_args()
 
     # Generate blank CSV
