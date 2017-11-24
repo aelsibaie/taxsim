@@ -55,9 +55,9 @@ def calc_federal_taxes(taxpayer, policy):
 
     # Income after tax-deferred retirement contributions
     ordinary_income_after_401k = (
-        taxpayer['ordinary_income1']
-        + taxpayer['ordinary_income2']
-        - taxpayer['401k_contributions'])
+        taxpayer['ordinary_income1'] +
+        taxpayer['ordinary_income2'] -
+        taxpayer['401k_contributions'])
     results["ordinary_income_after_401k"] = ordinary_income_after_401k
 
     # AGI
@@ -163,9 +163,9 @@ def calc_house_2018_taxes(taxpayer, policy):
 
     # Income after tax-deferred retirement contributions
     ordinary_income_after_401k = (
-        taxpayer['ordinary_income1']
-        + taxpayer['ordinary_income2']
-        - taxpayer['401k_contributions'])
+        taxpayer['ordinary_income1'] +
+        taxpayer['ordinary_income2'] -
+        taxpayer['401k_contributions'])
     results["ordinary_income_after_401k"] = ordinary_income_after_401k
 
     # AGI
@@ -190,8 +190,8 @@ def calc_house_2018_taxes(taxpayer, policy):
     if agi > lower_rate_po_threshold[taxpayer["filing_status"]]:
         brackets = tax_funcs.get_brackets(taxpayer, policy)
         benefit = (
-            policy["income_tax_rates"][-1] * brackets[2]
-            - policy["income_tax_rates"][0] * brackets[2])
+            policy["income_tax_rates"][-1] * brackets[2] -
+            policy["income_tax_rates"][0] * brackets[2])
         # Hardcoded policy
         po_amount = min(
             benefit,
