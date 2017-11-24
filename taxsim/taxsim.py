@@ -3,6 +3,7 @@ import logging
 from datetime import datetime
 import json
 import argparse
+import sys
 
 from . import csv_parser
 from . import tax_funcs
@@ -376,7 +377,11 @@ def main():
                         help='generate blank input CSV file using specified filename')
     parser.add_argument('-p', '--plot', action='store_true',
                         help='render plots')
-    args = parser.parse_args()
+    args, unknown = parser.parse_known_args()
+
+    # Check for unknown arguments and log warning
+    if unknown != []:
+        logging.warning("Unknown argument(s) passed: " + str(unknown))
 
     # Generate blank CSV
     if args.gencsv != "":
@@ -418,6 +423,9 @@ def main():
     csv_parser.write_results(current_law_results, RESULTS_DIR + CURRENT_LAW_RESULTS)
     csv_parser.write_results(house_2018_results, RESULTS_DIR + HOUSE_2018_RESULTS)
     csv_parser.write_results(senate_2018_results, RESULTS_DIR + SENATE_2018_RESULTS)
+
+    # Success
+    sys.exit(0)
 
 
 if __name__ == '__main__':
