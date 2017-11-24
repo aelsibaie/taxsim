@@ -55,9 +55,9 @@ def calc_federal_taxes(taxpayer, policy):
 
     # Income after tax-deferred retirement contributions
     ordinary_income_after_401k = (
-        taxpayer['ordinary_income1']
-        + taxpayer['ordinary_income2']
-        - taxpayer['401k_contributions'])
+        taxpayer['ordinary_income1'] +
+        taxpayer['ordinary_income2'] -
+        taxpayer['401k_contributions'])
     results["ordinary_income_after_401k"] = ordinary_income_after_401k
 
     # AGI
@@ -163,9 +163,9 @@ def calc_house_2018_taxes(taxpayer, policy):
 
     # Income after tax-deferred retirement contributions
     ordinary_income_after_401k = (
-        taxpayer['ordinary_income1']
-        + taxpayer['ordinary_income2']
-        - taxpayer['401k_contributions'])
+        taxpayer['ordinary_income1'] +
+        taxpayer['ordinary_income2'] -
+        taxpayer['401k_contributions'])
     results["ordinary_income_after_401k"] = ordinary_income_after_401k
 
     # AGI
@@ -190,8 +190,8 @@ def calc_house_2018_taxes(taxpayer, policy):
     if agi > lower_rate_po_threshold[taxpayer["filing_status"]]:
         brackets = tax_funcs.get_brackets(taxpayer, policy)
         benefit = (
-            policy["income_tax_rates"][-1] * brackets[2]
-            - policy["income_tax_rates"][0] * brackets[2])
+            policy["income_tax_rates"][-1] * brackets[2] -
+            policy["income_tax_rates"][0] * brackets[2])
         # Hardcoded policy
         po_amount = min(
             benefit,
@@ -367,15 +367,15 @@ def main():
     parser.add_argument('-i', '--input',
                         type=str,
                         default=TAXPAYERS_FILE,
-                        metavar="InputFile.csv",
-                        help='Specify location of input taxpayer(s) CSV file.')
+                        metavar="input_file.csv",
+                        help='specify location of input taxpayer(s) CSV file')
     parser.add_argument('-g', '--gencsv',
                         type=str,
                         default="",
-                        metavar="OutputFile.csv",
-                        help='Generate blank input CSV file using specified filename.')
+                        metavar="default_taxpayer.csv",
+                        help='generate blank input CSV file using specified filename')
     parser.add_argument('-p', '--plot', action='store_true',
-                        help='Render plots.')
+                        help='render plots')
     args = parser.parse_args()
 
     # Generate blank CSV

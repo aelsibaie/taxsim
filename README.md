@@ -6,13 +6,13 @@
 
 
 ```
-usage: taxsim [-h] [-i InputFile.csv] [-g OutputFile.csv] [-p]
+usage: taxsim [-h] [-i input_file.csv] [-g default_taxpayer.csv] [-p]
 
 optional arguments:
   -h, --help            show this help message and exit
-  -i InputFile.csv, --input InputFile.csv
+  -i input_file.csv, --input input_file.csv
                         specify location of input taxpayer(s) CSV file
-  -g OutputFile.csv, --gencsv OutputFile.csv
+  -g default_taxpayer.csv, --gencsv default_taxpayer.csv
                         generate blank input CSV file using specified filename
   -p, --plot            render plots
 ```

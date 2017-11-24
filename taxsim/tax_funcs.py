@@ -27,11 +27,11 @@ def fed_payroll(policy, taxpayer):
     for party in payroll_taxes:
         for income in [taxpayer['ordinary_income1'], taxpayer['ordinary_income2']]:
             social_security = (
-                policy['ss_withholding_rate_{party}'.format(party=party)]
-                * min(income, policy['ss_wage_base']))
+                policy['ss_withholding_rate_{party}'.format(party=party)] *
+                min(income, policy['ss_wage_base']))
             medicare = (
-                policy['medicare_withholding_rate_{party}'.format(party=party)]
-                * min(income, policy['medicare_wage_base']))
+                policy['medicare_withholding_rate_{party}'.format(party=party)] *
+                min(income, policy['medicare_wage_base']))
             payroll_taxes[party] += social_security + medicare
 
     # Additional Medicare Tax
@@ -78,8 +78,8 @@ def fed_agi(policy, taxpayer, ordinary_income_after_401k):
         line10 = max(0, line8 - line9)
         if line10 > 0:
             line11 = (
-                policy["taxable_ss_top_threshold"][taxpayer['filing_status']]
-                - policy["taxable_ss_base_threshold"][taxpayer['filing_status']])
+                policy["taxable_ss_top_threshold"][taxpayer['filing_status']] -
+                policy["taxable_ss_base_threshold"][taxpayer['filing_status']])
             line12 = max(0, line10 - line11)
             line13 = min(line10, line11)
             line14 = line13 * policy["taxable_ss_base_amt"]
@@ -130,18 +130,18 @@ def fed_taxable_income(policy, taxpayer, agi):
     standard_deduction = policy["standard_deduction"][taxpayer['filing_status']]
     if taxpayer["ss_income"] > 0:
         standard_deduction = (
-            standard_deduction
-            + filers
-            * policy["additional_standard_deduction"][taxpayer['filing_status']])
+            standard_deduction +
+            filers *
+            policy["additional_standard_deduction"][taxpayer['filing_status']])
 
     # Itemized deductions
     itemized_total = (
-        taxpayer["medical_expenses"]
-        + taxpayer["sl_income_tax"]
-        + taxpayer["sl_property_tax"]
-        + taxpayer["interest_paid"]
-        + taxpayer["charity_contributions"]
-        + taxpayer["other_itemized"]
+        taxpayer["medical_expenses"] +
+        taxpayer["sl_income_tax"] +
+        taxpayer["sl_property_tax"] +
+        taxpayer["interest_paid"] +
+        taxpayer["charity_contributions"] +
+        taxpayer["other_itemized"]
     )
     # Check for phase out of itemized deductions
     # Itemized Deductions Worksheet—Line 29 https://www.irs.gov/pub/irs-pdf/i1040sca.pdf
@@ -208,12 +208,12 @@ def house_2018_taxable_income(policy, taxpayer, agi):
 
     # Itemized deductions
     itemized_total = (
-        taxpayer["medical_expenses"]
-        + taxpayer["sl_income_tax"]
-        + taxpayer["sl_property_tax"]
-        + taxpayer["interest_paid"]
-        + taxpayer["charity_contributions"]
-        + taxpayer["other_itemized"])
+        taxpayer["medical_expenses"] +
+        taxpayer["sl_income_tax"] +
+        taxpayer["sl_property_tax"] +
+        taxpayer["interest_paid"] +
+        taxpayer["charity_contributions"] +
+        taxpayer["other_itemized"])
     # Check for phase out of itemized deductions
     # Itemized Deductions Worksheet—Line 29 https://www.irs.gov/pub/irs-pdf/i1040sca.pdf
     pease_limitation = 0
@@ -277,17 +277,17 @@ def senate_2018_taxable_income(policy, taxpayer, agi):
     standard_deduction = policy["standard_deduction"][taxpayer['filing_status']]
     if taxpayer["ss_income"] > 0:
         standard_deduction = (
-            standard_deduction
-            + filers
-            * policy["additional_standard_deduction"][taxpayer['filing_status']])
+            standard_deduction +
+            filers *
+            policy["additional_standard_deduction"][taxpayer['filing_status']])
     # Itemized deductions
     itemized_total = (
-        taxpayer["medical_expenses"]
-        + taxpayer["sl_income_tax"]
-        + taxpayer["sl_property_tax"]
-        + taxpayer["interest_paid"]
-        + taxpayer["charity_contributions"]
-        + taxpayer["other_itemized"])
+        taxpayer["medical_expenses"] +
+        taxpayer["sl_income_tax"] +
+        taxpayer["sl_property_tax"] +
+        taxpayer["interest_paid"] +
+        taxpayer["charity_contributions"] +
+        taxpayer["other_itemized"])
     # Check for phase out of itemized deductions
     # Itemized Deductions Worksheet—Line 29 https://www.irs.gov/pub/irs-pdf/i1040sca.pdf
     pease_limitation_amt = 0
@@ -445,8 +445,8 @@ def fed_eitc(policy, taxpayer):
     if income > EITC_PHASEOUT:
         return max(
             0, EITC_MAX + (
-                (EITC_PHASEOUT - income)
-                * (EITC_MAX / (EITC_MAX_INCOME - EITC_PHASEOUT))))
+                (EITC_PHASEOUT - income) *
+                (EITC_MAX / (EITC_MAX_INCOME - EITC_PHASEOUT))))
 
 
 def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation, income_tax_before_credits):
@@ -499,8 +499,8 @@ def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation,
         amt = amt_taxable_income * policy["amt_rates"][0]  # 26% rate
     else:
         rate_diff = (
-            (policy["amt_rate_threshold"] * policy["amt_rates"][1])
-            - (policy["amt_rate_threshold"] * policy["amt_rates"][0]))
+            (policy["amt_rate_threshold"] * policy["amt_rates"][1]) -
+            (policy["amt_rate_threshold"] * policy["amt_rates"][0]))
         amt = amt_taxable_income * policy["amt_rates"][1] - rate_diff  # 28% rate
 
     line34 = income_tax_before_credits
