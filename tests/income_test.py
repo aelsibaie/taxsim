@@ -65,3 +65,19 @@ def test_401k_contributions():
     result2 = taxsim.calc_federal_taxes(taxpayer, policy)
 
     assert result1['agi'] < result2['agi']
+
+def test_0_income():
+    # ensure 401k_contributions reduce AGI
+    taxpayer = misc_funcs.create_taxpayer()
+    taxpayer['ordinary_income1'] = 0
+    result = taxsim.calc_federal_taxes(taxpayer, policy)
+
+    assert result['avg_effective_tax_rate'] == 0
+
+def test_addiitonal_standard_deduction():
+    # ensure 401k_contributions reduce AGI
+    taxpayer = misc_funcs.create_taxpayer()
+    taxpayer['ss_income'] = policy['taxable_ss_base_threshold']
+    result = taxsim.calc_federal_taxes(taxpayer, policy)
+
+    assert result['deductions'] > policy['standard_deduction'][0]
