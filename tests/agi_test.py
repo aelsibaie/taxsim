@@ -10,10 +10,10 @@ def test_ss_income_agi():
     result = taxsim.calc_federal_taxes(taxpayer, policy)
     assert result['agi'] < result["gross_income"]
 
+
 def test_ss_income_phasein2():
     # TODO: confirm this
     taxpayer = misc_funcs.create_taxpayer()
     taxpayer['ss_income'] = policy["taxable_ss_base_amt"]
     result = taxsim.calc_federal_taxes(taxpayer, policy)
     assert result['agi'] < result["gross_income"]
-

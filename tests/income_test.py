@@ -68,7 +68,6 @@ def test_401k_contributions():
 
 
 def test_0_income():
-    # ensure 401k_contributions reduce AGI
     taxpayer = misc_funcs.create_taxpayer()
     taxpayer['ordinary_income1'] = 0
     result = taxsim.calc_federal_taxes(taxpayer, policy)
@@ -77,7 +76,6 @@ def test_0_income():
 
 
 def test_addiitonal_standard_deduction():
-    # ensure 401k_contributions reduce AGI
     taxpayer = misc_funcs.create_taxpayer()
     taxpayer['ss_income'] = policy['taxable_ss_base_threshold'][0]
     result = taxsim.calc_federal_taxes(taxpayer, policy)
