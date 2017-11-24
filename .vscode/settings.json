@@ -1,4 +1,10 @@
 {
+    "python.unitTest.pyTestEnabled": true,
+    "python.linting.pep8Enabled": true,
+    "python.linting.pep8Args": [
+        "--max-line-length=100",
+        "--ignore=E266"
+    ],
     "cSpell.words": [
         "CSVs",
         "EITC",
