@@ -75,7 +75,7 @@ def test_0_income():
     assert result['avg_effective_tax_rate'] == 0
 
 
-def test_addiitonal_standard_deduction():
+def test_additional_standard_deduction():
     taxpayer = misc_funcs.create_taxpayer()
     taxpayer['ss_income'] = policy['taxable_ss_base_threshold'][0]
     result = taxsim.calc_federal_taxes(taxpayer, policy)
