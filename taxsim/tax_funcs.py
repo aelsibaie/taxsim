@@ -308,7 +308,7 @@ def senate_2018_taxable_income(policy, taxpayer, agi):
 
     deductions = max(itemized_total, standard_deduction)
     deduction_type = "standard" if deductions == standard_deduction else "itemized"
-    deductions += taxpayer['business_income'] * 0.174
+    deductions += taxpayer['business_income'] * 0.23 # as of senate amendment 12/1/2017
 
     taxable_income = max(0, taxable_income - personal_exemption_amt - deductions)
 
