@@ -277,6 +277,7 @@ def calc_house_2018_taxes(taxpayer, policy):
 # https://www.jct.gov/publications.html?func=startdown&id=5032
 def calc_senate_2018_taxes(taxpayer, policy):
     misc_funcs.validate_taxpayer(taxpayer)
+    # TODO: Technically the medical expense deduction is more generous, but it is not yet implemented
     taxpayer["sl_property_tax"] = min(10000, taxpayer["sl_property_tax"])
     taxpayer["sl_income_tax"] = 0
     taxpayer["interest_paid"] = min(17500 * 2, taxpayer["interest_paid"])
