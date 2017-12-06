@@ -400,7 +400,7 @@ def main():
         quit()
 
     # County data
-    if args.county != "":
+    if args.county is True:
         logging.info("Starting county level data module")
         county_results = county_data.process_county_data()
         county_results = pd.DataFrame(county_results)
