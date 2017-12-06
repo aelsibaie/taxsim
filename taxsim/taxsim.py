@@ -4,11 +4,13 @@ from datetime import datetime
 import json
 import argparse
 import sys
+import pandas as pd
 
 from . import csv_parser
 from . import tax_funcs
 from . import misc_funcs
 from . import graph
+from . import county_data
 
 
 current_datetime = datetime.now().strftime("%Y%m%dT%H%M%S")  # ISO 8601
@@ -378,6 +380,8 @@ def main():
                         help='generate blank input CSV file using specified filename')
     parser.add_argument('-p', '--plot', action='store_true',
                         help='render plots')
+    parser.add_argument('-c', '--county', action='store_true',
+                        help='estimate county level tax liability')
     args, unknown = parser.parse_known_args()
 
     # Check for unknown arguments and log warning
@@ -393,6 +397,14 @@ def main():
     # Render plots
     if args.plot is True:
         graph.render_graphs()
+        quit()
+
+    # County data
+    if args.county != "":
+        logging.info("Starting county level data module")
+        county_results = county_data.process_county_data()
+        county_results = pd.DataFrame(county_results)
+        county_results.to_csv(RESULTS_DIR + 'county_results.csv', index=False)
         quit()
 
     ##### Main Script #####
