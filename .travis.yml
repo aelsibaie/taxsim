@@ -10,3 +10,5 @@ script:
   - python taxsim
 after_success:
   - codecov --token=f891d7ee-30bf-4c1c-b93b-643ea636c88c
+notifications:
+  slack: taxfoundation:kX1efSnT7Gwuh8nuKviECq3r
