@@ -1,3 +1,8 @@
+"""
+This module processes county level data released by the IRS
+Latest data files are located here: https://www.irs.gov/statistics/soi-tax-stats-county-data
+"""
+
 import os
 import pandas
 import logging
@@ -69,28 +74,32 @@ def process_county_data():
         row_calcs['business_professional_inc'] = div(row.A00900, row.N00900)
 
         # DEDUCTIONS
-        '''
-        row_calcs['total_itemized'] = div(row.A04470, row.N04470)
-
-        row_calcs['state_local_income'] = div(row.A18425, row.N18425)
-        row_calcs['state_local_sales'] = div(row.A18450, row.N18450)
-        row_calcs['state_local_prop'] = div(row.A18500, row.N18500)
-        row_calcs['taxes_paid_total'] = div(row.A18300, row.N18300)  # this should be larger than state_local_prop, state_local_sales, and state_local_income combined TODO: write test
-
-        row_calcs['mort_int'] = div(row.A19300, row.N19300)
-
-        row_calcs['charity_cont'] = div(row.A19700, row.N19700)
-        '''
         row_calcs['total_itemized'] = div(row.A04470, row.N04470)
 
         row_calcs['state_local_income'] = div(row.A18425, row.N04470)
         row_calcs['state_local_sales'] = div(row.A18450, row.N04470)
+        # Pick either sales or income tax deduction
+        row_calcs['state_local_sales_or_inc'] = max(
+            row_calcs['state_local_sales'],
+            row_calcs['state_local_income'])
         row_calcs['state_local_prop'] = div(row.A18500, row.N04470)
-        row_calcs['taxes_paid_total'] = div(row.A18300, row.N04470)  # this should be larger than state_local_prop, state_local_sales, and state_local_income combined TODO: write test
+
+        calculated_taxes_paid = row_calcs['state_local_prop'] + row_calcs['state_local_sales_or_inc']
+        ratio_inc_sales = div(row_calcs['state_local_sales_or_inc'], calculated_taxes_paid)
+        ratio_prop = div(row_calcs['state_local_prop'], calculated_taxes_paid)
+        
+        row_calcs['taxes_paid_total'] = div(row.A18300, row.N04470)  # TODO: write test
+
+        row_calcs['state_local_sales_or_inc'] = ratio_inc_sales * row_calcs['taxes_paid_total']
+        row_calcs['state_local_prop'] = ratio_prop * row_calcs['taxes_paid_total']
 
         row_calcs['mort_int'] = div(row.A19300, row.N04470)
 
         row_calcs['charity_cont'] = div(row.A19700, row.N04470)
+  
+
+
+
         # Append final results to list
         rows.append(row_calcs)
 
