@@ -302,12 +302,15 @@ def calc_senate_2018_taxes(taxpayer, policy):
     results["agi"] = agi
 
     # Taxable income
-    taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt = tax_funcs.senate_2018_taxable_income(policy, taxpayer, agi)
+    taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt, taxable_income_before, new_agi = tax_funcs.senate_2018_taxable_income(policy, taxpayer, agi)
     results["taxable_income"] = taxable_income
+    results["taxable_income_before"] = taxable_income_before
     results["deduction_type"] = deduction_type
     results["deductions"] = deductions
     results["personal_exemption_amt"] = personal_exemption_amt
     results["pease_limitation_amt"] = pease_limitation_amt
+    agi = new_agi
+    results['agi'] = new_agi
 
     # Ordinary income tax
     income_tax_before_credits = tax_funcs.fed_ordinary_income_tax(policy, taxpayer, taxable_income)

@@ -307,12 +307,37 @@ def senate_2018_taxable_income(policy, taxpayer, agi):
             itemized_total = line1 - line9  # aka line10
 
     deductions = max(itemized_total, standard_deduction)
-    deduction_type = "standard" if deductions == standard_deduction else "itemized"
-    deductions += taxpayer['business_income'] * 0.23 # as of senate amendment 12/1/2017
+    deduction_type = "standard" if deductions == standard_deduction else "itemized"  # TODO: fix
+
+    taxable_income_before = max(0, taxable_income - personal_exemption_amt - deductions)
+
+    BUSINESS_DEDUCTION_RATE = 0.23
+
+    business_income_deduction = taxpayer['business_income'] * BUSINESS_DEDUCTION_RATE  # as of senate amendment 12/1/2017
+
+    business_income_deduction = min(business_income_deduction, taxable_income_before * BUSINESS_DEDUCTION_RATE)
+
+    if taxpayer["filing_status"] == 1:
+        po_start = 500000
+        po_length = 100000
+    else:
+        po_start = 250000
+        po_length = 50000
+
+    if taxable_income_before > po_start:
+        taxable_income_over = taxable_income_before - po_start
+        if taxable_income_over > po_length:
+            business_income_deduction = 0
+        else:
+            multiplier = 1 - (taxable_income_over / po_length)
+            business_income_deduction = business_income_deduction * multiplier
+
+    deductions += business_income_deduction
+    agi = agi - business_income_deduction
 
     taxable_income = max(0, taxable_income - personal_exemption_amt - deductions)
 
-    return taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt
+    return taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt, taxable_income_before, agi
 
 
 def fed_ordinary_income_tax(policy, taxpayer, taxable_income):

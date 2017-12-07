@@ -38,6 +38,19 @@ graphs = [
         "step": 100
     },
     {
+        "main_income_type": "Business Income",
+        "file_name": "married_3_business",
+        "filing_status": 1,
+        "child_dep": 3,
+        "income_ratios": {
+            "ordinary": 0.0,
+            "business": 1.0,
+            "ss": 0.0,
+            "qualified": 0.0},
+        "payroll": 0,
+        "step": 100
+    },
+    {
         "main_income_type": "Qualified Income",
         "file_name": "single_0_qualified",
         "filing_status": 0,
