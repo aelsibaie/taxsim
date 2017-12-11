@@ -311,11 +311,10 @@ def senate_2018_taxable_income(policy, taxpayer, agi):
 
     taxable_income_before = max(0, taxable_income - personal_exemption_amt - deductions)
 
-    BUSINESS_DEDUCTION_RATE = 0.23
+    BUSINESS_DEDUCTION_RATE = 0.23 # as of senate amendment 12/1/2017
 
-    business_income_deduction = taxpayer['business_income'] * BUSINESS_DEDUCTION_RATE  # as of senate amendment 12/1/2017
-
-    business_income_deduction = min(business_income_deduction, taxable_income_before * BUSINESS_DEDUCTION_RATE)
+    qualified_business_income = taxpayer['business_income'] * BUSINESS_DEDUCTION_RATE
+    taxable_income_limit = taxable_income_before * BUSINESS_DEDUCTION_RATE
 
     if taxpayer["filing_status"] == 1:
         po_start = 500000
@@ -327,12 +326,17 @@ def senate_2018_taxable_income(policy, taxpayer, agi):
     if taxable_income_before > po_start:
         taxable_income_over = taxable_income_before - po_start
         if taxable_income_over > po_length:
-            business_income_deduction = 0
+            qualified_business_income = 0
         else:
             multiplier = 1 - (taxable_income_over / po_length)
-            business_income_deduction = business_income_deduction * multiplier
+            qualified_business_income = qualified_business_income * multiplier
+
+    business_income_deduction = min(qualified_business_income, taxable_income_limit)
 
     deductions += business_income_deduction
+    # This is weird, but it changes AGI after AGI has been used to calculate taxable income
+    # so we need to make sure to change it. This is a strange proposal and probably doesn't
+    # need a better implementation, but be aware of it.
     agi = agi - business_income_deduction
 
     taxable_income = max(0, taxable_income - personal_exemption_amt - deductions)
