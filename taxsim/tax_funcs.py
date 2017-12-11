@@ -468,15 +468,16 @@ def fed_eitc(policy, taxpayer):
     EITC_PHASEOUT = policy["eitc_phaseout_" + status][dependentCount]
     EITC_MAX_INCOME = policy["eitc_max_income_" + status][dependentCount]
     if income < EITC_THRESHOLD:
-        return income * (EITC_MAX / EITC_THRESHOLD)
+        eitc = income * (EITC_MAX / EITC_THRESHOLD)
     if income >= EITC_THRESHOLD and income <= EITC_PHASEOUT:
-        return EITC_MAX
+        eitc = EITC_MAX
     if income > EITC_PHASEOUT:
-        return max(
+        eitc = max(
             0, EITC_MAX + (
                 (EITC_PHASEOUT - income) *
                 (EITC_MAX / (EITC_MAX_INCOME - EITC_PHASEOUT))))
-
+    eitc = round(eitc, 2)
+    return eitc
 
 def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation, income_tax_before_credits):
     amt = 0

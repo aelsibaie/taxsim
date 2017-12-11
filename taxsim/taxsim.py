@@ -5,6 +5,7 @@ import json
 import argparse
 import sys
 import pandas as pd
+import copy
 
 from . import csv_parser
 from . import tax_funcs
@@ -43,7 +44,7 @@ senate_2018_policy = csv_parser.load_policy(PARAMS_DIR + SENATE_2018_FILE)
 
 
 ##### Current Law #####
-def calc_federal_taxes(taxpayer, policy):
+def calc_federal_taxes(taxpayer, policy, mrate=True):
     misc_funcs.validate_taxpayer(taxpayer)
     taxpayer["interest_paid"] = min(17500 * 2, taxpayer["interest_paid"])
 
@@ -139,6 +140,23 @@ def calc_federal_taxes(taxpayer, policy):
     # Average effective tax rate without payroll
     results["avg_effective_tax_rate_wo_payroll"] = rates["avg_effective_tax_rate_wo_payroll"]
 
+    if mrate is True:
+        #Marginal rate calculations use tax_burden, NOT income_tax_after_credits
+        temp_taxpayer1 = copy.copy(taxpayer)
+        temp_taxpayer1['ordinary_income1'] = temp_taxpayer1['ordinary_income1'] + 1
+
+        temp_taxpayer2 = copy.copy(taxpayer)
+        temp_taxpayer2['business_income'] = temp_taxpayer2['business_income'] + 1
+
+        # Setting mrate to True results in infinite recursion
+        temp_results1 = calc_federal_taxes(temp_taxpayer1, policy, mrate=False)
+        marginal_income_tax_rate = (temp_results1["tax_burden"] - results["tax_burden"])
+        results['marginal_income_tax_rate'] = round(marginal_income_tax_rate, 4)
+
+        temp_results2 = calc_federal_taxes(temp_taxpayer2, policy, mrate=False)
+        marginal_business_income_tax_rate = (temp_results2["tax_burden"] - results["tax_burden"])
+        results['marginal_business_income_tax_rate'] = round(marginal_business_income_tax_rate, 4)
+
     return results
 
 
@@ -146,7 +164,7 @@ def calc_federal_taxes(taxpayer, policy):
 # Description Of H.R.1, The "Tax Cuts And Jobs Act"
 # November 03, 2017 (before November 6, 2017 markup)
 # https://www.jct.gov/publications.html?func=startdown&id=5031
-def calc_house_2018_taxes(taxpayer, policy):
+def calc_house_2018_taxes(taxpayer, policy, mrate=True):
     misc_funcs.validate_taxpayer(taxpayer)
     # NEW: Itemized deduction limitations
     taxpayer["sl_property_tax"] = min(10000, taxpayer["sl_property_tax"])
@@ -270,6 +288,23 @@ def calc_house_2018_taxes(taxpayer, policy):
     # Average effective tax rate without payroll
     results["avg_effective_tax_rate_wo_payroll"] = rates["avg_effective_tax_rate_wo_payroll"]
 
+    if mrate is True:
+        #Marginal rate calculations use tax_burden, NOT income_tax_after_credits
+        temp_taxpayer1 = copy.copy(taxpayer)
+        temp_taxpayer1['ordinary_income1'] = temp_taxpayer1['ordinary_income1'] + 1
+
+        temp_taxpayer2 = copy.copy(taxpayer)
+        temp_taxpayer2['business_income'] = temp_taxpayer2['business_income'] + 1
+
+        # Setting mrate to True results in infinite recursion
+        temp_results1 = calc_house_2018_taxes(temp_taxpayer1, policy, mrate=False)
+        marginal_income_tax_rate = (temp_results1["tax_burden"] - results["tax_burden"])
+        results['marginal_income_tax_rate'] = round(marginal_income_tax_rate, 4)
+
+        temp_results2 = calc_house_2018_taxes(temp_taxpayer2, policy, mrate=False)
+        marginal_business_income_tax_rate = (temp_results2["tax_burden"] - results["tax_burden"])
+        results['marginal_business_income_tax_rate'] = round(marginal_business_income_tax_rate, 4)
+
     return results
 
 
@@ -277,7 +312,7 @@ def calc_house_2018_taxes(taxpayer, policy):
 # Description Of The Chairman's Mark Of The "Tax Cuts And Jobs Act"
 # November 09, 2017 (before November 13, 2017 markup)
 # https://www.jct.gov/publications.html?func=startdown&id=5032
-def calc_senate_2018_taxes(taxpayer, policy):
+def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     misc_funcs.validate_taxpayer(taxpayer)
     # TODO: Technically the medical expense deduction is more generous, but it is not yet implemented
     taxpayer["sl_property_tax"] = min(10000, taxpayer["sl_property_tax"])
@@ -364,6 +399,24 @@ def calc_senate_2018_taxes(taxpayer, policy):
 
     # Average effective tax rate without payroll
     results["avg_effective_tax_rate_wo_payroll"] = rates["avg_effective_tax_rate_wo_payroll"]
+    
+    if mrate is True:
+        #Marginal rate calculations use tax_burden, NOT income_tax_after_credits
+        temp_taxpayer1 = copy.copy(taxpayer)
+        temp_taxpayer1['ordinary_income1'] = temp_taxpayer1['ordinary_income1'] + 1
+
+        temp_taxpayer2 = copy.copy(taxpayer)
+        temp_taxpayer2['business_income'] = temp_taxpayer2['business_income'] + 1
+
+        # Setting mrate to True results in infinite recursion
+        temp_results1 = calc_senate_2018_taxes(temp_taxpayer1, policy, mrate=False)
+        marginal_income_tax_rate = (temp_results1["tax_burden"] - results["tax_burden"])
+        results['marginal_income_tax_rate'] = round(marginal_income_tax_rate, 4)
+
+        temp_results2 = calc_senate_2018_taxes(temp_taxpayer2, policy, mrate=False)
+        marginal_business_income_tax_rate = (temp_results2["tax_burden"] - results["tax_burden"])
+        results['marginal_business_income_tax_rate'] = round(marginal_business_income_tax_rate, 4)
+
 
     return results
 
