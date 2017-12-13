@@ -17,6 +17,7 @@ from . import county_data
 current_datetime = datetime.now().strftime("%Y%m%dT%H%M%S")  # ISO 8601
 
 ##### Default Configuration #####
+MARG_RATE_BOUND = 1000
 # Input taxpayers
 TAXPAYERS_FILE = "taxpayers.csv"
 # Policy parameters
@@ -95,14 +96,8 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
     results["selected_tax_before_credits"] = income_tax_before_credits
 
     # AMT
-    amt = tax_funcs.fed_amt(
-        policy,
-        taxpayer,
-        deduction_type,
-        deductions,
-        agi,
-        pease_limitation_amt,
-        income_tax_before_credits)
+    amt, amt_taxable_income = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits)
+    results['amt_taxable_income'] = amt_taxable_income
     results["amt"] = amt
 
     income_tax_before_credits += amt
@@ -235,14 +230,8 @@ def calc_house_2018_taxes(taxpayer, policy, mrate=True):
     results["selected_tax_before_credits"] = income_tax_before_credits
 
     # AMT
-    amt = tax_funcs.fed_amt(
-        policy,
-        taxpayer,
-        deduction_type,
-        deductions,
-        agi,
-        pease_limitation_amt,
-        income_tax_before_credits)
+    amt, amt_taxable_income = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits)
+    results['amt_taxable_income'] = amt_taxable_income
     results["amt"] = amt
 
     income_tax_before_credits += amt
@@ -359,10 +348,11 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     results["selected_tax_before_credits"] = income_tax_before_credits  # form1040_line44
 
     # AMT
-    amt = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits)
+    amt, amt_taxable_income = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits)
+    results['amt_taxable_income'] = amt_taxable_income
     results["amt"] = amt
 
-    income_tax_before_credits += amt
+    income_tax_before_credits = income_tax_before_credits + amt
     results["income_tax_before_credits_with_amt"] = income_tax_before_credits
 
     # CTC
@@ -378,12 +368,11 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     dep_credit = 500 * taxpayer["nonchild_dep"]
 
     # Tax after nonrefundable credits
-    income_tax_after_credits = round(max(0, income_tax_before_credits - ctc - dep_credit), 2)
+    income_tax_after_credits = max(0, income_tax_before_credits - ctc - dep_credit)
     results["income_tax_after_nonrefundable_credits"] = income_tax_after_credits
 
     # Tax after ALL credits
-    results["income_tax_after_credits"] = round(
-        income_tax_after_credits - actc - eitc, 2)
+    results["income_tax_after_credits"] = income_tax_after_credits - actc - eitc
 
     rates = misc_funcs.calc_effective_rates(results["income_tax_after_credits"],
                                             payroll_taxes,
@@ -403,19 +392,19 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     if mrate is True:
         #Marginal rate calculations use tax_burden, NOT income_tax_after_credits
         temp_taxpayer1 = copy.copy(taxpayer)
-        temp_taxpayer1['ordinary_income1'] = temp_taxpayer1['ordinary_income1'] + 1
+        temp_taxpayer1['ordinary_income1'] = temp_taxpayer1['ordinary_income1'] + MARG_RATE_BOUND
 
         temp_taxpayer2 = copy.copy(taxpayer)
-        temp_taxpayer2['business_income'] = temp_taxpayer2['business_income'] + 1
+        temp_taxpayer2['business_income'] = temp_taxpayer2['business_income'] + MARG_RATE_BOUND
 
         # Setting mrate to True results in infinite recursion
         temp_results1 = calc_senate_2018_taxes(temp_taxpayer1, policy, mrate=False)
-        marginal_income_tax_rate = (temp_results1["tax_burden"] - results["tax_burden"])
-        results['marginal_income_tax_rate'] = round(marginal_income_tax_rate, 4)
+        marginal_income_tax_rate = (temp_results1["tax_burden"] - results["tax_burden"]) / MARG_RATE_BOUND
+        results['marginal_income_tax_rate'] = marginal_income_tax_rate
 
         temp_results2 = calc_senate_2018_taxes(temp_taxpayer2, policy, mrate=False)
-        marginal_business_income_tax_rate = (temp_results2["tax_burden"] - results["tax_burden"])
-        results['marginal_business_income_tax_rate'] = round(marginal_business_income_tax_rate, 4)
+        marginal_business_income_tax_rate = (temp_results2["tax_burden"] - results["tax_burden"]) / MARG_RATE_BOUND
+        results['marginal_business_income_tax_rate'] = marginal_business_income_tax_rate
 
 
     return results

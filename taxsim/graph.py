@@ -208,25 +208,9 @@ graphs = [
 
 graphs = [
     {
-        "main_income_type": "Ordinary Income",
-        "file_name": "m_single_0_ordinary",
-        "filing_status": 0,
-        "child_dep": 0,
-        "income_ratios": {
-            "ordinary": 1.0,
-            "business": 0.0,
-            "ss": 0.0,
-            "qualified": 0.0},
-        "payroll": 0,
-        "step": 25,
-        "start": 1,
-        "stop": 10000,
-        "rate_type": "marginal"
-    },
-    {
         "main_income_type": "Business Income",
-        "file_name": "m_single_0_business",
-        "filing_status": 0,
+        "file_name": "m_married_0_business",
+        "filing_status": 1,
         "child_dep": 0,
         "income_ratios": {
             "ordinary": 0.0,
@@ -236,7 +220,23 @@ graphs = [
         "payroll": 0,
         "step": 1,
         "start": 1,
-        "stop": 100000,
+        "stop": 1400000,
+        "rate_type": "marginal"
+    },
+    {
+        "main_income_type": "Ordinary Income",
+        "file_name": "m_married_0_ordinary",
+        "filing_status": 1,
+        "child_dep": 0,
+        "income_ratios": {
+            "ordinary": 1.0,
+            "business": 0.0,
+            "ss": 0.0,
+            "qualified": 0.0},
+        "payroll": 0,
+        "step": 1,
+        "start": 1,
+        "stop": 1400000,
         "rate_type": "marginal"
     }
 ]
@@ -336,7 +336,7 @@ def make_graph(main_income_type,
     ax.xaxis.set_major_formatter(FuncFormatter('${:,.0f}'.format))
 
     # Current Law
-    ax.plot(
+    '''ax.plot(
         current_law_df["gross_income"],
         current_law_df[graph_rate_type],
         drawstyle=drawstyle_string,
@@ -347,7 +347,7 @@ def make_graph(main_income_type,
         house_2018_df[graph_rate_type],
         drawstyle=drawstyle_string,
         label='House 2018 Proposal')
-    # Senate 2018 Proposal
+    # Senate 2018 Proposal'''
     ax.plot(
         senate_2018_df["gross_income"],
         senate_2018_df[graph_rate_type],

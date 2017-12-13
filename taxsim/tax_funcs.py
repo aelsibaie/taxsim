@@ -536,7 +536,7 @@ def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation,
     line34 = income_tax_before_credits
     amt = max(0, amt - line34)  # aka line35
 
-    return amt
+    return amt, amt_taxable_income
 
 
 def fed_qualified_income(policy, taxpayer, taxable_income, income_tax_before_credits):
