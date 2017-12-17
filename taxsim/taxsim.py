@@ -425,7 +425,7 @@ def main():
                         help='generate blank input CSV file using specified filename')
     parser.add_argument('-p', '--plot',
                         type=str,
-                        default="average",
+                        default="",
                         metavar="plot_type",
                         choices=['average', 'marginal'],
                         help='render average or marginal rate plots')
