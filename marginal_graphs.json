@@ -1,0 +1,36 @@
+[
+    {
+        "main_income_type": "Business Income",
+        "file_name": "m_married_0_business",
+        "filing_status": 1,
+        "child_dep": 0,
+        "income_ratios": {
+            "ordinary": 0.0,
+            "business": 1.0,
+            "ss": 0.0,
+            "qualified": 0.0
+        },
+        "payroll": 0,
+        "step": 1000,
+        "start": 1,
+        "stop": 1400,
+        "rate_type": "marginal"
+    },
+    {
+        "main_income_type": "Ordinary Income",
+        "file_name": "m_married_0_ordinary",
+        "filing_status": 1,
+        "child_dep": 0,
+        "income_ratios": {
+            "ordinary": 1.0,
+            "business": 0.0,
+            "ss": 0.0,
+            "qualified": 0.0
+        },
+        "payroll": 0,
+        "step": 1000,
+        "start": 1,
+        "stop": 1400,
+        "rate_type": "marginal"
+    }
+]
