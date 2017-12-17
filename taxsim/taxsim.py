@@ -304,7 +304,7 @@ def calc_house_2018_taxes(taxpayer, policy, mrate=True):
 def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     misc_funcs.validate_taxpayer(taxpayer)
     # TODO: Technically the medical expense deduction is more generous, but it is not yet implemented
-    taxpayer["sl_property_tax"] = min(10000, taxpayer["sl_property_tax"])
+    taxpayer["sl_property_tax"] = min(10000, taxpayer["sl_property_tax"] + taxpayer["sl_income_tax"]) # sl_income will be included in property_tax
     taxpayer["sl_income_tax"] = 0
     taxpayer["interest_paid"] = min(17500 * 2, taxpayer["interest_paid"])
 
@@ -356,7 +356,7 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     results["income_tax_before_credits_with_amt"] = income_tax_before_credits
 
     # CTC
-    ctc, actc = tax_funcs.fed_ctc_actc_limited(policy, taxpayer, agi, 1100)
+    ctc, actc = tax_funcs.fed_ctc_actc_limited(policy, taxpayer, agi, 1400)
     results["ctc"] = ctc
     results["actc"] = actc
 

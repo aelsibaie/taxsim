@@ -218,9 +218,9 @@ graphs = [
             "ss": 0.0,
             "qualified": 0.0},
         "payroll": 0,
-        "step": 1,
+        "step": 1000,
         "start": 1,
-        "stop": 1400000,
+        "stop": 1400,
         "rate_type": "marginal"
     },
     {
@@ -234,9 +234,9 @@ graphs = [
             "ss": 0.0,
             "qualified": 0.0},
         "payroll": 0,
-        "step": 1,
+        "step": 1000,
         "start": 1,
-        "stop": 1400000,
+        "stop": 1400,
         "rate_type": "marginal"
     }
 ]
