@@ -6,7 +6,8 @@
 
 
 ```
-usage: taxsim [-h] [-i input_file.csv] [-g default_taxpayer.csv] [-p]
+usage: taxsim [-h] [-i input_file.csv] [-g default_taxpayer.csv]
+              [-p plot_type] [-c]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -14,7 +15,9 @@ optional arguments:
                         specify location of input taxpayer(s) CSV file
   -g default_taxpayer.csv, --gencsv default_taxpayer.csv
                         generate blank input CSV file using specified filename
-  -p, --plot            render plots
+  -p plot_type, --plot plot_type
+                        render average or marginal rate plots
+  -c, --county          estimate county level tax liability
 ```
 
 Other usage notes:
@@ -23,4 +26,4 @@ Other usage notes:
  
  - List of example taxpayers is in `taxpayers.csv`
  
- - All policy parameters can be found in the `params` folder
+ - Most policy parameters can be found in the `params` folder

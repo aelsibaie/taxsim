@@ -4,16 +4,20 @@ from datetime import datetime
 import json
 import argparse
 import sys
+import pandas as pd
+import copy
 
 from . import csv_parser
 from . import tax_funcs
 from . import misc_funcs
 from . import graph
+from . import county_data
 
 
 current_datetime = datetime.now().strftime("%Y%m%dT%H%M%S")  # ISO 8601
 
 ##### Default Configuration #####
+MARG_RATE_BOUND = 1000
 # Input taxpayers
 TAXPAYERS_FILE = "taxpayers.csv"
 # Policy parameters
@@ -41,7 +45,7 @@ senate_2018_policy = csv_parser.load_policy(PARAMS_DIR + SENATE_2018_FILE)
 
 
 ##### Current Law #####
-def calc_federal_taxes(taxpayer, policy):
+def calc_federal_taxes(taxpayer, policy, mrate=True):
     misc_funcs.validate_taxpayer(taxpayer)
     taxpayer["interest_paid"] = min(17500 * 2, taxpayer["interest_paid"])
 
@@ -92,14 +96,8 @@ def calc_federal_taxes(taxpayer, policy):
     results["selected_tax_before_credits"] = income_tax_before_credits
 
     # AMT
-    amt = tax_funcs.fed_amt(
-        policy,
-        taxpayer,
-        deduction_type,
-        deductions,
-        agi,
-        pease_limitation_amt,
-        income_tax_before_credits)
+    amt, amt_taxable_income = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits)
+    results['amt_taxable_income'] = amt_taxable_income
     results["amt"] = amt
 
     income_tax_before_credits += amt
@@ -137,6 +135,23 @@ def calc_federal_taxes(taxpayer, policy):
     # Average effective tax rate without payroll
     results["avg_effective_tax_rate_wo_payroll"] = rates["avg_effective_tax_rate_wo_payroll"]
 
+    if mrate is True:
+        #Marginal rate calculations use tax_burden, NOT income_tax_after_credits
+        temp_taxpayer1 = copy.copy(taxpayer)
+        temp_taxpayer1['ordinary_income1'] = temp_taxpayer1['ordinary_income1'] + MARG_RATE_BOUND
+
+        temp_taxpayer2 = copy.copy(taxpayer)
+        temp_taxpayer2['business_income'] = temp_taxpayer2['business_income'] + MARG_RATE_BOUND
+
+        # Setting mrate to True results in infinite recursion
+        temp_results1 = calc_federal_taxes(temp_taxpayer1, policy, mrate=False)
+        marginal_income_tax_rate = (temp_results1["tax_burden"] - results["tax_burden"]) / MARG_RATE_BOUND
+        results['marginal_income_tax_rate'] = marginal_income_tax_rate
+
+        temp_results2 = calc_federal_taxes(temp_taxpayer2, policy, mrate=False)
+        marginal_business_income_tax_rate = (temp_results2["tax_burden"] - results["tax_burden"]) / MARG_RATE_BOUND
+        results['marginal_business_income_tax_rate'] = marginal_business_income_tax_rate
+
     return results
 
 
@@ -144,7 +159,7 @@ def calc_federal_taxes(taxpayer, policy):
 # Description Of H.R.1, The "Tax Cuts And Jobs Act"
 # November 03, 2017 (before November 6, 2017 markup)
 # https://www.jct.gov/publications.html?func=startdown&id=5031
-def calc_house_2018_taxes(taxpayer, policy):
+def calc_house_2018_taxes(taxpayer, policy, mrate=True):
     misc_funcs.validate_taxpayer(taxpayer)
     # NEW: Itemized deduction limitations
     taxpayer["sl_property_tax"] = min(10000, taxpayer["sl_property_tax"])
@@ -215,14 +230,8 @@ def calc_house_2018_taxes(taxpayer, policy):
     results["selected_tax_before_credits"] = income_tax_before_credits
 
     # AMT
-    amt = tax_funcs.fed_amt(
-        policy,
-        taxpayer,
-        deduction_type,
-        deductions,
-        agi,
-        pease_limitation_amt,
-        income_tax_before_credits)
+    amt, amt_taxable_income = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits)
+    results['amt_taxable_income'] = amt_taxable_income
     results["amt"] = amt
 
     income_tax_before_credits += amt
@@ -268,6 +277,23 @@ def calc_house_2018_taxes(taxpayer, policy):
     # Average effective tax rate without payroll
     results["avg_effective_tax_rate_wo_payroll"] = rates["avg_effective_tax_rate_wo_payroll"]
 
+    if mrate is True:
+        #Marginal rate calculations use tax_burden, NOT income_tax_after_credits
+        temp_taxpayer1 = copy.copy(taxpayer)
+        temp_taxpayer1['ordinary_income1'] = temp_taxpayer1['ordinary_income1'] + MARG_RATE_BOUND
+
+        temp_taxpayer2 = copy.copy(taxpayer)
+        temp_taxpayer2['business_income'] = temp_taxpayer2['business_income'] + MARG_RATE_BOUND
+
+        # Setting mrate to True results in infinite recursion
+        temp_results1 = calc_house_2018_taxes(temp_taxpayer1, policy, mrate=False)
+        marginal_income_tax_rate = (temp_results1["tax_burden"] - results["tax_burden"]) / MARG_RATE_BOUND
+        results['marginal_income_tax_rate'] = marginal_income_tax_rate
+
+        temp_results2 = calc_house_2018_taxes(temp_taxpayer2, policy, mrate=False)
+        marginal_business_income_tax_rate = (temp_results2["tax_burden"] - results["tax_burden"]) / MARG_RATE_BOUND
+        results['marginal_business_income_tax_rate'] = marginal_business_income_tax_rate
+
     return results
 
 
@@ -275,9 +301,10 @@ def calc_house_2018_taxes(taxpayer, policy):
 # Description Of The Chairman's Mark Of The "Tax Cuts And Jobs Act"
 # November 09, 2017 (before November 13, 2017 markup)
 # https://www.jct.gov/publications.html?func=startdown&id=5032
-def calc_senate_2018_taxes(taxpayer, policy):
+def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     misc_funcs.validate_taxpayer(taxpayer)
-    taxpayer["sl_property_tax"] = 0
+    # TODO: Technically the medical expense deduction is more generous, but it is not yet implemented
+    taxpayer["sl_property_tax"] = min(10000, taxpayer["sl_property_tax"] + taxpayer["sl_income_tax"]) # sl_income will be included in property_tax
     taxpayer["sl_income_tax"] = 0
     taxpayer["interest_paid"] = min(17500 * 2, taxpayer["interest_paid"])
 
@@ -299,12 +326,15 @@ def calc_senate_2018_taxes(taxpayer, policy):
     results["agi"] = agi
 
     # Taxable income
-    taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt = tax_funcs.senate_2018_taxable_income(policy, taxpayer, agi)
+    taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt, taxable_income_before, new_agi = tax_funcs.senate_2018_taxable_income(policy, taxpayer, agi)
     results["taxable_income"] = taxable_income
+    results["taxable_income_before"] = taxable_income_before
     results["deduction_type"] = deduction_type
     results["deductions"] = deductions
     results["personal_exemption_amt"] = personal_exemption_amt
     results["pease_limitation_amt"] = pease_limitation_amt
+    agi = new_agi
+    results['agi'] = new_agi
 
     # Ordinary income tax
     income_tax_before_credits = tax_funcs.fed_ordinary_income_tax(policy, taxpayer, taxable_income)
@@ -318,14 +348,15 @@ def calc_senate_2018_taxes(taxpayer, policy):
     results["selected_tax_before_credits"] = income_tax_before_credits  # form1040_line44
 
     # AMT
-    amt = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits)
+    amt, amt_taxable_income = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits)
+    results['amt_taxable_income'] = amt_taxable_income
     results["amt"] = amt
 
-    income_tax_before_credits += amt
+    income_tax_before_credits = income_tax_before_credits + amt
     results["income_tax_before_credits_with_amt"] = income_tax_before_credits
 
     # CTC
-    ctc, actc = tax_funcs.fed_ctc_actc_limited(policy, taxpayer, agi, 1100)
+    ctc, actc = tax_funcs.fed_ctc_actc_limited(policy, taxpayer, agi, 1400)
     results["ctc"] = ctc
     results["actc"] = actc
 
@@ -337,12 +368,11 @@ def calc_senate_2018_taxes(taxpayer, policy):
     dep_credit = 500 * taxpayer["nonchild_dep"]
 
     # Tax after nonrefundable credits
-    income_tax_after_credits = round(max(0, income_tax_before_credits - ctc - dep_credit), 2)
+    income_tax_after_credits = max(0, income_tax_before_credits - ctc - dep_credit)
     results["income_tax_after_nonrefundable_credits"] = income_tax_after_credits
 
     # Tax after ALL credits
-    results["income_tax_after_credits"] = round(
-        income_tax_after_credits - actc - eitc, 2)
+    results["income_tax_after_credits"] = income_tax_after_credits - actc - eitc
 
     rates = misc_funcs.calc_effective_rates(results["income_tax_after_credits"],
                                             payroll_taxes,
@@ -358,6 +388,24 @@ def calc_senate_2018_taxes(taxpayer, policy):
 
     # Average effective tax rate without payroll
     results["avg_effective_tax_rate_wo_payroll"] = rates["avg_effective_tax_rate_wo_payroll"]
+    
+    if mrate is True:
+        #Marginal rate calculations use tax_burden, NOT income_tax_after_credits
+        temp_taxpayer1 = copy.copy(taxpayer)
+        temp_taxpayer1['ordinary_income1'] = temp_taxpayer1['ordinary_income1'] + MARG_RATE_BOUND
+
+        temp_taxpayer2 = copy.copy(taxpayer)
+        temp_taxpayer2['business_income'] = temp_taxpayer2['business_income'] + MARG_RATE_BOUND
+
+        # Setting mrate to True results in infinite recursion
+        temp_results1 = calc_senate_2018_taxes(temp_taxpayer1, policy, mrate=False)
+        marginal_income_tax_rate = (temp_results1["tax_burden"] - results["tax_burden"]) / MARG_RATE_BOUND
+        results['marginal_income_tax_rate'] = marginal_income_tax_rate
+
+        temp_results2 = calc_senate_2018_taxes(temp_taxpayer2, policy, mrate=False)
+        marginal_business_income_tax_rate = (temp_results2["tax_burden"] - results["tax_burden"]) / MARG_RATE_BOUND
+        results['marginal_business_income_tax_rate'] = marginal_business_income_tax_rate
+
 
     return results
 
@@ -375,8 +423,14 @@ def main():
                         default="",
                         metavar="default_taxpayer.csv",
                         help='generate blank input CSV file using specified filename')
-    parser.add_argument('-p', '--plot', action='store_true',
-                        help='render plots')
+    parser.add_argument('-p', '--plot',
+                        type=str,
+                        default="",
+                        metavar="plot_type",
+                        choices=['average', 'marginal'],
+                        help='render average or marginal rate plots')
+    parser.add_argument('-c', '--county', action='store_true',
+                        help='estimate county level tax liability')
     args, unknown = parser.parse_known_args()
 
     # Check for unknown arguments and log warning
@@ -390,8 +444,19 @@ def main():
         quit()
 
     # Render plots
-    if args.plot is True:
-        graph.render_graphs()
+    if args.plot == "average":
+        graph.render_graphs("average")
+        quit()
+    elif args.plot == "marginal":
+        graph.render_graphs("marginal")
+        quit()
+
+    # County data
+    if args.county is True:
+        logging.info("Starting county level data module")
+        county_results = county_data.process_county_data()
+        county_results = pd.DataFrame(county_results)
+        county_results.to_csv(RESULTS_DIR + 'county_results.csv', index=False)
         quit()
 
     ##### Main Script #####

@@ -307,12 +307,41 @@ def senate_2018_taxable_income(policy, taxpayer, agi):
             itemized_total = line1 - line9  # aka line10
 
     deductions = max(itemized_total, standard_deduction)
-    deduction_type = "standard" if deductions == standard_deduction else "itemized"
-    deductions += taxpayer['business_income'] * 0.174
+    deduction_type = "standard" if deductions == standard_deduction else "itemized"  # TODO: fix
+
+    taxable_income_before = max(0, taxable_income - personal_exemption_amt - deductions)
+
+    BUSINESS_DEDUCTION_RATE = 0.20 # as of senate conference agreement 12/15/2017
+
+    qualified_business_income = taxpayer['business_income'] * BUSINESS_DEDUCTION_RATE
+    taxable_income_limit = taxable_income_before * BUSINESS_DEDUCTION_RATE
+
+    if taxpayer["filing_status"] == 1:
+        po_start = 315000
+        po_length = 100000
+    else:
+        po_start = 315000 / 2
+        po_length = 50000 # Assuming... TODO: Check
+
+    if taxable_income_before > po_start:
+        taxable_income_over = taxable_income_before - po_start
+        if taxable_income_over > po_length:
+            qualified_business_income = 0
+        else:
+            multiplier = 1 - (taxable_income_over / po_length)
+            qualified_business_income = qualified_business_income * multiplier
+
+    business_income_deduction = min(qualified_business_income, taxable_income_limit)
+
+    deductions += business_income_deduction
+    # This is weird, but it changes AGI after AGI has been used to calculate taxable income
+    # so we need to make sure to change it. This is a strange proposal and probably doesn't
+    # need a better implementation, but be aware of it.
+    agi = agi - business_income_deduction
 
     taxable_income = max(0, taxable_income - personal_exemption_amt - deductions)
 
-    return taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt
+    return taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt, taxable_income_before, agi
 
 
 def fed_ordinary_income_tax(policy, taxpayer, taxable_income):
@@ -439,15 +468,16 @@ def fed_eitc(policy, taxpayer):
     EITC_PHASEOUT = policy["eitc_phaseout_" + status][dependentCount]
     EITC_MAX_INCOME = policy["eitc_max_income_" + status][dependentCount]
     if income < EITC_THRESHOLD:
-        return income * (EITC_MAX / EITC_THRESHOLD)
+        eitc = income * (EITC_MAX / EITC_THRESHOLD)
     if income >= EITC_THRESHOLD and income <= EITC_PHASEOUT:
-        return EITC_MAX
+        eitc = EITC_MAX
     if income > EITC_PHASEOUT:
-        return max(
+        eitc = max(
             0, EITC_MAX + (
                 (EITC_PHASEOUT - income) *
                 (EITC_MAX / (EITC_MAX_INCOME - EITC_PHASEOUT))))
-
+    eitc = round(eitc, 2)
+    return eitc
 
 def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation, income_tax_before_credits):
     amt = 0
@@ -506,7 +536,7 @@ def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation,
     line34 = income_tax_before_credits
     amt = max(0, amt - line34)  # aka line35
 
-    return amt
+    return amt, amt_taxable_income
 
 
 def fed_qualified_income(policy, taxpayer, taxable_income, income_tax_before_credits):
