@@ -10,7 +10,8 @@ from . import misc_funcs
 
 plt.style.use('ggplot')
 
-graphs = [
+
+average_graphs = [
     {
         "main_income_type": "Ordinary Income",
         "file_name": "single_0_ordinary",
@@ -26,22 +27,6 @@ graphs = [
         "start": 1,
         "stop": 10000,
         "rate_type": "average"
-    },
-    {
-        "main_income_type": "Ordinary Income",
-        "file_name": "m_single_0_ordinary",
-        "filing_status": 0,
-        "child_dep": 0,
-        "income_ratios": {
-            "ordinary": 1.0,
-            "business": 0.0,
-            "ss": 0.0,
-            "qualified": 0.0},
-        "payroll": 0,
-        "step": 25,
-        "start": 1,
-        "stop": 10000,
-        "rate_type": "marginal"
     },
     {
         "main_income_type": "Business Income",
@@ -206,7 +191,7 @@ graphs = [
 ]
 
 
-graphs = [
+marginal_graphs = [
     {
         "main_income_type": "Business Income",
         "file_name": "m_married_0_business",
@@ -336,7 +321,7 @@ def make_graph(main_income_type,
     ax.xaxis.set_major_formatter(FuncFormatter('${:,.0f}'.format))
 
     # Current Law
-    '''ax.plot(
+    ax.plot(
         current_law_df["gross_income"],
         current_law_df[graph_rate_type],
         drawstyle=drawstyle_string,
@@ -347,7 +332,7 @@ def make_graph(main_income_type,
         house_2018_df[graph_rate_type],
         drawstyle=drawstyle_string,
         label='House 2018 Proposal')
-    # Senate 2018 Proposal'''
+    # Senate 2018 Proposal
     ax.plot(
         senate_2018_df["gross_income"],
         senate_2018_df[graph_rate_type],
@@ -367,10 +352,17 @@ def make_graph(main_income_type,
     ax.set_ylabel(type_string + ' Tax Rate (' + payroll_string + ')')
     fig.set_size_inches(12, 6)
     fig.savefig(taxsim.RESULTS_DIR + file_name + ".png", dpi=100)
+    #plt.show()  # Uncomment to debug plots
 
 
-def render_graphs():
+def render_graphs(plot_type):
     logging.info("Begining graph calculations. This should reasonably take 1-5 seconds per graph.")
+
+    if plot_type == "marginal":
+        graphs = marginal_graphs
+    elif plot_type == "average":
+        graphs = average_graphs
+
     for graph in tqdm(graphs, desc='Rendering graphs', unit='graph'):
         logging.info("Rendering: " + graph["file_name"])
         make_graph(graph["main_income_type"],

@@ -138,19 +138,19 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
     if mrate is True:
         #Marginal rate calculations use tax_burden, NOT income_tax_after_credits
         temp_taxpayer1 = copy.copy(taxpayer)
-        temp_taxpayer1['ordinary_income1'] = temp_taxpayer1['ordinary_income1'] + 1
+        temp_taxpayer1['ordinary_income1'] = temp_taxpayer1['ordinary_income1'] + MARG_RATE_BOUND
 
         temp_taxpayer2 = copy.copy(taxpayer)
-        temp_taxpayer2['business_income'] = temp_taxpayer2['business_income'] + 1
+        temp_taxpayer2['business_income'] = temp_taxpayer2['business_income'] + MARG_RATE_BOUND
 
         # Setting mrate to True results in infinite recursion
         temp_results1 = calc_federal_taxes(temp_taxpayer1, policy, mrate=False)
-        marginal_income_tax_rate = (temp_results1["tax_burden"] - results["tax_burden"])
-        results['marginal_income_tax_rate'] = round(marginal_income_tax_rate, 4)
+        marginal_income_tax_rate = (temp_results1["tax_burden"] - results["tax_burden"]) / MARG_RATE_BOUND
+        results['marginal_income_tax_rate'] = marginal_income_tax_rate
 
         temp_results2 = calc_federal_taxes(temp_taxpayer2, policy, mrate=False)
-        marginal_business_income_tax_rate = (temp_results2["tax_burden"] - results["tax_burden"])
-        results['marginal_business_income_tax_rate'] = round(marginal_business_income_tax_rate, 4)
+        marginal_business_income_tax_rate = (temp_results2["tax_burden"] - results["tax_burden"]) / MARG_RATE_BOUND
+        results['marginal_business_income_tax_rate'] = marginal_business_income_tax_rate
 
     return results
 
@@ -280,19 +280,19 @@ def calc_house_2018_taxes(taxpayer, policy, mrate=True):
     if mrate is True:
         #Marginal rate calculations use tax_burden, NOT income_tax_after_credits
         temp_taxpayer1 = copy.copy(taxpayer)
-        temp_taxpayer1['ordinary_income1'] = temp_taxpayer1['ordinary_income1'] + 1
+        temp_taxpayer1['ordinary_income1'] = temp_taxpayer1['ordinary_income1'] + MARG_RATE_BOUND
 
         temp_taxpayer2 = copy.copy(taxpayer)
-        temp_taxpayer2['business_income'] = temp_taxpayer2['business_income'] + 1
+        temp_taxpayer2['business_income'] = temp_taxpayer2['business_income'] + MARG_RATE_BOUND
 
         # Setting mrate to True results in infinite recursion
         temp_results1 = calc_house_2018_taxes(temp_taxpayer1, policy, mrate=False)
-        marginal_income_tax_rate = (temp_results1["tax_burden"] - results["tax_burden"])
-        results['marginal_income_tax_rate'] = round(marginal_income_tax_rate, 4)
+        marginal_income_tax_rate = (temp_results1["tax_burden"] - results["tax_burden"]) / MARG_RATE_BOUND
+        results['marginal_income_tax_rate'] = marginal_income_tax_rate
 
         temp_results2 = calc_house_2018_taxes(temp_taxpayer2, policy, mrate=False)
-        marginal_business_income_tax_rate = (temp_results2["tax_burden"] - results["tax_burden"])
-        results['marginal_business_income_tax_rate'] = round(marginal_business_income_tax_rate, 4)
+        marginal_business_income_tax_rate = (temp_results2["tax_burden"] - results["tax_burden"]) / MARG_RATE_BOUND
+        results['marginal_business_income_tax_rate'] = marginal_business_income_tax_rate
 
     return results
 
@@ -423,8 +423,12 @@ def main():
                         default="",
                         metavar="default_taxpayer.csv",
                         help='generate blank input CSV file using specified filename')
-    parser.add_argument('-p', '--plot', action='store_true',
-                        help='render plots')
+    parser.add_argument('-p', '--plot',
+                        type=str,
+                        default="average",
+                        metavar="plot_type",
+                        choices=['average', 'marginal'],
+                        help='render average or marginal rate plots')
     parser.add_argument('-c', '--county', action='store_true',
                         help='estimate county level tax liability')
     args, unknown = parser.parse_known_args()
@@ -440,8 +444,11 @@ def main():
         quit()
 
     # Render plots
-    if args.plot is True:
-        graph.render_graphs()
+    if args.plot == "average":
+        graph.render_graphs("average")
+        quit()
+    elif args.plot == "marginal":
+        graph.render_graphs("marginal")
         quit()
 
     # County data
