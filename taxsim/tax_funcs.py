@@ -335,9 +335,9 @@ def senate_2018_taxable_income(policy, taxpayer, agi):
 
     deductions += business_income_deduction
     # This is weird, but it changes AGI after AGI has been used to calculate taxable income
-    # so we need to make sure to change it. This is a strange proposal and probably doesn't
+    # This is a strange proposal and probably doesn't
     # need a better implementation, but be aware of it.
-    agi = agi - business_income_deduction
+    # agi = agi - business_income_deduction
 
     taxable_income = max(0, taxable_income - personal_exemption_amt - deductions)
 
