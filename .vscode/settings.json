@@ -3,7 +3,7 @@
     "python.linting.pep8Enabled": true,
     "python.linting.pep8Args": [
         "--max-line-length=100",
-        "--ignore=E266"
+        "--ignore=E266,E501,E303"
     ],
     "cSpell.words": [
         "CSVs",
