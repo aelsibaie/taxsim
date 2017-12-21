@@ -50,15 +50,6 @@ def test_house_pease_elimination():
     assert result_house2018["pease_limitation_amt"] == 0
 
 
-def test_house_pease_elimination():
-    taxpayer = misc_funcs.create_taxpayer()
-    taxpayer['ordinary_income1'] = policy['itemized_limitation_threshold'][0] * 2
-    taxpayer['charity_contributions'] = policy['standard_deduction'][0] * 2
-    result_house2018 = taxsim.calc_house_2018_taxes(taxpayer, taxsim.house_2018_policy)
-
-    assert result_house2018["pease_limitation_amt"] == 0
-
-
 def test_house_ctc_larger():
     taxpayer = misc_funcs.create_taxpayer()
 

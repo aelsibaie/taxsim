@@ -50,15 +50,6 @@ def test_senate_pease_elimination():
     assert result_senate2018["pease_limitation_amt"] == 0
 
 
-def test_senate_pease_elimination():
-    taxpayer = misc_funcs.create_taxpayer()
-    taxpayer['ordinary_income1'] = policy['itemized_limitation_threshold'][0] * 2
-    taxpayer['charity_contributions'] = policy['standard_deduction'][0] * 2
-    result_senate2018 = taxsim.calc_senate_2018_taxes(taxpayer, taxsim.senate_2018_policy)
-
-    assert result_senate2018["pease_limitation_amt"] == 0
-
-
 def test_senate_ctc_larger():
     taxpayer = misc_funcs.create_taxpayer()
 
