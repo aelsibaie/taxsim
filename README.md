@@ -1,8 +1,8 @@
 **TaxSim**
 
 [![Build Status](https://travis-ci.com/TaxFoundation/taxsim.svg?token=yexSBERtR4Ec1WprzQ72&branch=master)](https://travis-ci.com/TaxFoundation/taxsim)
-
 [![codecov](https://codecov.io/gh/TaxFoundation/taxsim/branch/master/graph/badge.svg?token=VnErjAtppV)](https://codecov.io/gh/TaxFoundation/taxsim)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/272ab313f4f74c78a797e87fa70c316c)](https://www.codacy.com?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=TaxFoundation/taxsim&amp;utm_campaign=Badge_Grade)
 
 
 ```
