@@ -61,3 +61,5 @@ target/
 results/graph_data/
 
 results/county_results\.csv
+
+taxpayers/
