@@ -12,6 +12,29 @@ policy = taxsim.current_law_policy
 alt_tax_calc = taxsim.calc_senate_2018_taxes
 alt_policy = taxsim.senate_2018_policy
 
+'''
+curl --request POST \
+  --url http://localhost:8080/taxcalc/tcja_submit \
+  --header 'content-type: application/json' \
+  --data '{
+	"filing_status": 2,
+	"child_dep": 1,
+	"nonchild_dep": 1,
+	"ordinary_income1": 10000,
+	"ordinary_income2": 0,
+	"business_income": 0,
+	"ss_income": 0,
+	"qualified_income": 0,
+	"401k_contributions": 0,
+	"medical_expenses": 0,
+	"sl_income_tax": 0,
+	"sl_property_tax": 0,
+	"interest_paid": 0,
+	"charity_contributions": 0,
+	"other_itemized": 0
+}'
+'''
+
 
 @app.route("/taxcalc/tcja_submit", methods=['POST'])
 def hello():
