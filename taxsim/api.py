@@ -2,6 +2,8 @@ from context import *
 import taxsim.taxsim as taxsim
 import taxsim.misc_funcs as misc_funcs
 from collections import OrderedDict
+from datetime import datetime
+from pprint import pprint
 
 from flask import Flask, abort, request, jsonify
 app = Flask(__name__)
@@ -40,6 +42,8 @@ curl --request POST \
 def hello():
     if not request.json:
         abort(400)
+    print("[" + datetime.now().isoformat(' ') + "] Received input taxpayer from " + request.remote_addr)
+    pprint(request.json)
     submission = request.json
     taxpayer = misc_funcs.create_taxpayer()
     taxpayer['filing_status'] = submission['filing_status']
@@ -57,10 +61,15 @@ def hello():
     taxpayer['interest_paid'] = submission['interest_paid']
     taxpayer['charity_contributions'] = submission['charity_contributions']
     taxpayer['other_itemized'] = submission['other_itemized']
-    result = tax_calc(taxpayer, policy)
-    alt_result = alt_tax_calc(taxpayer, alt_policy)
+    try:
+        result = tax_calc(taxpayer, policy)
+        alt_result = alt_tax_calc(taxpayer, alt_policy)
+    except:
+        print("[" + datetime.now().isoformat(' ') + "] Taxpayer failed input validation for " + request.remote_addr)
+        abort(400)
+    print("[" + datetime.now().isoformat(' ') + "] Calculations complete for " + request.remote_addr)
     return jsonify({"pre-tcja": result, "tcja": alt_result})
 
 if __name__ == "__main__":
     app.config['DEBUG'] = True
-    app.run(port=8080)
+    app.run(port=8080, debug=True)
