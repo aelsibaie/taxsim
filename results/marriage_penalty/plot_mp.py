@@ -29,6 +29,6 @@ for policy in tqdm(policies, leave=True):
         plt.title(policy + ", " + str(children) + " children")
 
         plt.savefig(filename + ".png", dpi=100, format='png')
-        plt.savefig(filename + ".svg", dpi=100, format='svg')
+        #plt.savefig(filename + ".svg", dpi=100, format='svg')
 
 #plt.show()

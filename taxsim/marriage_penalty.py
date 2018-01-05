@@ -84,12 +84,30 @@ for CHILDREN in range(0,3):
                 single_taxpayer4['filing_status'] = 2
                 single_taxpayer4['ordinary_income1'] = income2
                 single_taxpayer4['child_dep'] = CHILDREN
-                single_result4 = tax_calc_function(single_taxpayer4, policy_object)     
+                single_result4 = tax_calc_function(single_taxpayer4, policy_object)
 
                 option_b = single_result3['tax_burden'] + single_result4['tax_burden']
 
+                if CHILDREN == 2:
+                    # Option C (Children split evenly)
+                    single_taxpayer5 = misc_funcs.create_taxpayer()
+                    single_taxpayer5['filing_status'] = 2
+                    single_taxpayer5['ordinary_income1'] = income1
+                    single_taxpayer5['child_dep'] = 1
+                    single_result5 = tax_calc_function(single_taxpayer5, policy_object)
+
+                    single_taxpayer6 = misc_funcs.create_taxpayer()
+                    single_taxpayer6['filing_status'] = 2
+                    single_taxpayer6['ordinary_income1'] = income2
+                    single_taxpayer6['child_dep'] = 1
+                    single_result6 = tax_calc_function(single_taxpayer6, policy_object)     
+
+                    option_c = single_result5['tax_burden'] + single_result6['tax_burden']
+                else:
+                    option_c = option_b
+
                 # Pick the better option
-                unmarried_tax_burden = min(option_a, option_b)
+                unmarried_tax_burden = min(option_a, option_b, option_c)
 
 
             penalty = married_tax_burden - unmarried_tax_burden

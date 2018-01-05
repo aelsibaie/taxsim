@@ -321,7 +321,7 @@ def senate_2018_taxable_income(policy, taxpayer, agi):
         po_length = 100000
     else:
         po_start = 315000 / 2
-        po_length = 50000 # Assuming... TODO: Check
+        po_length = 50000
 
     if taxable_income_before > po_start:
         taxable_income_over = taxable_income_before - po_start
