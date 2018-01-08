@@ -1,4 +1,4 @@
-from context import *
+from taxsim.context import *
 import taxsim.taxsim as taxsim
 import taxsim.misc_funcs as misc_funcs
 from collections import OrderedDict
