@@ -1,5 +1,7 @@
 import pandas as pd
-import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('agg',warn=False, force=True)
+from matplotlib import pyplot as plt
 from matplotlib.ticker import FuncFormatter
 from collections import OrderedDict
 from tqdm import tqdm
