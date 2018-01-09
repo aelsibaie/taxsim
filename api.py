@@ -72,7 +72,12 @@ def hello():
         taxsim.logging.warn("Taxpayer failed input validation for " + request.remote_addr)
         abort(400)
     taxsim.logging.info("Calculations complete for " + request.remote_addr)
-    return jsonify({"pre-tcja": result, "tcja": alt_result})
+
+    results = []
+    results.append({'plan': result})
+    results.append({'plan': alt_result})
+
+    return jsonify(results)
 
 
 if __name__ == "__main__":

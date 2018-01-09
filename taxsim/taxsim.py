@@ -47,9 +47,13 @@ senate_2018_policy = csv_parser.load_policy(PARAMS_DIR + SENATE_2018_FILE)
 ##### Current Law #####
 def calc_federal_taxes(taxpayer, policy, mrate=True):
     misc_funcs.validate_taxpayer(taxpayer)
+    results = OrderedDict()
+
+    results['id'] = 'pre-tcja-2018'
+    results['name'] = 'Previous Law, 2018'
+
     taxpayer["interest_paid"] = min(17500 * 2, taxpayer["interest_paid"])
 
-    results = OrderedDict()
     # Gross income
     results["gross_income"] = tax_funcs.get_gross_income(taxpayer)
 
@@ -156,19 +160,19 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
 
 
 ##### House 2018 #####
-# Description Of H.R.1, The "Tax Cuts And Jobs Act"
-# November 03, 2017 (before November 6, 2017 markup)
-# https://www.jct.gov/publications.html?func=startdown&id=5031
 def calc_house_2018_taxes(taxpayer, policy, mrate=True):
     misc_funcs.validate_taxpayer(taxpayer)
+    results = OrderedDict()
+
+    results['id'] = 'house-2018'
+    results['name'] = 'H.R.1, 2018'
+
     # NEW: Itemized deduction limitations
     taxpayer["sl_property_tax"] = min(10000, taxpayer["sl_property_tax"])
     taxpayer["interest_paid"] = min(17500, taxpayer["interest_paid"])
     taxpayer["sl_income_tax"] = 0
     taxpayer["medical_expenses"] = 0
 
-    results = OrderedDict()
-    # Gross income
     # Gross income
     results["gross_income"] = tax_funcs.get_gross_income(taxpayer)
 
@@ -201,14 +205,12 @@ def calc_house_2018_taxes(taxpayer, policy, mrate=True):
 
     # NEW: Phaseout of benefit of the 12-percent bracket
     po_amount = 0
-    # Hardcoded policy
     lower_rate_po_threshold = [1000000, 1200000, 1000000]
     if agi > lower_rate_po_threshold[taxpayer["filing_status"]]:
         brackets = tax_funcs.get_brackets(taxpayer, policy)
         benefit = (
             policy["income_tax_rates"][-1] * brackets[2] -
             policy["income_tax_rates"][0] * brackets[2])
-        # Hardcoded policy
         po_amount = min(
             benefit,
             0.06 * (agi - lower_rate_po_threshold[taxpayer["filing_status"]]))
@@ -298,17 +300,18 @@ def calc_house_2018_taxes(taxpayer, policy, mrate=True):
 
 
 ##### Senate 2018 #####
-# Description Of The Chairman's Mark Of The "Tax Cuts And Jobs Act"
-# November 09, 2017 (before November 13, 2017 markup)
-# https://www.jct.gov/publications.html?func=startdown&id=5032
 def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     misc_funcs.validate_taxpayer(taxpayer)
+    results = OrderedDict()
+
+    results['id'] = 'tcja-2018'
+    results['name'] = 'Tax Cuts and Jobs Act, 2018'
+
     # TODO: Technically the medical expense deduction is more generous, but it is not yet implemented
     taxpayer["sl_property_tax"] = min(10000, taxpayer["sl_property_tax"] + taxpayer["sl_income_tax"])  # sl_income will be included in property_tax
     taxpayer["sl_income_tax"] = 0
     taxpayer["interest_paid"] = min(17500 * 2, taxpayer["interest_paid"])
 
-    results = OrderedDict()
     # Gross income
     results["gross_income"] = tax_funcs.get_gross_income(taxpayer)
 
