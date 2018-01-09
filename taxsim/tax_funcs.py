@@ -311,7 +311,7 @@ def senate_2018_taxable_income(policy, taxpayer, agi):
 
     taxable_income_before = max(0, taxable_income - personal_exemption_amt - deductions)
 
-    BUSINESS_DEDUCTION_RATE = 0.20 # as of senate conference agreement 12/15/2017
+    BUSINESS_DEDUCTION_RATE = 0.20  # as of senate conference agreement 12/15/2017
 
     qualified_business_income = taxpayer['business_income'] * BUSINESS_DEDUCTION_RATE
     taxable_income_limit = taxable_income_before * BUSINESS_DEDUCTION_RATE
@@ -478,6 +478,7 @@ def fed_eitc(policy, taxpayer):
                 (EITC_MAX / (EITC_MAX_INCOME - EITC_PHASEOUT))))
     eitc = round(eitc, 2)
     return eitc
+
 
 def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation, income_tax_before_credits):
     amt = 0

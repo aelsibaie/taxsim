@@ -8,7 +8,7 @@ import math
 from tqdm import tqdm
 
 
-for CHILDREN in range(0,3):
+for CHILDREN in range(0, 3):
     PERCENTAGE_PRECISION = 4
     INCOME_UPPER_BOUND = 6
     INCOME_LOWER_BOUND = 4
@@ -100,7 +100,7 @@ for CHILDREN in range(0,3):
                     single_taxpayer6['filing_status'] = 2
                     single_taxpayer6['ordinary_income1'] = income2
                     single_taxpayer6['child_dep'] = 1
-                    single_result6 = tax_calc_function(single_taxpayer6, policy_object)     
+                    single_result6 = tax_calc_function(single_taxpayer6, policy_object)
 
                     option_c = single_result5['tax_burden'] + single_result6['tax_burden']
                 else:
@@ -116,9 +116,9 @@ for CHILDREN in range(0,3):
             penalty_percent = round(penalty_percent, PERCENTAGE_PRECISION)
 
             column.append(penalty_percent)
-        
+
         list_of_columns.append(column)
-  
+
     df = pd.DataFrame(list_of_columns)
     df = df.transpose()
     df.to_csv("results/marriage_penalty/tcja_" + str(CHILDREN) + "children.csv", index=False, header=False)

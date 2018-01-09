@@ -68,11 +68,12 @@ def hello():
     try:
         result = tax_calc(taxpayer, policy)
         alt_result = alt_tax_calc(taxpayer, alt_policy)
-    except:
+    except BaseException:
         taxsim.logging.warn("Taxpayer failed input validation for " + request.remote_addr)
         abort(400)
     taxsim.logging.info("Calculations complete for " + request.remote_addr)
     return jsonify({"pre-tcja": result, "tcja": alt_result})
+
 
 if __name__ == "__main__":
     #app.debug = True

@@ -136,7 +136,7 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
     results["avg_effective_tax_rate_wo_payroll"] = rates["avg_effective_tax_rate_wo_payroll"]
 
     if mrate is True:
-        #Marginal rate calculations use tax_burden, NOT income_tax_after_credits
+        # Marginal rate calculations use tax_burden, NOT income_tax_after_credits
         temp_taxpayer1 = copy.copy(taxpayer)
         temp_taxpayer1['ordinary_income1'] = temp_taxpayer1['ordinary_income1'] + MARG_RATE_BOUND
 
@@ -278,7 +278,7 @@ def calc_house_2018_taxes(taxpayer, policy, mrate=True):
     results["avg_effective_tax_rate_wo_payroll"] = rates["avg_effective_tax_rate_wo_payroll"]
 
     if mrate is True:
-        #Marginal rate calculations use tax_burden, NOT income_tax_after_credits
+        # Marginal rate calculations use tax_burden, NOT income_tax_after_credits
         temp_taxpayer1 = copy.copy(taxpayer)
         temp_taxpayer1['ordinary_income1'] = temp_taxpayer1['ordinary_income1'] + MARG_RATE_BOUND
 
@@ -304,7 +304,7 @@ def calc_house_2018_taxes(taxpayer, policy, mrate=True):
 def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     misc_funcs.validate_taxpayer(taxpayer)
     # TODO: Technically the medical expense deduction is more generous, but it is not yet implemented
-    taxpayer["sl_property_tax"] = min(10000, taxpayer["sl_property_tax"] + taxpayer["sl_income_tax"]) # sl_income will be included in property_tax
+    taxpayer["sl_property_tax"] = min(10000, taxpayer["sl_property_tax"] + taxpayer["sl_income_tax"])  # sl_income will be included in property_tax
     taxpayer["sl_income_tax"] = 0
     taxpayer["interest_paid"] = min(17500 * 2, taxpayer["interest_paid"])
 
@@ -388,9 +388,9 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
 
     # Average effective tax rate without payroll
     results["avg_effective_tax_rate_wo_payroll"] = rates["avg_effective_tax_rate_wo_payroll"]
-    
+
     if mrate is True:
-        #Marginal rate calculations use tax_burden, NOT income_tax_after_credits
+        # Marginal rate calculations use tax_burden, NOT income_tax_after_credits
         temp_taxpayer1 = copy.copy(taxpayer)
         temp_taxpayer1['ordinary_income1'] = temp_taxpayer1['ordinary_income1'] + MARG_RATE_BOUND
 

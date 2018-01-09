@@ -17,8 +17,8 @@ for policy in tqdm(policies, leave=True):
 
         fig = plt.figure()
         ax = plt.axes()
-        #ax.xaxis.tick_top()
-        #ax.xaxis.set_label_position('top') 
+        # ax.xaxis.tick_top()
+        # ax.xaxis.set_label_position('top')
 
         ax.set_xlabel('Combined Income')
         ax.set_ylabel('Income Split')
@@ -31,4 +31,4 @@ for policy in tqdm(policies, leave=True):
         plt.savefig(filename + ".png", dpi=100, format='png')
         #plt.savefig(filename + ".svg", dpi=100, format='svg')
 
-#plt.show()
+# plt.show()
