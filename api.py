@@ -36,6 +36,8 @@ curl --request POST \
 }'
 '''
 
+logger = taxsim.logging.getLogger()
+logger.disabled = True
 
 @app.route("/taxcalc/tcja_submit", methods=['POST'])
 def hello():
@@ -81,5 +83,5 @@ def hello():
 
 
 if __name__ == "__main__":
-    #app.debug = True
+    # app.debug = True
     app.run()
