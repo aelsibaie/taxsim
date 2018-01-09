@@ -5,7 +5,9 @@ from collections import OrderedDict
 from datetime import datetime
 
 from flask import Flask, abort, request, jsonify
+from flask_cors import CORS
 app = Flask(__name__)
+CORS(app)
 
 tax_calc = taxsim.calc_federal_taxes
 policy = taxsim.current_law_policy
