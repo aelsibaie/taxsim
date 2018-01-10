@@ -49,9 +49,6 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
     misc_funcs.validate_taxpayer(taxpayer)
     results = OrderedDict()
 
-    results['id'] = 'pre-tcja-2018'
-    results['name'] = 'Previous Law, 2018'
-
     taxpayer["interest_paid"] = min(17500 * 2, taxpayer["interest_paid"])
 
     # Gross income
@@ -163,9 +160,6 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
 def calc_house_2018_taxes(taxpayer, policy, mrate=True):
     misc_funcs.validate_taxpayer(taxpayer)
     results = OrderedDict()
-
-    results['id'] = 'house-2018'
-    results['name'] = 'H.R.1, 2018'
 
     # NEW: Itemized deduction limitations
     taxpayer["sl_property_tax"] = min(10000, taxpayer["sl_property_tax"])
@@ -304,11 +298,8 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     misc_funcs.validate_taxpayer(taxpayer)
     results = OrderedDict()
 
-    results['id'] = 'tcja-2018'
-    results['name'] = 'Tax Cuts and Jobs Act, 2018'
-
     # TODO: Technically the medical expense deduction is more generous, but it is not yet implemented
-    taxpayer["sl_property_tax"] = min(10000, taxpayer["sl_property_tax"] + taxpayer["sl_income_tax"])  # sl_income will be included in property_tax
+    taxpayer["sl_property_tax"] = min(10000, taxpayer["sl_property_tax"] + taxpayer["sl_income_tax"])  # sl_income_tax will be included in sl_property_tax
     taxpayer["sl_income_tax"] = 0
     taxpayer["interest_paid"] = min(17500 * 2, taxpayer["interest_paid"])
 

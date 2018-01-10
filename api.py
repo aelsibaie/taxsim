@@ -78,8 +78,14 @@ def hello():
     taxsim.logging.info("Calculations complete for " + request.remote_addr)
 
     results = []
-    results.append({'plan': result})
-    results.append({'plan': alt_result})
+    results.append({'plan': {
+        'id': 'pre-tcja-2018',
+        'name': 'Previous Law, 2018'},
+        'results': result})
+    results.append({'plan': {
+        'id': 'tcja-2018',
+        'name': 'Tax Cuts and Jobs Act, 2018'},
+        'results': alt_result})
 
     return jsonify(results)
 
