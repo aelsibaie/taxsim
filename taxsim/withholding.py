@@ -37,9 +37,11 @@ def get_wt(payroll_period, annual_wage, filing_status, taxpayer_allowances):
         raise ValueError
     if payroll_period not in yearly_payroll_periods.keys():
         raise ValueError
-    payroll_wage = annual_wage / yearly_payroll_periods[payroll_period]    
-    if payroll_wage < 0:
+    if annual_wage < 0:
         raise ValueError
+    if taxpayer_allowances < 0:
+        raise ValueError
+    payroll_wage = annual_wage / yearly_payroll_periods[payroll_period]    
 
     allowances = {}
     for key, value in yearly_payroll_periods.items():
