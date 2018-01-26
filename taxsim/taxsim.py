@@ -423,7 +423,7 @@ def main():
                         type=str,
                         default="",
                         metavar="plot_type",
-                        choices=['average', 'marginal'],
+                        choices=['average', 'marginal', 'marriagepenalty'],
                         help='render average or marginal rate plots')
     parser.add_argument('-c', '--county', action='store_true',
                         help='estimate county level tax liability (INCOMPLETE)')
@@ -448,6 +448,9 @@ def main():
     elif args.plot == "marginal":
         graph.render_graphs("marginal")
         quit()
+    elif args.plot == "marriagepenalty":
+        marriage_penalty.plot_datasets()
+        quit()
 
     # County data
     if args.county is True:
@@ -461,7 +464,7 @@ def main():
     if args.marriagepenalty is True:
         logging.info("Processing marriage penalty dataset")
         marriage_penalty.gen_datasets()
-        marriage_penalty.plot_datasets()
+        #marriage_penalty.plot_datasets()
         quit()
 
     ##### Main Script #####

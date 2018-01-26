@@ -141,6 +141,7 @@ def plot_datasets():
 
             fig = plt.figure()
             ax = plt.axes()
+            ax.grid(False)
             # ax.xaxis.tick_top()
             # ax.xaxis.set_label_position('top')
 
