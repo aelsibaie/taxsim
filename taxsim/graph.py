@@ -1,5 +1,7 @@
 import pandas as pd
-import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('agg', warn=False, force=True)
+from matplotlib import pyplot as plt
 from matplotlib.ticker import FuncFormatter
 from collections import OrderedDict
 from tqdm import tqdm
@@ -15,6 +17,7 @@ with open('average_graphs.json') as infile:
     average_graphs = json.load(infile)
 with open('marginal_graphs.json') as infile:
     marginal_graphs = json.load(infile)
+
 
 def make_graph(main_income_type,
                file_name,
@@ -141,7 +144,7 @@ def make_graph(main_income_type,
     ax.set_ylabel(type_string + ' Tax Rate (' + payroll_string + ')')
     fig.set_size_inches(12, 6)
     fig.savefig(taxsim.RESULTS_DIR + file_name + ".png", dpi=100)
-    #plt.show()  # Uncomment to debug plots
+    # plt.show()  # Uncomment to debug plots
 
 
 def render_graphs(plot_type):

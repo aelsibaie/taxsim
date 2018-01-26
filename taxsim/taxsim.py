@@ -12,6 +12,7 @@ from . import tax_funcs
 from . import misc_funcs
 from . import graph
 from . import county_data
+from . import marriage_penalty
 
 
 current_datetime = datetime.now().strftime("%Y%m%dT%H%M%S")  # ISO 8601
@@ -33,6 +34,7 @@ PARAMS_DIR = misc_funcs.require_dir("./params/")
 LOGS_DIR = misc_funcs.require_dir("./logs/")
 RESULTS_DIR = misc_funcs.require_dir("./results/")
 GRAPH_DATA_RESULTS_DIR = misc_funcs.require_dir("./results/graph_data/")
+misc_funcs.require_dir("./results/marriage_penalty/")
 # Logging
 logging.basicConfig(filename=LOGS_DIR + current_datetime + '.log',
                     level=logging.DEBUG,
@@ -47,9 +49,10 @@ senate_2018_policy = csv_parser.load_policy(PARAMS_DIR + SENATE_2018_FILE)
 ##### Current Law #####
 def calc_federal_taxes(taxpayer, policy, mrate=True):
     misc_funcs.validate_taxpayer(taxpayer)
+    results = OrderedDict()
+
     taxpayer["interest_paid"] = min(17500 * 2, taxpayer["interest_paid"])
 
-    results = OrderedDict()
     # Gross income
     results["gross_income"] = tax_funcs.get_gross_income(taxpayer)
 
@@ -136,7 +139,7 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
     results["avg_effective_tax_rate_wo_payroll"] = rates["avg_effective_tax_rate_wo_payroll"]
 
     if mrate is True:
-        #Marginal rate calculations use tax_burden, NOT income_tax_after_credits
+        # Marginal rate calculations use tax_burden, NOT income_tax_after_credits
         temp_taxpayer1 = copy.copy(taxpayer)
         temp_taxpayer1['ordinary_income1'] = temp_taxpayer1['ordinary_income1'] + MARG_RATE_BOUND
 
@@ -156,19 +159,16 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
 
 
 ##### House 2018 #####
-# Description Of H.R.1, The "Tax Cuts And Jobs Act"
-# November 03, 2017 (before November 6, 2017 markup)
-# https://www.jct.gov/publications.html?func=startdown&id=5031
 def calc_house_2018_taxes(taxpayer, policy, mrate=True):
     misc_funcs.validate_taxpayer(taxpayer)
+    results = OrderedDict()
+
     # NEW: Itemized deduction limitations
     taxpayer["sl_property_tax"] = min(10000, taxpayer["sl_property_tax"])
     taxpayer["interest_paid"] = min(17500, taxpayer["interest_paid"])
     taxpayer["sl_income_tax"] = 0
     taxpayer["medical_expenses"] = 0
 
-    results = OrderedDict()
-    # Gross income
     # Gross income
     results["gross_income"] = tax_funcs.get_gross_income(taxpayer)
 
@@ -201,14 +201,12 @@ def calc_house_2018_taxes(taxpayer, policy, mrate=True):
 
     # NEW: Phaseout of benefit of the 12-percent bracket
     po_amount = 0
-    # Hardcoded policy
     lower_rate_po_threshold = [1000000, 1200000, 1000000]
     if agi > lower_rate_po_threshold[taxpayer["filing_status"]]:
         brackets = tax_funcs.get_brackets(taxpayer, policy)
         benefit = (
             policy["income_tax_rates"][-1] * brackets[2] -
             policy["income_tax_rates"][0] * brackets[2])
-        # Hardcoded policy
         po_amount = min(
             benefit,
             0.06 * (agi - lower_rate_po_threshold[taxpayer["filing_status"]]))
@@ -278,7 +276,7 @@ def calc_house_2018_taxes(taxpayer, policy, mrate=True):
     results["avg_effective_tax_rate_wo_payroll"] = rates["avg_effective_tax_rate_wo_payroll"]
 
     if mrate is True:
-        #Marginal rate calculations use tax_burden, NOT income_tax_after_credits
+        # Marginal rate calculations use tax_burden, NOT income_tax_after_credits
         temp_taxpayer1 = copy.copy(taxpayer)
         temp_taxpayer1['ordinary_income1'] = temp_taxpayer1['ordinary_income1'] + MARG_RATE_BOUND
 
@@ -298,17 +296,15 @@ def calc_house_2018_taxes(taxpayer, policy, mrate=True):
 
 
 ##### Senate 2018 #####
-# Description Of The Chairman's Mark Of The "Tax Cuts And Jobs Act"
-# November 09, 2017 (before November 13, 2017 markup)
-# https://www.jct.gov/publications.html?func=startdown&id=5032
 def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     misc_funcs.validate_taxpayer(taxpayer)
+    results = OrderedDict()
+
     # TODO: Technically the medical expense deduction is more generous, but it is not yet implemented
-    taxpayer["sl_property_tax"] = min(10000, taxpayer["sl_property_tax"] + taxpayer["sl_income_tax"]) # sl_income will be included in property_tax
+    taxpayer["sl_property_tax"] = min(10000, taxpayer["sl_property_tax"] + taxpayer["sl_income_tax"])  # sl_income_tax will be included in sl_property_tax
     taxpayer["sl_income_tax"] = 0
     taxpayer["interest_paid"] = min(17500 * 2, taxpayer["interest_paid"])
 
-    results = OrderedDict()
     # Gross income
     results["gross_income"] = tax_funcs.get_gross_income(taxpayer)
 
@@ -388,9 +384,9 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
 
     # Average effective tax rate without payroll
     results["avg_effective_tax_rate_wo_payroll"] = rates["avg_effective_tax_rate_wo_payroll"]
-    
+
     if mrate is True:
-        #Marginal rate calculations use tax_burden, NOT income_tax_after_credits
+        # Marginal rate calculations use tax_burden, NOT income_tax_after_credits
         temp_taxpayer1 = copy.copy(taxpayer)
         temp_taxpayer1['ordinary_income1'] = temp_taxpayer1['ordinary_income1'] + MARG_RATE_BOUND
 
@@ -405,7 +401,6 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
         temp_results2 = calc_senate_2018_taxes(temp_taxpayer2, policy, mrate=False)
         marginal_business_income_tax_rate = (temp_results2["tax_burden"] - results["tax_burden"]) / MARG_RATE_BOUND
         results['marginal_business_income_tax_rate'] = marginal_business_income_tax_rate
-
 
     return results
 
@@ -427,10 +422,12 @@ def main():
                         type=str,
                         default="",
                         metavar="plot_type",
-                        choices=['average', 'marginal'],
+                        choices=['average', 'marginal', 'marriagepenalty'],
                         help='render average or marginal rate plots')
     parser.add_argument('-c', '--county', action='store_true',
-                        help='estimate county level tax liability')
+                        help='estimate county level tax liability (INCOMPLETE)')
+    parser.add_argument('-mp', '--marriagepenalty', action='store_true',
+                        help='generate marriage penalty dataset')
     args, unknown = parser.parse_known_args()
 
     # Check for unknown arguments and log warning
@@ -450,6 +447,9 @@ def main():
     elif args.plot == "marginal":
         graph.render_graphs("marginal")
         quit()
+    elif args.plot == "marriagepenalty":
+        marriage_penalty.plot_datasets()
+        quit()
 
     # County data
     if args.county is True:
@@ -457,6 +457,13 @@ def main():
         county_results = county_data.process_county_data()
         county_results = pd.DataFrame(county_results)
         county_results.to_csv(RESULTS_DIR + 'county_results.csv', index=False)
+        quit()
+
+    # County data
+    if args.marriagepenalty is True:
+        logging.info("Processing marriage penalty dataset")
+        marriage_penalty.gen_datasets()
+        # marriage_penalty.plot_datasets()
         quit()
 
     ##### Main Script #####

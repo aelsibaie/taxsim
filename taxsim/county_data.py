@@ -1,6 +1,9 @@
 """
 This module processes county level data released by the IRS
 Latest data files are located here: https://www.irs.gov/statistics/soi-tax-stats-county-data
+
+TODO: This module is INCOMPLETE
+
 """
 
 import os
@@ -87,7 +90,7 @@ def process_county_data():
         calculated_taxes_paid = row_calcs['state_local_prop'] + row_calcs['state_local_sales_or_inc']
         ratio_inc_sales = div(row_calcs['state_local_sales_or_inc'], calculated_taxes_paid)
         ratio_prop = div(row_calcs['state_local_prop'], calculated_taxes_paid)
-        
+
         row_calcs['taxes_paid_total'] = div(row.A18300, row.N04470)  # TODO: write test
 
         row_calcs['state_local_sales_or_inc'] = ratio_inc_sales * row_calcs['taxes_paid_total']
@@ -96,9 +99,6 @@ def process_county_data():
         row_calcs['mort_int'] = div(row.A19300, row.N04470)
 
         row_calcs['charity_cont'] = div(row.A19700, row.N04470)
-  
-
-
 
         # Append final results to list
         rows.append(row_calcs)

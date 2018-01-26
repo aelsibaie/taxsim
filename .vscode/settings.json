@@ -3,33 +3,6 @@
     "python.linting.pep8Enabled": true,
     "python.linting.pep8Args": [
         "--max-line-length=100",
-        "--ignore=E266"
-    ],
-    "cSpell.words": [
-        "CSVs",
-        "EITC",
-        "Popen",
-        "actc",
-        "county",
-        "countyfips",
-        "csvfile",
-        "data",
-        "funcs",
-        "gencsv",
-        "ggplot",
-        "incyallnoagi",
-        "incydocguide",
-        "noagi",
-        "numdep",
-        "pyplot",
-        "pytest",
-        "scorp",
-        "statefips",
-        "strftime",
-        "tqdm",
-        "xaxis",
-        "xlabel",
-        "yaxis",
-        "ylabel"
+        "--ignore=E266,E501,E303"
     ]
 }
