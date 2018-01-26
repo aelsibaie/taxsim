@@ -1,6 +1,9 @@
 """
 This module processes county level data released by the IRS
 Latest data files are located here: https://www.irs.gov/statistics/soi-tax-stats-county-data
+
+TODO: This module is INCOMPLETE
+
 """
 
 import os
