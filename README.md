@@ -7,7 +7,7 @@
 
 ```
 usage: taxsim [-h] [-i input_file.csv] [-g default_taxpayer.csv]
-              [-p plot_type] [-c]
+              [-p plot_type] [-c] [-mp]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -17,7 +17,9 @@ optional arguments:
                         generate blank input CSV file using specified filename
   -p plot_type, --plot plot_type
                         render average or marginal rate plots
-  -c, --county          estimate county level tax liability
+  -c, --county          estimate county level tax liability (INCOMPLETE)
+  -mp, --marriagepenalty
+                        generate marriage penalty dataset
 ```
 
 Other usage notes:
