@@ -11,5 +11,6 @@ exclude_lines =
 ignore_errors = True
 omit =
     taxsim/county_data.py
+    taxsim/marriage_penalty.py
     taxsim/graph.py
     tests/*
