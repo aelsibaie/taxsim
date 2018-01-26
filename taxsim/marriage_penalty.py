@@ -7,6 +7,7 @@ import pandas as pd
 import math
 from tqdm import tqdm
 
+
 def gen_datasets():
     print("Generating datasets")
     policies = [
@@ -15,12 +16,12 @@ def gen_datasets():
     ]
     for tax_calc_function, policy_object, name in tqdm(policies):
         for CHILDREN in tqdm(range(0, 3), leave=False):
-            
+
             PERCENTAGE_PRECISION = 4
             INCOME_UPPER_BOUND = 6
             INCOME_LOWER_BOUND = 4
-            DATASET_SIZE = 400 # aka the resolution (default 400)
-            
+            DATASET_SIZE = 400  # aka the resolution (default 400)
+
             list_of_columns = []
             # This loop is for horizontal rows
             for total_income in tqdm(np.logspace(INCOME_LOWER_BOUND, INCOME_UPPER_BOUND, num=DATASET_SIZE, base=10, dtype='int', endpoint=True), leave=False):
@@ -35,7 +36,6 @@ def gen_datasets():
                     income1 = total_income * (1 - ratio)
                     income2 = total_income * ratio
                     assert math.isclose(income1 + income2, total_income)  # Helpful, but optional
-
 
                     # Create married taxpayer
                     married_taxpayer = misc_funcs.create_taxpayer()
@@ -111,7 +111,6 @@ def gen_datasets():
                         # Pick the better option
                         unmarried_tax_burden = min(option_a, option_b, option_c)
 
-
                     penalty = married_tax_burden - unmarried_tax_burden
                     penalty_percent = penalty / total_income
 
@@ -126,14 +125,12 @@ def gen_datasets():
             df.to_csv("results/marriage_penalty/" + name + "_" + str(CHILDREN) + "children.csv", index=False, header=False)
 
 
-
 def plot_datasets():
-    print("Plotting datasets")    
+    print("Plotting datasets")
     policy_names = ["tcja", "pre-tcja"]
 
     for policy in tqdm(policy_names):
         for children in tqdm(range(0, 3), leave=False):
-
 
             filename = "results/marriage_penalty/" + policy + "_" + str(children) + "children"
 

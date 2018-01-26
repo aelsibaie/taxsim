@@ -100,9 +100,6 @@ def process_county_data():
 
         row_calcs['charity_cont'] = div(row.A19700, row.N04470)
 
-
-
-
         # Append final results to list
         rows.append(row_calcs)
 

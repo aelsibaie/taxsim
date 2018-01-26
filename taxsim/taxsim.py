@@ -402,7 +402,6 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
         marginal_business_income_tax_rate = (temp_results2["tax_burden"] - results["tax_burden"]) / MARG_RATE_BOUND
         results['marginal_business_income_tax_rate'] = marginal_business_income_tax_rate
 
-
     return results
 
 
@@ -464,7 +463,7 @@ def main():
     if args.marriagepenalty is True:
         logging.info("Processing marriage penalty dataset")
         marriage_penalty.gen_datasets()
-        #marriage_penalty.plot_datasets()
+        # marriage_penalty.plot_datasets()
         quit()
 
     ##### Main Script #####

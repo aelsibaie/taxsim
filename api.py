@@ -41,6 +41,7 @@ curl --request POST \
 logger = taxsim.logging.getLogger()
 logger.disabled = True
 
+
 @app.route("/taxcalc/tcja_submit", methods=['POST'])
 def hello():
     if not request.json:
