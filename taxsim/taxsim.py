@@ -51,7 +51,7 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
     misc_funcs.validate_taxpayer(taxpayer)
     results = OrderedDict()
 
-    taxpayer["interest_paid"] = min(17500 * 2, taxpayer["interest_paid"])
+    #taxpayer["interest_paid"] = min(17500 * 2, taxpayer["interest_paid"])
 
     # Gross income
     results["gross_income"] = tax_funcs.get_gross_income(taxpayer)
@@ -165,7 +165,7 @@ def calc_house_2018_taxes(taxpayer, policy, mrate=True):
 
     # NEW: Itemized deduction limitations
     taxpayer["sl_property_tax"] = min(10000, taxpayer["sl_property_tax"])
-    taxpayer["interest_paid"] = min(17500, taxpayer["interest_paid"])
+    taxpayer["interest_paid"] = min(17500, taxpayer["interest_paid"]) # TODO: Warn if this is happening
     taxpayer["sl_income_tax"] = 0
     taxpayer["medical_expenses"] = 0
 
@@ -303,7 +303,7 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     # TODO: Technically the medical expense deduction is more generous, but it is not yet implemented
     taxpayer["sl_property_tax"] = min(10000, taxpayer["sl_property_tax"] + taxpayer["sl_income_tax"])  # sl_income_tax will be included in sl_property_tax
     taxpayer["sl_income_tax"] = 0
-    taxpayer["interest_paid"] = min(17500 * 2, taxpayer["interest_paid"])
+    #taxpayer["interest_paid"] = min(17500 * 2, taxpayer["interest_paid"])
 
     # Gross income
     results["gross_income"] = tax_funcs.get_gross_income(taxpayer)
