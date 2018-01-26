@@ -12,6 +12,7 @@ from . import tax_funcs
 from . import misc_funcs
 from . import graph
 from . import county_data
+from . import marriage_penalty
 
 
 current_datetime = datetime.now().strftime("%Y%m%dT%H%M%S")  # ISO 8601
@@ -33,6 +34,7 @@ PARAMS_DIR = misc_funcs.require_dir("./params/")
 LOGS_DIR = misc_funcs.require_dir("./logs/")
 RESULTS_DIR = misc_funcs.require_dir("./results/")
 GRAPH_DATA_RESULTS_DIR = misc_funcs.require_dir("./results/graph_data/")
+misc_funcs.require_dir("./results/marriage_penalty/")
 # Logging
 logging.basicConfig(filename=LOGS_DIR + current_datetime + '.log',
                     level=logging.DEBUG,
@@ -424,7 +426,9 @@ def main():
                         choices=['average', 'marginal'],
                         help='render average or marginal rate plots')
     parser.add_argument('-c', '--county', action='store_true',
-                        help='estimate county level tax liability')
+                        help='estimate county level tax liability (INCOMPLETE)')
+    parser.add_argument('-mp', '--marriagepenalty', action='store_true',
+                        help='generate marriage penalty dataset')
     args, unknown = parser.parse_known_args()
 
     # Check for unknown arguments and log warning
@@ -451,6 +455,13 @@ def main():
         county_results = county_data.process_county_data()
         county_results = pd.DataFrame(county_results)
         county_results.to_csv(RESULTS_DIR + 'county_results.csv', index=False)
+        quit()
+
+    # County data
+    if args.marriagepenalty is True:
+        logging.info("Processing marriage penalty dataset")
+        marriage_penalty.gen_datasets()
+        marriage_penalty.plot_datasets()
         quit()
 
     ##### Main Script #####
