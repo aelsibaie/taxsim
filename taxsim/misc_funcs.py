@@ -84,7 +84,7 @@ def git_version():
 
 def validate_taxpayer(taxpayer):
     # Check for proper inputs
-    if ((taxpayer['filing_status'] == 2) and (taxpayer['child_dep'] == 0)):
+    if ((taxpayer['filing_status'] == 2) and ((taxpayer['child_dep'] == 0) and (taxpayer['nonchild_dep'] == 0))):
         raise ValueError
     elif ((taxpayer['filing_status'] == 0) and (taxpayer['child_dep'] > 0)):
         raise ValueError
