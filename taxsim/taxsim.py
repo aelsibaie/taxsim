@@ -72,6 +72,9 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
     agi = tax_funcs.fed_agi(policy, taxpayer, ordinary_income_after_401k)
     results["agi"] = agi
 
+    if (policy["medical_expense_threshold"] * results["agi"]) > taxpayer["medical_expenses"]:
+        taxpayer["medical_expenses"] = 0
+
     # Taxable income
     taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt = tax_funcs.fed_taxable_income(policy, taxpayer, agi)
     results["taxable_income"] = taxable_income
@@ -320,6 +323,9 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     # AGI
     agi = tax_funcs.fed_agi(policy, taxpayer, ordinary_income_after_401k)
     results["agi"] = agi
+
+    if (policy["medical_expense_threshold"] * results["agi"]) > taxpayer["medical_expenses"]:
+        taxpayer["medical_expenses"] = 0
 
     # Taxable income
     taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt, taxable_income_before, new_agi = tax_funcs.senate_2018_taxable_income(policy, taxpayer, agi)
