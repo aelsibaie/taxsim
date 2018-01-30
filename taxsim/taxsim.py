@@ -110,7 +110,7 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
     results["income_tax_before_credits_with_amt"] = income_tax_before_credits
 
     # CTC
-    ctc, actc = tax_funcs.fed_ctc(policy, taxpayer, agi)
+    ctc, actc = tax_funcs.fed_ctc(policy, taxpayer, agi, income_tax_before_credits)
     results["ctc"] = ctc
     results["actc"] = actc
 
@@ -239,7 +239,7 @@ def calc_house_2018_taxes(taxpayer, policy, mrate=True):
     results["income_tax_before_credits_with_amt"] = income_tax_before_credits
 
     # CTC
-    ctc, actc = tax_funcs.fed_ctc_actc_limited(policy, taxpayer, agi, 1100)
+    ctc, actc = tax_funcs.fed_ctc_actc_limited(policy, taxpayer, agi, 1100, income_tax_before_credits) # may be broken
     results["ctc"] = ctc
     results["actc"] = actc
 
@@ -358,7 +358,7 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     results["income_tax_before_credits_with_amt"] = income_tax_before_credits
 
     # CTC
-    ctc, actc = tax_funcs.fed_ctc_actc_limited(policy, taxpayer, agi, 1400)
+    ctc, actc = tax_funcs.fed_ctc_actc_limited(policy, taxpayer, agi, 1400, income_tax_before_credits)
     results["ctc"] = ctc
     results["actc"] = actc
 

@@ -60,7 +60,7 @@ def test_house_ctc_larger():
     result_currentlaw = taxsim.calc_federal_taxes(taxpayer, policy)
     result_house2018 = taxsim.calc_house_2018_taxes(taxpayer, taxsim.house_2018_policy)
 
-    assert result_currentlaw['actc'] < result_house2018["actc"]
+    assert result_currentlaw['ctc'] < result_house2018["ctc"]
 
 
 def test_house_business_income():

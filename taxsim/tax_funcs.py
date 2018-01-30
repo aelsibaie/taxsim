@@ -360,7 +360,7 @@ def fed_ordinary_income_tax(policy, taxpayer, taxable_income):
     return round(ordinary_income_tax, 2)
 
 
-def fed_ctc(policy, taxpayer, agi):
+def fed_ctc(policy, taxpayer, agi, tax_liability):
     # Child Tax Credit Worksheet https://www.irs.gov/pub/irs-pdf/p972.pdf
     # Part 1
     ctc = 0
@@ -377,17 +377,20 @@ def fed_ctc(policy, taxpayer, agi):
     else:
         line8 = 0
 
-    # Additional Child Tax Credit
-    actc_line1 = line8  # ctc
-    actc_line2 = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2']  # Earned income
-    if actc_line2 > policy['additional_ctc_threshold']:
-        actc_line3 = actc_line2 - policy['additional_ctc_threshold']
-        actc_line4 = actc_line3 * policy['additional_ctc_rate']
-    else:
-        actc_line4 = 0  # No qualified ACTC income
+    if line8 > tax_liability:
+        # Additional Child Tax Credit
+        actc_line1 = line8  # ctc
+        actc_line2 = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2']  # Earned income
+        if actc_line2 > policy['additional_ctc_threshold']:
+            actc_line3 = actc_line2 - policy['additional_ctc_threshold']
+            actc_line4 = actc_line3 * policy['additional_ctc_rate']
+        else:
+            actc_line4 = 0  # No qualified ACTC income
 
-    ctc = max(0, actc_line1 - actc_line4)
-    actc = min(actc_line1, actc_line4)
+        ctc = max(0, actc_line1 - actc_line4)
+        actc = min(actc_line1, actc_line4)
+    else:
+        return line8, 0
 
     if line1 >= policy['additional_ctc_threshold']:
         if actc_line4 >= actc_line1:
@@ -405,7 +408,7 @@ def fed_ctc(policy, taxpayer, agi):
             return ctc, actc
 
 
-def fed_ctc_actc_limited(policy, taxpayer, agi, actc_limit):
+def fed_ctc_actc_limited(policy, taxpayer, agi, actc_limit, tax_liability):
     # Child Tax Credit Worksheet https://www.irs.gov/pub/irs-pdf/p972.pdf
     # Part 1
     ctc = 0
@@ -422,17 +425,20 @@ def fed_ctc_actc_limited(policy, taxpayer, agi, actc_limit):
     else:
         line8 = 0
 
-    # Additional Child Tax Credit
-    actc_line1 = line8  # ctc
-    actc_line2 = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2']  # Earned income
-    if actc_line2 > policy['additional_ctc_threshold']:
-        actc_line3 = actc_line2 - policy['additional_ctc_threshold']
-        actc_line4 = actc_line3 * policy['additional_ctc_rate']
-    else:
-        actc_line4 = 0  # No qualified ACTC income
+    if line8 > tax_liability:
+        # Additional Child Tax Credit
+        actc_line1 = line8  # ctc
+        actc_line2 = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2']  # Earned income
+        if actc_line2 > policy['additional_ctc_threshold']:
+            actc_line3 = actc_line2 - policy['additional_ctc_threshold']
+            actc_line4 = actc_line3 * policy['additional_ctc_rate']
+        else:
+            actc_line4 = 0  # No qualified ACTC income
 
-    ctc = max(0, actc_line1 - actc_line4)
-    actc = min(actc_line1, actc_line4)
+        ctc = max(0, actc_line1 - actc_line4)
+        actc = min(actc_line1, actc_line4)
+    else:
+        return line8, 0
 
     actc_limit = taxpayer["child_dep"] * actc_limit  # TODO: confirm $1000 dollar limit
     if actc > actc_limit:
