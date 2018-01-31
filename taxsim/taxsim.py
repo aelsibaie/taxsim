@@ -119,12 +119,17 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
     results["eitc"] = eitc
 
     # Tax after nonrefundable credits
-    income_tax_after_credits = round(max(0, income_tax_before_credits - ctc), 2)
-    results["income_tax_after_nonrefundable_credits"] = income_tax_after_credits
+    income_tax_after_nonrefundable_credits = round(max(0, income_tax_before_credits - ctc), 2)
+    results["income_tax_after_nonrefundable_credits"] = income_tax_after_nonrefundable_credits
 
-    # Tax after ALL credits
-    results["income_tax_after_credits"] = round(
-        income_tax_after_credits - actc - eitc, 2)
+    # Other taxes
+    medicare_surtax, niit = tax_funcs.medsurtax_niit(policy, taxpayer, agi)
+    results["medicare_surtax"] = medicare_surtax
+    results["niit"] = niit
+    results["income_tax_after_other_taxes"] = income_tax_after_nonrefundable_credits + medicare_surtax + niit
+
+    # Tax after ALL credits (payments)
+    results["income_tax_after_credits"] = round(results["income_tax_after_other_taxes"] - actc - eitc, 2)
 
     rates = misc_funcs.calc_effective_rates(results["income_tax_after_credits"],
                                             payroll_taxes,
@@ -163,6 +168,7 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
 
 ##### House 2018 #####
 def calc_house_2018_taxes(taxpayer, policy, mrate=True):
+    # WARNING: THIS FUNCTION IS NOT MAINTAINED
     misc_funcs.validate_taxpayer(taxpayer)
     results = OrderedDict()
 
@@ -368,13 +374,20 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
 
     # $500 nonrefundable credit for qualifying dependents other than qualifying children
     dep_credit = 500 * taxpayer["nonchild_dep"]
+    results["dep_credit"] = dep_credit
 
     # Tax after nonrefundable credits
-    income_tax_after_credits = max(0, income_tax_before_credits - ctc - dep_credit)
-    results["income_tax_after_nonrefundable_credits"] = income_tax_after_credits
+    income_tax_after_nonrefundable_credits = round(max(0, income_tax_before_credits - ctc - dep_credit), 2)
+    results["income_tax_after_nonrefundable_credits"] = income_tax_after_nonrefundable_credits
 
-    # Tax after ALL credits
-    results["income_tax_after_credits"] = income_tax_after_credits - actc - eitc
+    # Other taxes
+    medicare_surtax, niit = tax_funcs.medsurtax_niit(policy, taxpayer, agi)
+    results["medicare_surtax"] = medicare_surtax
+    results["niit"] = niit
+    results["income_tax_after_other_taxes"] = income_tax_after_nonrefundable_credits + medicare_surtax + niit
+
+    # Tax after ALL credits (payments)
+    results["income_tax_after_credits"] = round(results["income_tax_after_other_taxes"] - actc - eitc, 2)
 
     rates = misc_funcs.calc_effective_rates(results["income_tax_after_credits"],
                                             payroll_taxes,

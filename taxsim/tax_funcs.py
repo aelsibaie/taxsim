@@ -34,6 +34,13 @@ def fed_payroll(policy, taxpayer):
                 min(income, policy['medicare_wage_base']))
             payroll_taxes[party] += social_security + medicare
 
+    return payroll_taxes
+
+
+def medsurtax_niit(policy, taxpayer, agi):
+    combined_ordinary_income = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2']
+    investment_income = taxpayer['qualified_income'] # TODO: add for business_income
+    
     # Additional Medicare Tax
     filing_status = taxpayer['filing_status']
     medicare_thresholds = policy['additional_medicare_tax_threshold']
@@ -43,9 +50,17 @@ def fed_payroll(policy, taxpayer):
         taxable_medicare_surtax = (
             combined_ordinary_income - additional_medicare_tax_threshold)
         medicare_surtax = taxable_medicare_surtax * policy['additional_medicare_tax_rate']
-    payroll_taxes['employee'] += medicare_surtax
 
-    return payroll_taxes
+    # Net Investment Income Tax https://www.irs.gov/pub/irs-pdf/f8960.pdf
+    line12 = investment_income
+    line13 = agi # MAGI
+    line14 = medicare_thresholds[filing_status] # follows the same thresholds
+    line15 = max(line13 - line14, 0)
+    line16 = min(line12, line15)
+    niit = line16 * policy["niit_rate"] # aka line17
+
+    return medicare_surtax, niit
+
 
 
 def fed_agi(policy, taxpayer, ordinary_income_after_401k):
@@ -440,7 +455,7 @@ def fed_ctc_actc_limited(policy, taxpayer, agi, actc_limit, tax_liability):
     else:
         return line8, 0
 
-    actc_limit = taxpayer["child_dep"] * actc_limit  # TODO: confirm $1000 dollar limit
+    actc_limit = taxpayer["child_dep"] * actc_limit
     if actc > actc_limit:
         overage = actc - actc_limit
         # reduce ACTC
