@@ -1,0 +1,7 @@
+filing_status,child_dep,nonchild_dep,ordinary_income1,ordinary_income2,business_income,ss_income,qualified_income,401k_contributions,medical_expenses,sl_income_tax,sl_property_tax,interest_paid,charity_contributions,other_itemized
+0,0,0,20000,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,40000,0,0,0,0,0,0,0,0,0,0,0
+1,0,0,60000,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,150000,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,150000,0,0,0,0,0,0,0,0,0,0,0
+1,0,0,300000,0,0,0,0,0,0,0,0,0,0,0

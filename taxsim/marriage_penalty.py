@@ -127,7 +127,7 @@ def gen_datasets():
 
 def plot_datasets():
     print("Plotting datasets")
-    policy_names = ["tcja", "pre-tcja"]
+    policy_names = ["tcja", "pre-tcja", "diff"]
 
     for policy in tqdm(policy_names):
         for children in tqdm(range(0, 3), leave=False):
