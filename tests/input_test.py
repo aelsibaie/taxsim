@@ -11,11 +11,13 @@ def test_hoh_but_no_child():
     with pytest.raises(ValueError):
         result = taxsim.calc_federal_taxes(taxpayer, policy)
 
+
 def test_hoh_but_with_nonchild():
     taxpayer = misc_funcs.create_taxpayer()
     taxpayer['ordinary_income1'] = 100000
     taxpayer['nonchild_dep'] = 2
     result = taxsim.calc_federal_taxes(taxpayer, policy)
+
 
 def test_single_with_child():
     taxpayer = misc_funcs.create_taxpayer()

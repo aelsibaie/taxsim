@@ -19,4 +19,3 @@ for i in [0, 1, 2]:
     #df = pd.DataFrame(diff)
 
     #df.to_csv("diff_" + str(i) + "children.csv")
-

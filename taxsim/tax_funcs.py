@@ -39,8 +39,8 @@ def fed_payroll(policy, taxpayer):
 
 def medsurtax_niit(policy, taxpayer, agi):
     combined_ordinary_income = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2']
-    investment_income = taxpayer['qualified_income'] # TODO: add for business_income
-    
+    investment_income = taxpayer['qualified_income']  # TODO: add for business_income
+
     # Additional Medicare Tax
     filing_status = taxpayer['filing_status']
     medicare_thresholds = policy['additional_medicare_tax_threshold']
@@ -53,14 +53,13 @@ def medsurtax_niit(policy, taxpayer, agi):
 
     # Net Investment Income Tax https://www.irs.gov/pub/irs-pdf/f8960.pdf
     line12 = investment_income
-    line13 = agi # MAGI
-    line14 = medicare_thresholds[filing_status] # follows the same thresholds
+    line13 = agi  # MAGI
+    line14 = medicare_thresholds[filing_status]  # follows the same thresholds
     line15 = max(line13 - line14, 0)
     line16 = min(line12, line15)
-    niit = line16 * policy["niit_rate"] # aka line17
+    niit = line16 * policy["niit_rate"]  # aka line17
 
     return medicare_surtax, niit
-
 
 
 def fed_agi(policy, taxpayer, ordinary_income_after_401k):
