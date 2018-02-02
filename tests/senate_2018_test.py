@@ -60,4 +60,4 @@ def test_senate_ctc_larger():
     result_currentlaw = taxsim.calc_federal_taxes(taxpayer, policy)
     result_senate2018 = taxsim.calc_senate_2018_taxes(taxpayer, taxsim.senate_2018_policy)
 
-    assert result_currentlaw['actc'] < result_senate2018["actc"]
+    assert result_currentlaw['ctc'] < result_senate2018["ctc"]

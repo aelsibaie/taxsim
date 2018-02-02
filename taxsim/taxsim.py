@@ -72,6 +72,9 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
     agi = tax_funcs.fed_agi(policy, taxpayer, ordinary_income_after_401k)
     results["agi"] = agi
 
+    if (policy["medical_expense_threshold"] * results["agi"]) > taxpayer["medical_expenses"]:
+        taxpayer["medical_expenses"] = 0
+
     # Taxable income
     taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt = tax_funcs.fed_taxable_income(policy, taxpayer, agi)
     results["taxable_income"] = taxable_income
@@ -107,7 +110,7 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
     results["income_tax_before_credits_with_amt"] = income_tax_before_credits
 
     # CTC
-    ctc, actc = tax_funcs.fed_ctc(policy, taxpayer, agi)
+    ctc, actc = tax_funcs.fed_ctc(policy, taxpayer, agi, income_tax_before_credits)
     results["ctc"] = ctc
     results["actc"] = actc
 
@@ -116,12 +119,17 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
     results["eitc"] = eitc
 
     # Tax after nonrefundable credits
-    income_tax_after_credits = round(max(0, income_tax_before_credits - ctc), 2)
-    results["income_tax_after_nonrefundable_credits"] = income_tax_after_credits
+    income_tax_after_nonrefundable_credits = round(max(0, income_tax_before_credits - ctc), 2)
+    results["income_tax_after_nonrefundable_credits"] = income_tax_after_nonrefundable_credits
 
-    # Tax after ALL credits
-    results["income_tax_after_credits"] = round(
-        income_tax_after_credits - actc - eitc, 2)
+    # Other taxes
+    medicare_surtax, niit = tax_funcs.medsurtax_niit(policy, taxpayer, agi)
+    results["medicare_surtax"] = medicare_surtax
+    results["niit"] = niit
+    results["income_tax_after_other_taxes"] = income_tax_after_nonrefundable_credits + medicare_surtax + niit
+
+    # Tax after ALL credits (payments)
+    results["income_tax_after_credits"] = round(results["income_tax_after_other_taxes"] - actc - eitc, 2)
 
     rates = misc_funcs.calc_effective_rates(results["income_tax_after_credits"],
                                             payroll_taxes,
@@ -160,12 +168,13 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
 
 ##### House 2018 #####
 def calc_house_2018_taxes(taxpayer, policy, mrate=True):
+    # WARNING: THIS FUNCTION IS NOT MAINTAINED
     misc_funcs.validate_taxpayer(taxpayer)
     results = OrderedDict()
 
     # NEW: Itemized deduction limitations
     taxpayer["sl_property_tax"] = min(10000, taxpayer["sl_property_tax"])
-    taxpayer["interest_paid"] = min(17500, taxpayer["interest_paid"]) # TODO: Warn if this is happening
+    taxpayer["interest_paid"] = min(17500, taxpayer["interest_paid"])  # TODO: Warn if this is happening
     taxpayer["sl_income_tax"] = 0
     taxpayer["medical_expenses"] = 0
 
@@ -236,7 +245,7 @@ def calc_house_2018_taxes(taxpayer, policy, mrate=True):
     results["income_tax_before_credits_with_amt"] = income_tax_before_credits
 
     # CTC
-    ctc, actc = tax_funcs.fed_ctc_actc_limited(policy, taxpayer, agi, 1100)
+    ctc, actc = tax_funcs.fed_ctc_actc_limited(policy, taxpayer, agi, 1100, income_tax_before_credits)  # may be broken
     results["ctc"] = ctc
     results["actc"] = actc
 
@@ -301,7 +310,7 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     results = OrderedDict()
 
     # TODO: Technically the medical expense deduction is more generous, but it is not yet implemented
-    taxpayer["sl_property_tax"] = min(10000, taxpayer["sl_property_tax"] + taxpayer["sl_income_tax"])  # sl_income_tax will be included in sl_property_tax
+    taxpayer["sl_property_tax"] = min(policy["taxes_paid_deduction_limit"], taxpayer["sl_property_tax"] + taxpayer["sl_income_tax"])  # sl_income_tax will be included in sl_property_tax
     taxpayer["sl_income_tax"] = 0
     #taxpayer["interest_paid"] = min(17500 * 2, taxpayer["interest_paid"])
 
@@ -320,6 +329,9 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     # AGI
     agi = tax_funcs.fed_agi(policy, taxpayer, ordinary_income_after_401k)
     results["agi"] = agi
+
+    if (policy["medical_expense_threshold"] * results["agi"]) > taxpayer["medical_expenses"]:
+        taxpayer["medical_expenses"] = 0
 
     # Taxable income
     taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt, taxable_income_before, new_agi = tax_funcs.senate_2018_taxable_income(policy, taxpayer, agi)
@@ -352,7 +364,7 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     results["income_tax_before_credits_with_amt"] = income_tax_before_credits
 
     # CTC
-    ctc, actc = tax_funcs.fed_ctc_actc_limited(policy, taxpayer, agi, 1400)
+    ctc, actc = tax_funcs.fed_ctc_actc_limited(policy, taxpayer, agi, policy["actc_limit"], income_tax_before_credits)
     results["ctc"] = ctc
     results["actc"] = actc
 
@@ -361,14 +373,21 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     results["eitc"] = eitc
 
     # $500 nonrefundable credit for qualifying dependents other than qualifying children
-    dep_credit = 500 * taxpayer["nonchild_dep"]
+    dep_credit = policy["nonchild_dep_credit"] * taxpayer["nonchild_dep"]
+    results["dep_credit"] = dep_credit
 
     # Tax after nonrefundable credits
-    income_tax_after_credits = max(0, income_tax_before_credits - ctc - dep_credit)
-    results["income_tax_after_nonrefundable_credits"] = income_tax_after_credits
+    income_tax_after_nonrefundable_credits = round(max(0, income_tax_before_credits - ctc - dep_credit), 2)
+    results["income_tax_after_nonrefundable_credits"] = income_tax_after_nonrefundable_credits
 
-    # Tax after ALL credits
-    results["income_tax_after_credits"] = income_tax_after_credits - actc - eitc
+    # Other taxes
+    medicare_surtax, niit = tax_funcs.medsurtax_niit(policy, taxpayer, agi)
+    results["medicare_surtax"] = medicare_surtax
+    results["niit"] = niit
+    results["income_tax_after_other_taxes"] = income_tax_after_nonrefundable_credits + medicare_surtax + niit
+
+    # Tax after ALL credits (payments)
+    results["income_tax_after_credits"] = round(results["income_tax_after_other_taxes"] - actc - eitc, 2)
 
     rates = misc_funcs.calc_effective_rates(results["income_tax_after_credits"],
                                             payroll_taxes,
