@@ -145,10 +145,11 @@ def plot_datasets():
             ax.set_xlabel('Combined Income')
             ax.set_ylabel('Income Split')
 
-            plt.imshow(data, cmap='seismic', vmin=-0.06, vmax=0.06, interpolation='none', origin='upper')
+            plt.imshow(data, cmap='seismic', vmin=-0.12, vmax=0.12, origin='upper')
             plt.colorbar()
 
             plt.title(policy + ", " + str(children) + " children")
 
-            plt.savefig(filename + ".png", dpi=100, format='png')
-            #plt.savefig(filename + ".svg", dpi=100, format='svg')
+            #fig.set_size_inches(18.5, 10.5)
+            #plt.savefig(filename + ".png", format='png')
+            plt.savefig(filename + ".svg", format='svg')

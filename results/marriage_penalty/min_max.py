@@ -7,11 +7,11 @@ for i in [0, 1, 2]:
 
     print(str(i) + " children")
     print("pre-tcja")
-    print(data1.max())
-    print(data1.min())
+    print(round(data1.max() * 100, 1))
+    print(round(data1.min() * 100, 1))
     print("tcja")
-    print(data2.max())
-    print(data2.min())
+    print(round(data2.max() * 100, 1))
+    print(round(data2.min() * 100, 1))
     print("")
 
     #diff = np.subtract(data2, data1)
