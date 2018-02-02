@@ -310,7 +310,7 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     results = OrderedDict()
 
     # TODO: Technically the medical expense deduction is more generous, but it is not yet implemented
-    taxpayer["sl_property_tax"] = min(10000, taxpayer["sl_property_tax"] + taxpayer["sl_income_tax"])  # sl_income_tax will be included in sl_property_tax
+    taxpayer["sl_property_tax"] = min(policy["taxes_paid_deduction_limit"], taxpayer["sl_property_tax"] + taxpayer["sl_income_tax"])  # sl_income_tax will be included in sl_property_tax
     taxpayer["sl_income_tax"] = 0
     #taxpayer["interest_paid"] = min(17500 * 2, taxpayer["interest_paid"])
 
@@ -364,7 +364,7 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     results["income_tax_before_credits_with_amt"] = income_tax_before_credits
 
     # CTC
-    ctc, actc = tax_funcs.fed_ctc_actc_limited(policy, taxpayer, agi, 1400, income_tax_before_credits)
+    ctc, actc = tax_funcs.fed_ctc_actc_limited(policy, taxpayer, agi, policy["actc_limit"], income_tax_before_credits)
     results["ctc"] = ctc
     results["actc"] = actc
 
@@ -373,7 +373,7 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     results["eitc"] = eitc
 
     # $500 nonrefundable credit for qualifying dependents other than qualifying children
-    dep_credit = 500 * taxpayer["nonchild_dep"]
+    dep_credit = policy["nonchild_dep_credit"] * taxpayer["nonchild_dep"]
     results["dep_credit"] = dep_credit
 
     # Tax after nonrefundable credits
