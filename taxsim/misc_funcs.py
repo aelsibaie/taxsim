@@ -84,7 +84,7 @@ def git_version():
 
 def validate_taxpayer(taxpayer):
     # Check for proper inputs
-    if (type(taxpayer['child_dep']) == float) or (type(taxpayer['nonchild_dep']) == float):
+    if (isinstance(taxpayer['child_dep'], float)) or (isinstance(taxpayer['nonchild_dep'], float)):
         if taxpayer['child_dep'].is_integer() is not True:
             raise ValueError
         elif taxpayer['nonchild_dep'].is_integer() is not True:
