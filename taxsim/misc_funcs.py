@@ -16,7 +16,7 @@ def calc_effective_rates(income_tax_after_credits, payroll_taxes, gross_income):
     # Wrap all division in the same try-except block since they all use the same denominator
     try:
         # Average effective tax rate
-        rates['avg_effective_tax_rate'] = rates['tax_burden'] / gross_income
+        rates['avg_effective_tax_rate'] = rates['tax_wedge'] / (gross_income + payroll_taxes["employer"])
         # Average effective tax rate without payroll
         rates['avg_effective_tax_rate_wo_payroll'] = income_tax_after_credits / gross_income
     except ZeroDivisionError as e:
