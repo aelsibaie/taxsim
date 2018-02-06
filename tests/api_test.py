@@ -103,3 +103,35 @@ def test_api_failure_string():
         ), follow_redirects=True, headers={'content-type': 'application/json'})
 
         assert resp.status_code == 400
+
+
+def test_api_failure_bad_key():
+    with api.app.test_client() as web:
+        resp = web.post('/taxcalc/tcja_submit', data=json.dumps(
+            {
+                "fake_key": 1,  # here is the stinker
+                "child_dep": 1,
+                "nonchild_dep": 1,
+                "ordinary_income1": "bad stuff!",
+                "ordinary_income2": 0,
+                "business_income": 0,
+                "ss_income": 0,
+                "qualified_income": 0,
+                "401k_contributions": 0,
+                "medical_expenses": 0,
+                "sl_income_tax": 0,
+                "sl_property_tax": 0,
+                "interest_paid": 0,
+                "charity_contributions": 0,
+                "other_itemized": 0
+            }
+        ), follow_redirects=True, headers={'content-type': 'application/json'})
+
+        assert resp.status_code == 400
+
+
+def test_api_failure_not_json():
+    with api.app.test_client() as web:
+        resp = web.post('/taxcalc/tcja_submit', data="not json data", headers={'content-type': 'application/json'})
+
+        assert resp.status_code == 400
