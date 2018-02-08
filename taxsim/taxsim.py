@@ -19,6 +19,7 @@ current_datetime = datetime.now().strftime("%Y%m%dT%H%M%S")  # ISO 8601
 
 ##### Default Configuration #####
 MARG_RATE_BOUND = 1000
+ASSUMED_MORTGAGE_RATE = 0.04
 # Input taxpayers
 TAXPAYERS_FILE = "taxpayers.csv"
 # Policy parameters
@@ -50,8 +51,7 @@ senate_2018_policy = csv_parser.load_policy(PARAMS_DIR + SENATE_2018_FILE)
 def calc_federal_taxes(taxpayer, policy, mrate=True):
     misc_funcs.validate_taxpayer(taxpayer)
     results = OrderedDict()
-
-    #taxpayer["interest_paid"] = min(17500 * 2, taxpayer["interest_paid"])
+    taxpayer["interest_paid"] = min(policy['mortgage_interest_cap'] * ASSUMED_MORTGAGE_RATE, taxpayer["interest_paid"])
 
     # Gross income
     results["gross_income"] = tax_funcs.get_gross_income(taxpayer)
@@ -74,6 +74,8 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
 
     if (policy["medical_expense_threshold"] * results["agi"]) > taxpayer["medical_expenses"]:
         taxpayer["medical_expenses"] = 0
+    
+    taxpayer["charity_contributions"] = min(policy['charitable_cont_limit'] * agi, taxpayer["charity_contributions"])
 
     # Taxable income
     taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt = tax_funcs.fed_taxable_income(policy, taxpayer, agi)
@@ -312,7 +314,7 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     # TODO: Technically the medical expense deduction is more generous, but it is not yet implemented
     taxpayer["sl_property_tax"] = min(policy["taxes_paid_deduction_limit"], taxpayer["sl_property_tax"] + taxpayer["sl_income_tax"])  # sl_income_tax will be included in sl_property_tax
     taxpayer["sl_income_tax"] = 0
-    #taxpayer["interest_paid"] = min(17500 * 2, taxpayer["interest_paid"])
+    taxpayer["interest_paid"] = min(policy['mortgage_interest_cap'] * ASSUMED_MORTGAGE_RATE, taxpayer["interest_paid"])
 
     # Gross income
     results["gross_income"] = tax_funcs.get_gross_income(taxpayer)
@@ -332,6 +334,8 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
 
     if (policy["medical_expense_threshold"] * results["agi"]) > taxpayer["medical_expenses"]:
         taxpayer["medical_expenses"] = 0
+
+    taxpayer["charity_contributions"] = min(policy['charitable_cont_limit'] * agi, taxpayer["charity_contributions"])
 
     # Taxable income
     taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt, taxable_income_before, new_agi = tax_funcs.senate_2018_taxable_income(policy, taxpayer, agi)
@@ -496,18 +500,22 @@ def main():
         filer = taxpayers[i]
         filer_number = str(i + 1)
 
+        filer1 = copy.deepcopy(filer)
+        filer2 = copy.deepcopy(filer)
+        filer3 = copy.deepcopy(filer)
+
         logging.info("Running calc_federal_taxes for filer #" + filer_number)
-        current_law_result = calc_federal_taxes(filer, current_law_policy)
+        current_law_result = calc_federal_taxes(filer1, current_law_policy)
         current_law_results.append(current_law_result)
         logging.debug(json.dumps(current_law_result, indent=4))
 
         logging.info("Running calc_house_2018_taxes for filer #" + filer_number)
-        house_2018_result = calc_house_2018_taxes(filer, house_2018_policy)
+        house_2018_result = calc_house_2018_taxes(filer2, house_2018_policy)
         house_2018_results.append(house_2018_result)
         logging.debug(json.dumps(house_2018_result, indent=4))
 
         logging.info("Running calc_senate_2018_taxes for filer #" + filer_number)
-        senate_2018_result = calc_senate_2018_taxes(filer, senate_2018_policy)
+        senate_2018_result = calc_senate_2018_taxes(filer3, senate_2018_policy)
         senate_2018_results.append(senate_2018_result)
         logging.debug(json.dumps(senate_2018_result, indent=4))
 

@@ -3,6 +3,7 @@ import taxsim.taxsim as taxsim
 import taxsim.misc_funcs as misc_funcs
 from collections import OrderedDict
 from datetime import datetime
+import copy
 
 from flask import Flask, abort, request, jsonify
 from flask_cors import CORS
@@ -71,8 +72,10 @@ def hello():
         taxsim.logging.warn("Received malformed json data from " + request.remote_addr)
         abort(400)
     try:
-        result = tax_calc(taxpayer, policy)
-        alt_result = alt_tax_calc(taxpayer, alt_policy)
+        taxpayer1 = copy.deepcopy(taxpayer)
+        taxpayer2 = copy.deepcopy(taxpayer)
+        result = tax_calc(taxpayer1, policy)
+        alt_result = alt_tax_calc(taxpayer2, alt_policy)
     except BaseException:
         taxsim.logging.warn("Taxpayer failed input validation for " + request.remote_addr)
         abort(400)
