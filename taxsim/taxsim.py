@@ -50,6 +50,7 @@ senate_2018_policy = csv_parser.load_policy(PARAMS_DIR + SENATE_2018_FILE)
 ##### Current Law #####
 def calc_federal_taxes(taxpayer, policy, mrate=True):
     misc_funcs.validate_taxpayer(taxpayer)
+    temp_taxpayer = copy.deepcopy(taxpayer)
     results = OrderedDict()
     taxpayer["interest_paid"] = min(policy['mortgage_interest_cap'] * ASSUMED_MORTGAGE_RATE, taxpayer["interest_paid"])
 
@@ -74,6 +75,8 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
 
     if (policy["medical_expense_threshold"] * results["agi"]) > taxpayer["medical_expenses"]:
         taxpayer["medical_expenses"] = 0
+    else:
+        taxpayer["medical_expenses"] = taxpayer["medical_expenses"] - (policy["medical_expense_threshold"] * results["agi"])
     
     taxpayer["charity_contributions"] = min(policy['charitable_cont_limit'] * agi, taxpayer["charity_contributions"])
 
@@ -150,10 +153,10 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
 
     if mrate is True:
         # Marginal rate calculations use tax_burden, NOT income_tax_after_credits
-        temp_taxpayer1 = copy.copy(taxpayer)
+        temp_taxpayer1 = copy.copy(temp_taxpayer)
         temp_taxpayer1['ordinary_income1'] = temp_taxpayer1['ordinary_income1'] + MARG_RATE_BOUND
 
-        temp_taxpayer2 = copy.copy(taxpayer)
+        temp_taxpayer2 = copy.copy(temp_taxpayer)
         temp_taxpayer2['business_income'] = temp_taxpayer2['business_income'] + MARG_RATE_BOUND
 
         # Setting mrate to True results in infinite recursion
@@ -309,6 +312,7 @@ def calc_house_2018_taxes(taxpayer, policy, mrate=True):
 ##### Senate 2018 #####
 def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     misc_funcs.validate_taxpayer(taxpayer)
+    temp_taxpayer = copy.deepcopy(taxpayer)
     results = OrderedDict()
 
     # TODO: Technically the medical expense deduction is more generous, but it is not yet implemented
@@ -334,6 +338,8 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
 
     if (policy["medical_expense_threshold"] * results["agi"]) > taxpayer["medical_expenses"]:
         taxpayer["medical_expenses"] = 0
+    else:
+        taxpayer["medical_expenses"] = taxpayer["medical_expenses"] - (policy["medical_expense_threshold"] * results["agi"])
 
     taxpayer["charity_contributions"] = min(policy['charitable_cont_limit'] * agi, taxpayer["charity_contributions"])
 
@@ -410,10 +416,10 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
 
     if mrate is True:
         # Marginal rate calculations use tax_burden, NOT income_tax_after_credits
-        temp_taxpayer1 = copy.copy(taxpayer)
+        temp_taxpayer1 = copy.copy(temp_taxpayer)
         temp_taxpayer1['ordinary_income1'] = temp_taxpayer1['ordinary_income1'] + MARG_RATE_BOUND
 
-        temp_taxpayer2 = copy.copy(taxpayer)
+        temp_taxpayer2 = copy.copy(temp_taxpayer)
         temp_taxpayer2['business_income'] = temp_taxpayer2['business_income'] + MARG_RATE_BOUND
 
         # Setting mrate to True results in infinite recursion
