@@ -21,6 +21,7 @@ optional arguments:
                         generate marriage penalty dataset
 ```
 
+
 Other usage notes:
 
  - For `filing_status` use `0` for single filers, `1` for married filers, and `2` for head of household filers
@@ -28,3 +29,6 @@ Other usage notes:
  - List of example taxpayers is in `taxpayers.csv`
  
  - Most policy parameters can be found in the `params` folder
+
+
+Note: Changes to the `master` branch will automatically be deployed to AWS Elastic Beanstalk at this URL `https://taxsim-env.us-east-1.elasticbeanstalk.com/`
