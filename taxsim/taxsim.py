@@ -93,21 +93,14 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
     results["income_tax_before_credits"] = income_tax_before_credits
 
     # Qualified income/capital gains
-    # TODO: Check for bugs
-    qualified_income_tax = tax_funcs.fed_qualified_income(
-        policy,
-        taxpayer,
-        taxable_income,
-        income_tax_before_credits)
-    income_tax_before_credits = min(
-        income_tax_before_credits,
-        qualified_income_tax)
+    qualified_income_tax = tax_funcs.fed_qualified_income(policy, taxpayer, taxable_income, income_tax_before_credits)
+    income_tax_before_credits = min(income_tax_before_credits, qualified_income_tax)
     results["qualified_income_tax"] = qualified_income_tax
     # form1040_line44
     results["selected_tax_before_credits"] = income_tax_before_credits
 
     # AMT
-    amt, amt_taxable_income = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits)
+    amt, amt_taxable_income = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits, taxable_income)
     results['amt_taxable_income'] = amt_taxable_income
     results["amt"] = amt
 
@@ -242,7 +235,7 @@ def calc_house_2018_taxes(taxpayer, policy, mrate=True):
     results["selected_tax_before_credits"] = income_tax_before_credits
 
     # AMT
-    amt, amt_taxable_income = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits)
+    amt, amt_taxable_income = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits, taxable_income)
     results['amt_taxable_income'] = amt_taxable_income
     results["amt"] = amt
 
@@ -315,7 +308,6 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     temp_taxpayer = copy.deepcopy(taxpayer)
     results = OrderedDict()
 
-    # TODO: Technically the medical expense deduction is more generous, but it is not yet implemented
     taxpayer["sl_property_tax"] = min(policy["taxes_paid_deduction_limit"], taxpayer["sl_property_tax"] + taxpayer["sl_income_tax"])  # sl_income_tax will be included in sl_property_tax
     taxpayer["sl_income_tax"] = 0
     taxpayer["interest_paid"] = min(policy['mortgage_interest_cap'] * ASSUMED_MORTGAGE_RATE, taxpayer["interest_paid"])
@@ -359,14 +351,13 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     results["income_tax_before_credits"] = income_tax_before_credits
 
     # Qualified income/capital gains
-    # TODO: Check for bugs
     qualified_income_tax = tax_funcs.fed_qualified_income(policy, taxpayer, taxable_income, income_tax_before_credits)
     income_tax_before_credits = min(income_tax_before_credits, qualified_income_tax)
     results["qualified_income_tax"] = qualified_income_tax
     results["selected_tax_before_credits"] = income_tax_before_credits  # form1040_line44
 
     # AMT
-    amt, amt_taxable_income = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits)
+    amt, amt_taxable_income = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits, taxable_income)
     results['amt_taxable_income'] = amt_taxable_income
     results["amt"] = amt
 
