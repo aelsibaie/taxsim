@@ -31,7 +31,7 @@ def make_graph(main_income_type,
                rate_type="average"):
 
     current_law_result_list = []
-    house_2018_result_list = []
+    #house_2018_result_list = []
     senate_2018_result_list = []
 
     for i in range(start, stop):
@@ -48,16 +48,20 @@ def make_graph(main_income_type,
             default_taxpayer, taxsim.current_law_policy)
         current_law_result_list.append(current_law_result)
 
+        '''
         house_2018_result = taxsim.calc_house_2018_taxes(
             default_taxpayer, taxsim.house_2018_policy)
         house_2018_result_list.append(house_2018_result)
+        '''
 
         senate_2018_result = taxsim.calc_senate_2018_taxes(
             default_taxpayer, taxsim.senate_2018_policy)
         senate_2018_result_list.append(senate_2018_result)
 
     current_law_df = pd.DataFrame(current_law_result_list)
+    '''
     house_2018_df = pd.DataFrame(house_2018_result_list)
+    '''
     senate_2018_df = pd.DataFrame(senate_2018_result_list)
 
     # Save CSVs
@@ -66,11 +70,13 @@ def make_graph(main_income_type,
         file_name +
         '-current_law_graph_data.csv',
         index=False)
+    '''
     house_2018_df.to_csv(
         taxsim.GRAPH_DATA_RESULTS_DIR +
         file_name +
         '-house_2018_graph_data.csv',
         index=False)
+    '''
     senate_2018_df.to_csv(
         taxsim.GRAPH_DATA_RESULTS_DIR +
         file_name +
@@ -117,19 +123,21 @@ def make_graph(main_income_type,
         current_law_df["gross_income"],
         current_law_df[graph_rate_type],
         drawstyle=drawstyle_string,
-        label='Current Law')
+        label='Pre-TCJA')
+    '''
     # House 2018 Proposal
     ax.plot(
         house_2018_df["gross_income"],
         house_2018_df[graph_rate_type],
         drawstyle=drawstyle_string,
         label='House 2018 Proposal')
+    '''
     # Senate 2018 Proposal
     ax.plot(
         senate_2018_df["gross_income"],
         senate_2018_df[graph_rate_type],
         drawstyle=drawstyle_string,
-        label='Senate 2018 Proposal')
+        label='TCJA')
 
     ax.legend(loc='upper left')
     ax.set_title(

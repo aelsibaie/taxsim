@@ -500,7 +500,7 @@ def fed_eitc(policy, taxpayer):
     return eitc
 
 
-def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation, income_tax_before_credits):
+def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation, income_tax_before_credits, taxable_income):
     amt = 0
     # Form 6251 https://www.irs.gov/pub/irs-pdf/f6251.pdf
     # Instructions https://www.irs.gov/pub/irs-pdf/i6251.pdf
@@ -542,17 +542,57 @@ def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation,
         line29 = ws_line6
     else:
         line29 = amt_exemption
-    amt_taxable_income = max(0, amt_income - line29)
+    amt_taxable_income = max(0, amt_income - line29)  # line 30
 
     # Step 3: Calculate AMT
+    rate_diff = (
+        (policy["amt_rate_threshold"] * policy["amt_rates"][1]) -
+        (policy["amt_rate_threshold"] * policy["amt_rates"][0]))
+
     # After this if statement, amt is equivalent to line 31 and 33 of form 6251
-    if amt_taxable_income < policy["amt_rate_threshold"]:
-        amt = amt_taxable_income * policy["amt_rates"][0]  # 26% rate
+    if taxpayer["qualified_income"] == 0:
+        if amt_taxable_income < policy["amt_rate_threshold"]:
+            amt = amt_taxable_income * policy["amt_rates"][0]  # 26% rate
+        else:
+            amt = amt_taxable_income * policy["amt_rates"][1] - rate_diff  # 28% rate
     else:
-        rate_diff = (
-            (policy["amt_rate_threshold"] * policy["amt_rates"][1]) -
-            (policy["amt_rate_threshold"] * policy["amt_rates"][0]))
-        amt = amt_taxable_income * policy["amt_rates"][1] - rate_diff  # 28% rate
+        # Tax Computation Using Maximum Capital Gains Rate
+        line36 = amt_taxable_income
+        line37 = max(taxpayer["qualified_income"], 0)  # line 6 from cap gains worksheet
+        line38 = 0  # line 19 from schedule D
+        line39 = line37
+        line40 = min(line36, line39)
+        line41 = line36 - line40
+        if line41 <= policy["amt_rate_threshold"]:
+            line42 = line41 * policy["amt_rates"][0]
+        else:
+            line42 = line41 * policy["amt_rates"][1] - rate_diff
+        line43 = policy["cap_gains_lower_threshold"][taxpayer['filing_status']]
+        line44 = max(taxable_income - taxpayer["qualified_income"], 0)  # line7 from cap gains worksheet
+        line45 = max(line43 - line44, 0)
+        line46 = min(line36, line37)
+        line47 = min(line45, line46)
+        line48 = line46 - line47
+        line49 = policy["cap_gains_upper_threshold"][taxpayer['filing_status']]
+        line50 = line45
+        line51 = max(taxable_income - taxpayer["qualified_income"], 0)  # line7 from cap gains worksheet
+        line52 = line50 + line51
+        line53 = max(line49 - line52, 0)
+        line54 = min(line48, line53)
+        line55 = line54 * policy["cap_gains_lower_rate"]
+        line56 = line47 + line54
+        if not math.isclose(line56, line36):
+            line57 = line46 - line56
+            line58 = line57 * policy["cap_gains_upper_rate"]
+        else:
+            line58 = 0
+            # lines 59-61 skipped because line 38 is 0
+        line62 = line42 + line55 + line58  # + line61
+        if line36 <= policy["amt_rate_threshold"]:
+            line63 = line36 * policy["amt_rates"][0]
+        else:
+            line63 = line36 * policy["amt_rates"][1] - rate_diff
+        amt = min(line62, line63)
 
     line34 = income_tax_before_credits
     amt = max(0, amt - line34)  # aka line35
