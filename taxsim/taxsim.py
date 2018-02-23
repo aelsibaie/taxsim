@@ -77,7 +77,7 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
         taxpayer["medical_expenses"] = 0
     else:
         taxpayer["medical_expenses"] = taxpayer["medical_expenses"] - (policy["medical_expense_threshold"] * results["agi"])
-    
+
     taxpayer["charity_contributions"] = min(policy['charitable_cont_limit'] * agi, taxpayer["charity_contributions"])
 
     # Taxable income
