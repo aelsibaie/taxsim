@@ -11,9 +11,9 @@
             "qualified": 1.0
         },
         "payroll": 0,
-        "step": 1000,
+        "step": 100,
         "start": 1,
-        "stop": 1400,
+        "stop": 14000,
         "rate_type": "marginal"
     },
     {
@@ -28,9 +28,9 @@
             "qualified": 0.0
         },
         "payroll": 0,
-        "step": 1000,
+        "step": 100,
         "start": 1,
-        "stop": 1400,
+        "stop": 8000,
         "rate_type": "marginal"
     },
     {
@@ -45,9 +45,9 @@
             "qualified": 0.0
         },
         "payroll": 0,
-        "step": 1000,
+        "step": 100,
         "start": 1,
-        "stop": 1400,
+        "stop": 8000,
         "rate_type": "marginal"
     }
 ]

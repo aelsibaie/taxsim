@@ -18,7 +18,7 @@ from . import marriage_penalty
 current_datetime = datetime.now().strftime("%Y%m%dT%H%M%S")  # ISO 8601
 
 ##### Default Configuration #####
-MARG_RATE_BOUND = 1000
+MARG_RATE_BOUND = 2500
 ASSUMED_MORTGAGE_RATE = 0.04
 # Input taxpayers
 TAXPAYERS_FILE = "taxpayers.csv"
