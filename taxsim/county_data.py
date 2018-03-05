@@ -59,6 +59,8 @@ def process_county_data():
             - More info can be found in the doc file named 15incydocguide.doc
         '''
 
+        row_calcs['taxpayers'] = row.N1
+
         # PROPORTIONS OF FILING STATUSES
         row_calcs['percent_single'] = div(row.MARS1, row.N1)
         row_calcs['percent_joint'] = div(row.MARS2, row.N1)
@@ -81,16 +83,27 @@ def process_county_data():
             row_calcs['itemizing_flag'] = 0
 
         # CHILDREN
-        #row_calcs['number_children'] = div(row.NUMDEP, (row.MARS2 + row.MARS4))  # only divide by filing status' capable of having children
-        #row_calcs['rounded_children'] = round(row_calcs['number_children'], 0)
+        '''
+        row_calcs['avg_children'] = div(row.NUMDEP, row.N1)
+        row_calcs['avg_children_2'] = div(row.NUMDEP, (row.MARS2 + row.MARS4))  # only divide by filing status' capable of having children
 
-        # household size and new method for children
+        row_calcs['rounded_children_2'] = round(row_calcs['avg_children_2'], 0)
+
+        # household size and alternative method for children
         row_calcs['household_size'] = round(div(row.N2, row.N1), 0)
         if row_calcs['filing_status'] == 1:
             children = row_calcs['household_size'] - 2
         else:
             children = row_calcs['household_size'] - 1
-        row_calcs['children'] = max(0, children)
+        row_calcs['imputed_children'] = max(0, children)
+        '''
+
+        if row_calcs['filing_status'] != 0:
+            row_calcs['children'] = round(div(row.NUMDEP, (row.MARS2 + row.MARS4)), 0)
+        else:
+            row_calcs['children'] = 0
+
+
 
         # INCOMES
         #row_calcs['taxable_ss_inc'] = div(row.A02500, row.N02500) * scale  # only includes the taxable portion of SS income
