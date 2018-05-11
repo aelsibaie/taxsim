@@ -127,7 +127,7 @@ for ws in wb.worksheets:
     df['state'] = ws.title
     df['state_fips'] = state_codes[ws.title]
 
-    if df.loc[df['district'] != "Total"].empty == True:
+    if df.loc[df['district'] != "Total"].empty:
         df.replace(to_replace="Total", value=0, inplace=True)
     else:
         df = df.loc[df['district'] != "Total"]
@@ -138,7 +138,7 @@ dataframe = pd.concat(dataframes, ignore_index=True)
 
 dataframe.to_csv("cleaned_data.csv")
 
-filing_statuses = [0, 1] # logic later can make this 2 for HoH
+filing_statuses = [0, 1]  # logic later can make this 2 for HoH
 number_kids = [0, 1, 2]
 incomes = ['0-30', '30-75', '75-150', '150-500', '500-inf']
 
@@ -156,20 +156,20 @@ for state in dataframe.state.unique():
             state_fips = int(dist_df['state_fips'].unique())
             district = int(dist_df['district'].unique())
             # number of returns
-            ret_count = float(dist_df[dist_df['return_item']=='Return Count'][income])
+            ret_count = float(dist_df[dist_df['return_item'] == 'Return Count'][income])
             try:
                 # ordinary income
-                wages = float(dist_df[dist_df['return_item']=='Wages Amt.'][income]) / ret_count
-                taxable_int = float(dist_df[dist_df['return_item']=='Taxable Interest Amt.'][income]) / ret_count
+                wages = float(dist_df[dist_df['return_item'] == 'Wages Amt.'][income]) / ret_count
+                taxable_int = float(dist_df[dist_df['return_item'] == 'Taxable Interest Amt.'][income]) / ret_count
                 # qualified income
-                dividends = float(dist_df[dist_df['return_item']=='Taxable Dividend Amt.'][income]) / ret_count
-                cap_gains = float(dist_df[dist_df['return_item']=='Capital Gain/Loss Amt.'][income]) / ret_count
+                dividends = float(dist_df[dist_df['return_item'] == 'Taxable Dividend Amt.'][income]) / ret_count
+                cap_gains = float(dist_df[dist_df['return_item'] == 'Capital Gain/Loss Amt.'][income]) / ret_count
                 # deductions
-                med_exp_ded = float(dist_df[dist_df['return_item']=='Med./Dent. Exp. Amt.'][income]) / ret_count
-                sl_ded = float(dist_df[dist_df['return_item']=='State and Loc. Tax Amt.'][income]) / ret_count
-                prop_ded = float(dist_df[dist_df['return_item']=='Real Estate Tax Amt.'][income]) / ret_count
-                int_ded = float(dist_df[dist_df['return_item']=='Interest Paid Amt.'][income]) / ret_count
-                cont_ded = float(dist_df[dist_df['return_item']=='Contribution Amt.'][income]) / ret_count
+                med_exp_ded = float(dist_df[dist_df['return_item'] == 'Med./Dent. Exp. Amt.'][income]) / ret_count
+                sl_ded = float(dist_df[dist_df['return_item'] == 'State and Loc. Tax Amt.'][income]) / ret_count
+                prop_ded = float(dist_df[dist_df['return_item'] == 'Real Estate Tax Amt.'][income]) / ret_count
+                int_ded = float(dist_df[dist_df['return_item'] == 'Interest Paid Amt.'][income]) / ret_count
+                cont_ded = float(dist_df[dist_df['return_item'] == 'Contribution Amt.'][income]) / ret_count
             except ZeroDivisionError:
                  # set everything to 0 if there are no returns
                 wages = 0
@@ -186,7 +186,7 @@ for state in dataframe.state.unique():
             for CHILDREN in number_kids:
                 for FILING_STATUS in filing_statuses:
 
-                    #change for HoH
+                    # change for HoH
                     if CHILDREN != 0 and FILING_STATUS == 0:
                         real_FILING_STATUS = 2
                     else:
@@ -209,8 +209,6 @@ for state in dataframe.state.unique():
                     taxpayer["interest_paid"] = int_ded
                     taxpayer["charity_contributions"] = cont_ded
 
-
-
                     result["filing_status"] = int(FILING_STATUS)
                     result["child_dep"] = int(CHILDREN)
                     result["ordinary_income1"] = int(round(wages + taxable_int))
@@ -220,7 +218,6 @@ for state in dataframe.state.unique():
                     result["sl_property_tax"] = int(round(prop_ded))
                     result["interest_paid"] = int(round(int_ded))
                     result["charity_contributions"] = int(round(cont_ded))
-
 
                     taxpayer1 = copy.deepcopy(taxpayer)
                     taxpayer2 = copy.deepcopy(taxpayer)
