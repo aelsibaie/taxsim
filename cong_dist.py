@@ -116,22 +116,125 @@ for ws in wb.worksheets:
                        "Return Item": "return_item",
                        "Total Returns": "total_returns"
                        }, inplace=True)
+    # consolidate income brackets
     df['0-30'] = df["1"] + df["2"] + df["3"]
-    del df["1"], df["2"], df["3"]
     df['30-75'] = df["4"] + df["5"]
-    del df["4"], df["5"]
     df['75-150'] = df["6"] + df["7"]
-    del df["6"], df["7"]
     df['150-500'] = df["8"] + df["9"]
-    del df["8"], df["9"]
     df['500-inf'] = df["10"] + df["11"]
-    del df["10"], df["11"]
+    # delete old income brackets
+    del df["1"], df["2"], df["3"], df["4"], df["5"], df["6"], df["7"], df["8"], df["9"], df["10"], df["11"]
     df['state'] = ws.title
     df['state_fips'] = state_codes[ws.title]
 
+    if df.loc[df['district'] != "Total"].empty == True:
+        df.replace(to_replace="Total", value=0, inplace=True)
+    else:
+        df = df.loc[df['district'] != "Total"]
 
     dataframes.append(df)
 
 dataframe = pd.concat(dataframes, ignore_index=True)
 
-dataframe.to_csv("test.csv")
+dataframe.to_csv("cleaned_data.csv")
+
+filing_statuses = [0, 1] # logic later can make this 2 for HoH
+number_kids = [0, 1, 2]
+incomes = ['0-30', '30-75', '75-150', '150-500', '500-inf']
+
+results = []
+
+# this is where the magic happens
+for state in dataframe.state.unique():
+    sub_df = dataframe.loc[dataframe['state'] == state]
+    for district in sub_df.district.unique():
+        dist_df = sub_df.loc[sub_df['district'] == district]
+        # dist_df is each districts data
+        for income in incomes:
+            # store results in ordered dict
+            state = str(dist_df['state'].unique()[0])
+            state_fips = int(dist_df['state_fips'].unique())
+            district = int(dist_df['district'].unique())
+            # number of returns
+            ret_count = float(dist_df[dist_df['return_item']=='Return Count'][income])
+            try:
+                # ordinary income
+                wages = float(dist_df[dist_df['return_item']=='Wages Amt.'][income]) / ret_count
+                taxable_int = float(dist_df[dist_df['return_item']=='Taxable Interest Amt.'][income]) / ret_count
+                # qualified income
+                dividends = float(dist_df[dist_df['return_item']=='Taxable Dividend Amt.'][income]) / ret_count
+                cap_gains = float(dist_df[dist_df['return_item']=='Capital Gain/Loss Amt.'][income]) / ret_count
+                # deductions
+                med_exp_ded = float(dist_df[dist_df['return_item']=='Med./Dent. Exp. Amt.'][income]) / ret_count
+                sl_ded = float(dist_df[dist_df['return_item']=='State and Loc. Tax Amt.'][income]) / ret_count
+                prop_ded = float(dist_df[dist_df['return_item']=='Real Estate Tax Amt.'][income]) / ret_count
+                int_ded = float(dist_df[dist_df['return_item']=='Interest Paid Amt.'][income]) / ret_count
+                cont_ded = float(dist_df[dist_df['return_item']=='Contribution Amt.'][income]) / ret_count
+            except ZeroDivisionError:
+                 # set everything to 0 if there are no returns
+                wages = 0
+                taxable_int = 0
+                dividends = 0
+                cap_gains = 0
+                med_exp_ded = 0
+                sl_ded = 0
+                prop_ded = 0
+                int_ded = 0
+                cont_ded = 0
+
+            # create taxpayers
+            for CHILDREN in number_kids:
+                for FILING_STATUS in filing_statuses:
+
+                    #change for HoH
+                    if CHILDREN != 0 and FILING_STATUS == 0:
+                        real_FILING_STATUS = 2
+                    else:
+                        real_FILING_STATUS = FILING_STATUS
+
+                    result = OrderedDict()
+                    #result["state"] = state
+                    result["state_fips"] = int(state_fips)
+                    result["district"] = int(district)
+                    result["income"] = income
+
+                    taxpayer = misc_funcs.create_taxpayer()
+                    taxpayer["filing_status"] = real_FILING_STATUS
+                    taxpayer["child_dep"] = CHILDREN
+                    taxpayer["ordinary_income1"] = wages + taxable_int
+                    taxpayer["qualified_income"] = dividends + cap_gains
+                    taxpayer["medical_expenses"] = med_exp_ded
+                    taxpayer["sl_income_tax"] = sl_ded
+                    taxpayer["sl_property_tax"] = prop_ded
+                    taxpayer["interest_paid"] = int_ded
+                    taxpayer["charity_contributions"] = cont_ded
+
+
+
+                    result["filing_status"] = int(FILING_STATUS)
+                    result["child_dep"] = int(CHILDREN)
+                    result["ordinary_income1"] = int(round(wages + taxable_int))
+                    result["qualified_income"] = int(round(dividends + cap_gains))
+                    result["medical_expenses"] = int(round(med_exp_ded))
+                    result["sl_income_tax"] = int(round(sl_ded))
+                    result["sl_property_tax"] = int(round(prop_ded))
+                    result["interest_paid"] = int(round(int_ded))
+                    result["charity_contributions"] = int(round(cont_ded))
+
+
+                    taxpayer1 = copy.deepcopy(taxpayer)
+                    taxpayer2 = copy.deepcopy(taxpayer)
+
+                    results1 = taxsim.calc_federal_taxes(taxpayer1, taxsim.current_law_policy, False)
+                    results2 = taxsim.calc_senate_2018_taxes(taxpayer2, taxsim.senate_2018_policy, False)
+
+                    result["pre-tcja-deduction_type"] = results1["deduction_type"]
+                    result["current-law-deduction_type"] = results2["deduction_type"]
+
+                    result["pre-tcja-tax"] = int(round(results1["income_tax_after_credits"]))
+                    result["current-law-tax"] = int(round(results2["income_tax_after_credits"]))
+
+                    results.append(result)
+
+final_results = pd.DataFrame(results)
+final_results.to_csv("final_data.csv", index=False)
