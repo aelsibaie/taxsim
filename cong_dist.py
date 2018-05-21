@@ -322,10 +322,11 @@ for state in dataframe.state.unique():
                     amnt = [itmzed_num, (ret_count - itmzed_num)]
                     pre = int(round(np.average([pre_itm, pre_std], weights=amnt)))
                     post = int(round(np.average([post_itm, post_std], weights=amnt)))
+                    taxes_paid = int(round(np.average([new_sl_ded + new_prop_ded, 0], weights=amnt)))
                 else:
                     pre = 0
                     post = 0
-
+                    taxes_paid = 0
 
                 result = OrderedDict()
                 #result["state"] = state
@@ -340,7 +341,7 @@ for state in dataframe.state.unique():
                 #result["medical_expenses"] = int(round(new_med_exp_ded))
                 #result["sl_income_tax"] = int(round(new_sl_ded))
                 #result["sl_property_tax"] = int(round(new_prop_ded))
-                result["taxes_paid_ded"] = int(round(new_sl_ded + new_prop_ded))
+                result["taxes_paid_ded"] = taxes_paid
                 #result["interest_paid"] = int(round(new_int_ded))
                 #result["charity_contributions"] = int(round(new_cont_ded))
                 #result["pre-tcja-deduction_type"] = results1["deduction_type"]
