@@ -199,6 +199,9 @@ for state in dataframe.state.unique():
                 # ordinary income
                 wages = float(dist_df[dist_df['return_item'] == 'Wages Amt.'][income]) / ret_count
                 taxable_int = float(dist_df[dist_df['return_item'] == 'Taxable Interest Amt.'][income]) / ret_count
+                # business income
+                bus_inc = float(dist_df[dist_df['return_item'] == 'Schedule C Prof./Loss Amt.'][income]) / ret_count
+                farm_inc = float(dist_df[dist_df['return_item'] == 'Farm Prof./Loss Amt.'][income]) / ret_count
                 # qualified income
                 dividends = float(dist_df[dist_df['return_item'] == 'Taxable Dividend Amt.'][income]) / ret_count
                 cap_gains = float(dist_df[dist_df['return_item'] == 'Capital Gain/Loss Amt.'][income]) / ret_count
@@ -208,7 +211,7 @@ for state in dataframe.state.unique():
                 prop_ded = float(dist_df[dist_df['return_item'] == 'Real Estate Tax Amt.'][income]) / total_people
                 int_ded = float(dist_df[dist_df['return_item'] == 'Interest Paid Amt.'][income]) / total_people
                 cont_ded = float(dist_df[dist_df['return_item'] == 'Contribution Amt.'][income]) / total_people
-
+                
                 #if itmzed_num > (ret_count / 2):
                 if True:
                     # more people on average itemize in this income group
@@ -267,6 +270,7 @@ for state in dataframe.state.unique():
                     taxpayer["child_dep"] = CHILDREN
                     taxpayer["ordinary_income1"] = wages + taxable_int
                     taxpayer["qualified_income"] = dividends + cap_gains
+                    taxpayer["business_income"] = bus_inc + farm_inc
                     taxpayer["medical_expenses"] = new_med_exp_ded
                     taxpayer["sl_income_tax"] = new_sl_ded
                     taxpayer["sl_property_tax"] = new_prop_ded
@@ -286,6 +290,7 @@ for state in dataframe.state.unique():
                     taxpayer["child_dep"] = CHILDREN
                     taxpayer["ordinary_income1"] = wages + taxable_int
                     taxpayer["qualified_income"] = dividends + cap_gains
+                    taxpayer["business_income"] = bus_inc + farm_inc
                     taxpayers[FILING_STATUS + 2] = taxpayer
 
                 # 0 = sng itm
