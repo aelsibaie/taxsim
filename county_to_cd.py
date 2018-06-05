@@ -46,7 +46,9 @@ for state in outputcd["StateCode"].unique():
                 myline = single_county_data[single_county_data["agi_stub"] == agi_stub]
                 pre = float(myline["pre"])
                 post = float(myline["post"])
-                pre_post.append((pre, post))
+                inc_all = float(myline["avg_income_ALL"])
+                taxes_paid = float(myline["taxes_paid_ded"])
+                pre_post.append((pre, post, inc_all, taxes_paid))
 
             counties.append((wt, pre_post))
 
@@ -59,6 +61,9 @@ for state in outputcd["StateCode"].unique():
             wts = []
             nums_pre = []
             nums_post = []
+            nums_inc = []
+            nums_txpaid = []
+
             for y in range(len(counties)):
                 try:
                     wts.append(counties[y][0])
@@ -74,16 +79,29 @@ for state in outputcd["StateCode"].unique():
                     nums_post.append(counties[y][1][i][1])
                 except IndexError:
                     nums_post.append(0)
+                
+                try:
+                    nums_inc.append(counties[y][1][i][2])
+                except IndexError: # match error
+                    nums_inc.append(0)
+
+                try:
+                    nums_txpaid.append(counties[y][1][i][3])
+                except IndexError:
+                    nums_txpaid.append(0)
             
             pre = np.average(nums_pre, weights=wts)
             post = np.average(nums_post, weights=wts)
+            avg_income_ALL = np.average(nums_inc, weights=wts)
+            taxes_paid_ded = np.average(nums_txpaid, weights=wts)
 
             result["state_fips"] = state
             result["district"] = cong_dist
             result["income"] = i
             result["filing_status"] = 0
             result["child_dep"] = 0
-            result["taxes_paid_ded"] = 0
+            result["avg_income_ALL"] = avg_income_ALL
+            result["taxes_paid_ded"] = taxes_paid_ded
             result["pre-tcja-tax"] = pre
             result["current-law-tax"] = post
 
