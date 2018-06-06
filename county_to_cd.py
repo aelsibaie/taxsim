@@ -7,6 +7,7 @@ from collections import OrderedDict
 
 outputcd = pd.read_csv("OutputCD.csv")
 outputcd["County"] = outputcd["County"].str[:-3]
+outputcd["County"] = outputcd["County"].str[0:20]
 #outputcd = outputcd[outputcd["StateCode"] != 2] remove alaska
 
 county_data = pd.read_csv("data_county.csv")
