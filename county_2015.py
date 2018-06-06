@@ -97,13 +97,17 @@ for statefips in data["STATEFIPS"].unique():
             jnt_std_taxpayer["filing_status"] = 1
 
             sng_itm_taxpayer = copy.deepcopy(sng_std_taxpayer)
-            sng_itm_taxpayer["sl_income_tax"] = sl_income_sales
-            sng_itm_taxpayer["sl_property_tax"] = sl_prop
-            sng_itm_taxpayer["interest_paid"] = int_paid
-            sng_itm_taxpayer["charity_contributions"] = charity
+            sng_itm_taxpayer["sl_income_tax"] = sl_income_sales * 0.5
+            sng_itm_taxpayer["sl_property_tax"] = sl_prop * 0.5
+            sng_itm_taxpayer["interest_paid"] = int_paid * 0.5
+            sng_itm_taxpayer["charity_contributions"] = charity * 0.5
 
             jnt_itm_taxpayer = copy.deepcopy(sng_itm_taxpayer)
             jnt_itm_taxpayer["filing_status"] = 1
+            jnt_itm_taxpayer["sl_income_tax"] = sl_income_sales
+            jnt_itm_taxpayer["sl_property_tax"] = sl_prop
+            jnt_itm_taxpayer["interest_paid"] = int_paid
+            jnt_itm_taxpayer["charity_contributions"] = charity
 
             pre_sng_std, post_sng_std = get_diff(sng_std_taxpayer)
             pre_jnt_std, post_jnt_std = get_diff(jnt_std_taxpayer)
