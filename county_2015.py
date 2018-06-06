@@ -100,6 +100,10 @@ for statefips in data["STATEFIPS"].unique():
             int_paid = float(div(sub_data["A19300"], number_itemizers)) * 1000
             charity = float(div(sub_data["A19700"], number_itemizers)) * 1000
 
+            # impute other_itemized
+            total_itm = float(div(sub_data["A04470"], number_itemizers)) * 1000
+            our_total_itm = sl_income_sales + sl_prop + int_paid + charity
+            other_itemized = max(0, total_itm - our_total_itm)
 
             # construct taxpayers
             single_filing_status = 0
@@ -121,6 +125,7 @@ for statefips in data["STATEFIPS"].unique():
             sng_itm_taxpayer["sl_property_tax"] = sl_prop * 0.5
             sng_itm_taxpayer["interest_paid"] = int_paid * 0.5
             sng_itm_taxpayer["charity_contributions"] = charity * 0.5
+            sng_itm_taxpayer["other_itemized"] = other_itemized * 0.5
 
             jnt_itm_taxpayer = copy.deepcopy(sng_itm_taxpayer)
             jnt_itm_taxpayer["filing_status"] = 1
@@ -128,6 +133,7 @@ for statefips in data["STATEFIPS"].unique():
             jnt_itm_taxpayer["sl_property_tax"] = sl_prop
             jnt_itm_taxpayer["interest_paid"] = int_paid
             jnt_itm_taxpayer["charity_contributions"] = charity
+            jnt_itm_taxpayer["other_itemized"] = other_itemized
 
             pre_sng_std, post_sng_std = get_diff(sng_std_taxpayer)
             pre_jnt_std, post_jnt_std = get_diff(jnt_std_taxpayer)
