@@ -100,10 +100,10 @@ for state in outputcd["StateCode"].unique():
             result["income"] = i
             result["filing_status"] = 0
             result["child_dep"] = 0
-            result["avg_income_ALL"] = avg_income_ALL
-            result["taxes_paid_ded"] = taxes_paid_ded
-            result["pre-tcja-tax"] = pre
-            result["current-law-tax"] = post
+            result["avg_income_ALL"] = round(avg_income_ALL)
+            result["taxes_paid_ded"] = round(taxes_paid_ded)
+            result["pre-tcja-tax"] = round(pre)
+            result["current-law-tax"] = round(post)
 
             results.append(result)
 
