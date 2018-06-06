@@ -106,18 +106,16 @@ for statefips in data["STATEFIPS"].unique():
             other_itemized = max(0, total_itm - our_total_itm)
 
             # construct taxpayers
-            single_filing_status = 0
-            if avg_children != 0:
-                single_filing_status = 2
             
             sng_std_taxpayer = misc_funcs.create_taxpayer()
-            sng_std_taxpayer["filing_status"] = single_filing_status
-            sng_std_taxpayer["child_dep"] = avg_children
+            sng_std_taxpayer["filing_status"] = 0
+            sng_std_taxpayer["child_dep"] = 0
             sng_std_taxpayer["ordinary_income1"] = wages + taxable_int + ord_div
             sng_std_taxpayer["qualified_income"] = qual_div + capgains
             sng_std_taxpayer["business_income"] = bus_inc + part_scorp_inc
 
             jnt_std_taxpayer = copy.deepcopy(sng_std_taxpayer)
+            jnt_std_taxpayer["child_dep"] = avg_children
             jnt_std_taxpayer["filing_status"] = 1
 
             sng_itm_taxpayer = copy.deepcopy(sng_std_taxpayer)
@@ -128,6 +126,7 @@ for statefips in data["STATEFIPS"].unique():
             sng_itm_taxpayer["other_itemized"] = other_itemized * 0.5
 
             jnt_itm_taxpayer = copy.deepcopy(sng_itm_taxpayer)
+            jnt_itm_taxpayer["child_dep"] = avg_children
             jnt_itm_taxpayer["filing_status"] = 1
             jnt_itm_taxpayer["sl_income_tax"] = sl_income_sales
             jnt_itm_taxpayer["sl_property_tax"] = sl_prop
@@ -135,22 +134,40 @@ for statefips in data["STATEFIPS"].unique():
             jnt_itm_taxpayer["charity_contributions"] = charity
             jnt_itm_taxpayer["other_itemized"] = other_itemized
 
+
+            hoh_std_taxpayer = copy.deepcopy(sng_std_taxpayer)
+            hoh_std_taxpayer["child_dep"] = max(1, avg_children)
+            hoh_std_taxpayer["filing_status"] = 2
+
+            hoh_itm_taxpayer = copy.deepcopy(sng_itm_taxpayer)
+            hoh_itm_taxpayer["child_dep"] = max(1, avg_children)
+            hoh_itm_taxpayer["filing_status"] = 2
+            hoh_itm_taxpayer["sl_income_tax"] = sl_income_sales * 0.5
+            hoh_itm_taxpayer["sl_property_tax"] = sl_prop * 0.5
+            hoh_itm_taxpayer["interest_paid"] = int_paid * 0.5
+            hoh_itm_taxpayer["charity_contributions"] = charity * 0.5
+            hoh_itm_taxpayer["other_itemized"] = other_itemized * 0.5
+
+
             pre_sng_std, post_sng_std = get_diff(sng_std_taxpayer)
             pre_jnt_std, post_jnt_std = get_diff(jnt_std_taxpayer)
             pre_sng_itm, post_sng_itm = get_diff(sng_itm_taxpayer)
             pre_jnt_itm, post_jnt_itm = get_diff(jnt_itm_taxpayer)
 
+            pre_hoh_std, post_hoh_std = get_diff(hoh_std_taxpayer)
+            pre_hoh_itm, post_hoh_itm = get_diff(hoh_itm_taxpayer)
+
             # weights
 
-            sng_to_jnt = [number_single + number_hoh, number_joint]
+            sng_to_jnt = [number_single, number_joint, number_hoh]
             std_to_itm = [number_rets - number_itemizers, number_itemizers]
 
             # first weight by filer status
             try:
-                pre_itm = np.average([pre_sng_itm, pre_jnt_itm], weights=sng_to_jnt)
-                post_itm = np.average([post_sng_itm, post_jnt_itm], weights=sng_to_jnt)
-                pre_std = np.average([pre_sng_std, pre_jnt_std], weights=sng_to_jnt)
-                post_std = np.average([post_sng_std, post_jnt_std], weights=sng_to_jnt)
+                pre_itm = np.average([pre_sng_itm, pre_jnt_itm, pre_hoh_itm], weights=sng_to_jnt)
+                post_itm = np.average([post_sng_itm, post_jnt_itm, post_hoh_itm], weights=sng_to_jnt)
+                pre_std = np.average([pre_sng_std, pre_jnt_std, pre_hoh_std], weights=sng_to_jnt)
+                post_std = np.average([post_sng_std, post_jnt_std, post_hoh_std], weights=sng_to_jnt)
             except ZeroDivisionError:
                 pre_itm = 0
                 post_itm = 0
