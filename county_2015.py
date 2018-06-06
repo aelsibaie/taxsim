@@ -86,20 +86,13 @@ for statefips in data["STATEFIPS"].unique():
             bus_inc_shr = div(bus_inc, our_total)
             part_scorp_inc_shr = div(part_scorp_inc, our_total)
 
-            # ordinary income
             wages = wages_shr * agi
             taxable_int = taxable_int_shr * agi
             ord_div = ord_div_shr * agi
-
-            # qualified income
             qual_div = qual_div_shr * agi
             capgains = capgains_shr * agi
-            
-            # business income
             bus_inc = bus_inc_shr * agi
             part_scorp_inc = part_scorp_inc_shr * agi
-
-
 
             # deductions
             sl_income_sales = float(div(sub_data["A18425"] + sub_data["A18450"], number_itemizers)) * 1000
