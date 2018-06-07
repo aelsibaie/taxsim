@@ -83,7 +83,7 @@ StateCode,State,CongressionalDistrict,County,SubPopulation,TotalPopulation,Perce
 2,AK,0,Dillingham Census Area AK,517.571,4847,0.0052,0.1068
 2,AK,0,Fairbanks North Star Borough AK,14611.655,97581,0.1467,0.1497
 2,AK,0,Haines Borough AK,379.245,2508,0.0038,0.1512
-2,AK,0,Hoonah-Angoon Census Area,230.883,2150,0.0023,0.1074
+2,AK,0,Hoonah-Angoon Census Area AK,230.883,2150,0.0023,0.1074
 2,AK,0,Juneau Borough AK,4645.647,31275,0.0466,0.1485
 2,AK,0,Kenai Peninsula Borough AK,9792.927,55400,0.0983,0.1768
 2,AK,0,Ketchikan Gateway Borough AK,2040.747,13477,0.0205,0.1514
@@ -94,11 +94,11 @@ StateCode,State,CongressionalDistrict,County,SubPopulation,TotalPopulation,Perce
 2,AK,0,North Slope Borough AK,1013.487,9430,0.0102,0.1075
 2,AK,0,Northwest Arctic Borough AK,804.926,7523,0.0081,0.107
 2,AK,0,Sitka Borough AK,1110.09,8881,0.0111,0.125
-2,AK,0,Skagway Municipality,128.698,968,0.0013,0.133
-2,AK,0,Southeast Fairbanks Census Area AK,1053.959,7029,0.0106,0.1499
+2,AK,0,Skagway Municipality AK,128.698,968,0.0013,0.133
+2,AK,0,Southeast Fairbanks AK,1053.959,7029,0.0106,0.1499
 2,AK,0,Valdez-Cordova Census Area AK,1441.882,9636,0.0145,0.1496
-2,AK,0,Wade Hampton Census Area AK,804.926,7459,0.0081,0.1079
-2,AK,0,Yakutat Borough,74.629,662,7.00E-04,0.1127
+2,AK,0,Kusilvak Census Area AK,804.926,7459,0.0081,0.1079
+2,AK,0,Yakutat Borough AK,74.629,662,7.00E-04,0.1127
 2,AK,0,Yukon-Koyukuk Census Area AK,592.2,5588,0.0059,0.106
 4,AZ,1,Apache AZ,8165.934,71518,0.0682,0.1142
 4,AZ,1,Coconino AZ,28068.541,134421,0.2345,0.2088
@@ -722,7 +722,6 @@ StateCode,State,CongressionalDistrict,County,SubPopulation,TotalPopulation,Perce
 15,HI,1,Honolulu HI,65842.18062,680495.224,1,0.0968
 15,HI,2,Hawaii HI,28553.778,185079,0.338,0.1543
 15,HI,2,Honolulu HI,22505.19338,272711.776,0.2664,0.0825
-15,HI,2,Kalawao HI,0,90,0,0
 15,HI,2,Kauai HI,10134.845,67091,0.12,0.1511
 15,HI,2,Maui HI,23293.529,154834,0.2757,0.1504
 16,ID,1,Ada ID,34427.37668,195527.357,0.208,0.1761
@@ -3490,8 +3489,7 @@ StateCode,State,CongressionalDistrict,County,SubPopulation,TotalPopulation,Perce
 51,VA,4,Sussex VA,1964.739,12087,0.0181,0.1625
 51,VA,5,Albemarle VA,16984.786,98970,0.1294,0.1716
 51,VA,5,Appomattox VA,2744.92,14973,0.0209,0.1833
-51,VA,5,Bedford city VA,1064.082,6222,0.0081,0.171
-51,VA,5,Bedford VA,6679.966391,38990.262,0.0509,0.1713
+51,VA,5,Bedford VA,7744.048391,45212.262,0.059,0.171282038
 51,VA,5,Brunswick VA,3136.49,17434,0.0239,0.1799
 51,VA,5,Buckingham VA,3463.844,17146,0.0264,0.202
 51,VA,5,Campbell VA,9598.393,54842,0.0731,0.175
