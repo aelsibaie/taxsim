@@ -330,6 +330,9 @@ def senate_2018_taxable_income(policy, taxpayer, agi):
     qualified_business_income = taxpayer['business_income'] * BUSINESS_DEDUCTION_RATE
     taxable_income_limit = taxable_income_before * BUSINESS_DEDUCTION_RATE
 
+    non_limited_qualified_business_income = qualified_business_income * 0.5
+    qualified_business_income = qualified_business_income * 0.5
+
     if taxpayer["filing_status"] == 1:
         po_start = 315000
         po_length = 100000
@@ -345,7 +348,7 @@ def senate_2018_taxable_income(policy, taxpayer, agi):
             multiplier = 1 - (taxable_income_over / po_length)
             qualified_business_income = qualified_business_income * multiplier
 
-    business_income_deduction = min(qualified_business_income, taxable_income_limit)
+    business_income_deduction = min(qualified_business_income + non_limited_qualified_business_income, taxable_income_limit)
 
     deductions += business_income_deduction
     # This is weird, but it changes AGI after AGI has been used to calculate taxable income
