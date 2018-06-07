@@ -66,30 +66,12 @@ for state in outputcd["StateCode"].unique():
             nums_txpaid = []
 
             for y in range(len(counties)):
-                try:
-                    wts.append(counties[y][0])
-                except IndexError: # match error
-                    wts.append(0)
+                nums_pre.append(counties[y][1][i][0])
+                nums_post.append(counties[y][1][i][1])
+                nums_inc.append(counties[y][1][i][2])
+                nums_txpaid.append(counties[y][1][i][3])
+                wts.append(counties[y][0])
 
-                try:
-                    nums_pre.append(counties[y][1][i][0])
-                except IndexError: # match error
-                    nums_pre.append(0)
-
-                try:
-                    nums_post.append(counties[y][1][i][1])
-                except IndexError:
-                    nums_post.append(0)
-                
-                try:
-                    nums_inc.append(counties[y][1][i][2])
-                except IndexError: # match error
-                    nums_inc.append(0)
-
-                try:
-                    nums_txpaid.append(counties[y][1][i][3])
-                except IndexError:
-                    nums_txpaid.append(0)
             
             pre = np.average(nums_pre, weights=wts)
             post = np.average(nums_post, weights=wts)
