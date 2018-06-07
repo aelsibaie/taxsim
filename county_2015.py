@@ -188,6 +188,7 @@ for statefips in data["STATEFIPS"].unique():
             result["statefips"] = statefips
             result["county_name"] = county_name
             result["countyfips"] = countyfips
+            result["totalrets"] = number_rets
             result["agi_stub"] = agi_stub
             result["child_dep"] = avg_children
             result["avg_income_ALL"] = int(round(wages + taxable_int + ord_div + qual_div + capgains + bus_inc + part_scorp_inc))
