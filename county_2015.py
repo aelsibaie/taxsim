@@ -200,3 +200,25 @@ for statefips in data["STATEFIPS"].unique():
 
 df = pd.DataFrame(results)
 df.to_csv("data_county.csv", index=False)
+
+inct = 0
+pret = 0
+postt = 0
+
+for income_level in df["agi_stub"].unique():
+    subdf = df[df["agi_stub"] == income_level]
+    #wts = list(subdf["totalrets"])
+    inc = sum(list(subdf["avg_income_ALL"]))
+    pre = sum(list(subdf["pre"]))
+    post = sum(list(subdf["post"]))
+    #avg_inc = np.average(inc, weights=wts)
+    #avg_pre = np.average(pre, weights=wts)
+    #avg_post = np.average(post, weights=wts)
+    answ = ((post - pre) / inc) * 100
+    inct += inc
+    pret += pre
+    postt += post
+    print(answ)
+
+answ = ((postt - pret) / inct) * 100
+print(answ)

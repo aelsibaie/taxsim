@@ -93,3 +93,7 @@ for state in outputcd["StateCode"].unique():
 
 df = pd.DataFrame(results)
 df.to_csv("data.csv", index=False)
+
+df["perchange"] = (df["current-law-tax"] - df["pre-tcja-tax"]) / df["avg_income_ALL"]
+print("max", str(df["perchange"].max()))
+print("min", str(df["perchange"].min()))
