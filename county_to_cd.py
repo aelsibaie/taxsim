@@ -49,7 +49,8 @@ for state in outputcd["StateCode"].unique():
                 post = float(myline["post"])
                 inc_all = float(myline["avg_income_ALL"])
                 taxes_paid = float(myline["taxes_paid_ded"])
-                pre_post.append((pre, post, inc_all, taxes_paid))
+                totalrets = float(myline["totalrets"])
+                pre_post.append((pre, post, inc_all, taxes_paid, totalrets))
 
             counties.append((wt, pre_post))
 
@@ -64,12 +65,14 @@ for state in outputcd["StateCode"].unique():
             nums_post = []
             nums_inc = []
             nums_txpaid = []
+            nums_totalrets = []
 
             for y in range(len(counties)):
                 nums_pre.append(counties[y][1][i][0])
                 nums_post.append(counties[y][1][i][1])
                 nums_inc.append(counties[y][1][i][2])
                 nums_txpaid.append(counties[y][1][i][3])
+                nums_totalrets.append(counties[y][1][i][4])
                 wts.append(counties[y][0])
 
             
@@ -77,16 +80,18 @@ for state in outputcd["StateCode"].unique():
             post = np.average(nums_post, weights=wts)
             avg_income_ALL = np.average(nums_inc, weights=wts)
             taxes_paid_ded = np.average(nums_txpaid, weights=wts)
+            totalrets = np.average(nums_totalrets, weights=wts)
 
             result["state_fips"] = state
             result["district"] = cong_dist
             result["income"] = i
-            result["filing_status"] = 0
-            result["child_dep"] = 0
+            #result["filing_status"] = 0
+            #result["child_dep"] = 0
             result["avg_income_ALL"] = round(avg_income_ALL)
-            result["taxes_paid_ded"] = round(taxes_paid_ded)
+            #result["taxes_paid_ded"] = round(taxes_paid_ded)
             result["pre-tcja-tax"] = round(pre)
             result["current-law-tax"] = round(post)
+            result["total_returns"] = round(totalrets)
 
             results.append(result)
 
