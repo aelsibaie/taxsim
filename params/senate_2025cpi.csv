@@ -19,7 +19,7 @@ taxable_ss_top_amt,0.85,,,,,,
 itemized_limitation_threshold,inf,inf,inf,,,,
 itemized_limitation_amt,0.8,,,,,,
 itemized_limitation_rate,0.03,,,,,,
-single_brackets,0,11250,45775,97600,186350,236650,354975
+single_brackets,0,11250,45775,97600,186350,236650,591625
 married_brackets,0,22500,91550,195200,372700,473300,709950
 hoh_brackets,0,16050,61250,97600,186350,236650,591600
 income_tax_rates,0.1,0.12,0.22,0.24,0.32,0.35,0.37

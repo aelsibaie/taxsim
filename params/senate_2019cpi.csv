@@ -1,4 +1,4 @@
-year,2018,,,,,,
+﻿year,2018,,,,,,
 ss_withholding_rate_employer,0.062,,,,,,
 ss_withholding_rate_employee,0.062,,,,,,
 medicare_withholding_rate_employer,0.0145,,,,,,
@@ -11,7 +11,7 @@ personal_exemption,0,,,,,,
 personal_exemption_po_threshold,266700,320000,293350,,,,
 personal_exemption_po_rate,0.02,,,,,,
 personal_exemption_po_amt,2500,,,,,,
-standard_deduction,12300,24600,18450,,,,
+standard_deduction,12250,24550,18400,,,,
 taxable_ss_base_threshold,25000,32000,25000,,,,
 taxable_ss_top_threshold,34000,44000,34000,,,,
 taxable_ss_base_amt,0.5,,,,,,
@@ -19,9 +19,9 @@ taxable_ss_top_amt,0.85,,,,,,
 itemized_limitation_threshold,inf,inf,inf,,,,
 itemized_limitation_amt,0.8,,,,,,
 itemized_limitation_rate,0.03,,,,,,
-single_brackets,0,9750,39650,84550,161425,205000,307500
-married_brackets,0,19500,79300,169100,322850,410000,615000
-hoh_brackets,0,13900,53050,84550,161400,205000,512500
+single_brackets,0,9750,39625,84475,161300,204825,512075
+married_brackets,0,19500,79250,168950,322600,409650,614500
+hoh_brackets,0,13900,53050,84450,161300,204800,512050
 income_tax_rates,0.1,0.12,0.22,0.24,0.32,0.35,0.37
 ctc_po_threshold,200000,400000,200000,,,,
 ctc_credit,2000,,,,,,
