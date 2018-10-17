@@ -46,6 +46,11 @@ current_law_policy = csv_parser.load_policy(PARAMS_DIR + CURRENT_LAW_FILE)
 house_2018_policy = csv_parser.load_policy(PARAMS_DIR + HOUSE_2018_FILE)
 senate_2018_policy = csv_parser.load_policy(PARAMS_DIR + SENATE_2018_FILE)
 
+senate_2019cpi_policy = csv_parser.load_policy(PARAMS_DIR + "senate_2019cpi.csv")
+senate_2019ccpi_policy = csv_parser.load_policy(PARAMS_DIR + "senate_2019ccpi.csv")
+senate_2025cpi_policy = csv_parser.load_policy(PARAMS_DIR + "senate_2025cpi.csv")
+senate_2025ccpi_policy = csv_parser.load_policy(PARAMS_DIR + "senate_2025ccpi.csv")
+
 
 ##### Current Law #####
 def calc_federal_taxes(taxpayer, policy, mrate=True):
@@ -493,6 +498,12 @@ def main():
     current_law_results = []
     house_2018_results = []
     senate_2018_results = []
+
+    senate_2019cpi_results = []
+    senate_2019ccpi_results = []
+    senate_2025cpi_results = []
+    senate_2025ccpi_results = []
+
     for i in range(len(taxpayers)):
         filer = taxpayers[i]
         filer_number = str(i + 1)
@@ -500,6 +511,15 @@ def main():
         filer1 = copy.deepcopy(filer)
         filer2 = copy.deepcopy(filer)
         filer3 = copy.deepcopy(filer)
+
+        filer4 = copy.deepcopy(filer)
+        filer5 = copy.deepcopy(filer)
+        filer6 = copy.deepcopy(filer)
+        filer7 = copy.deepcopy(filer)
+
+        wage_growth_2019_2025 = 1.277091582
+        filer6["ordinary_income1"] = filer6["ordinary_income1"] * wage_growth_2019_2025
+        filer7["ordinary_income1"] = filer7["ordinary_income1"] * wage_growth_2019_2025
 
         logging.info("Running calc_federal_taxes for filer #" + filer_number)
         current_law_result = calc_federal_taxes(filer1, current_law_policy)
@@ -516,9 +536,37 @@ def main():
         senate_2018_results.append(senate_2018_result)
         logging.debug(json.dumps(senate_2018_result, indent=4))
 
+
+        logging.info("Running calc_senate_2018_taxes for filer #" + filer_number)
+        temp_result = calc_senate_2018_taxes(filer4, senate_2019cpi_policy)
+        senate_2019cpi_results.append(temp_result)
+        logging.debug(json.dumps(temp_result, indent=4))
+
+        logging.info("Running calc_senate_2018_taxes for filer #" + filer_number)
+        temp_result = calc_senate_2018_taxes(filer5, senate_2019ccpi_policy)
+        senate_2019ccpi_results.append(temp_result)
+        logging.debug(json.dumps(temp_result, indent=4))
+
+        logging.info("Running calc_senate_2018_taxes for filer #" + filer_number)
+        temp_result = calc_senate_2018_taxes(filer6, senate_2025cpi_policy)
+        senate_2025cpi_results.append(temp_result)
+        logging.debug(json.dumps(temp_result, indent=4))
+
+        logging.info("Running calc_senate_2018_taxes for filer #" + filer_number)
+        temp_result = calc_senate_2018_taxes(filer7, senate_2025ccpi_policy)
+        senate_2025ccpi_results.append(temp_result)
+        logging.debug(json.dumps(temp_result, indent=4))
+
     csv_parser.write_results(current_law_results, RESULTS_DIR + CURRENT_LAW_RESULTS)
     csv_parser.write_results(house_2018_results, RESULTS_DIR + HOUSE_2018_RESULTS)
     csv_parser.write_results(senate_2018_results, RESULTS_DIR + SENATE_2018_RESULTS)
+
+
+    csv_parser.write_results(senate_2019cpi_results, RESULTS_DIR + "senate_2019cpi_results.csv")
+    csv_parser.write_results(senate_2019ccpi_results, RESULTS_DIR + "senate_2019ccpi_results.csv")
+    csv_parser.write_results(senate_2025cpi_results, RESULTS_DIR + "senate_2025cpi_results.csv")
+    csv_parser.write_results(senate_2025ccpi_results, RESULTS_DIR + "senate_2025ccpi_results.csv")
+
 
     # Success
     sys.exit(0)
