@@ -331,7 +331,7 @@ def senate_2018_taxable_income(policy, taxpayer, agi):
     taxable_income_limit = taxable_income_before * BUSINESS_DEDUCTION_RATE
 
     if taxpayer["filing_status"] == 1:
-        po_start = 315000
+        po_start = 315000  # TODO: replace these
         po_length = 100000
     else:
         po_start = 315000 / 2

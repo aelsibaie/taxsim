@@ -116,6 +116,9 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
     eitc = tax_funcs.fed_eitc(policy, taxpayer)
     results["eitc"] = eitc
 
+    # $500 nonrefundable credit for qualifying dependents other than qualifying children
+    results["dep_credit"] = 0
+
     # Tax after nonrefundable credits
     income_tax_after_nonrefundable_credits = round(max(0, income_tax_before_credits - ctc), 2)
     results["income_tax_after_nonrefundable_credits"] = income_tax_after_nonrefundable_credits
@@ -338,7 +341,7 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     # Taxable income
     taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt, taxable_income_before, new_agi = tax_funcs.senate_2018_taxable_income(policy, taxpayer, agi)
     results["taxable_income"] = taxable_income
-    results["taxable_income_before"] = taxable_income_before
+    # results["taxable_income_before"] = taxable_income_before
     results["deduction_type"] = deduction_type
     results["deductions"] = deductions
     results["personal_exemption_amt"] = personal_exemption_amt
