@@ -66,10 +66,8 @@ Policy parameters used by the main tax calculation functions are found in the `p
 
 ## Continuous Integration and Deployment:
 [![Build Status](https://travis-ci.com/TaxFoundation/taxsim.svg?token=yexSBERtR4Ec1WprzQ72&branch=master)](https://travis-ci.com/TaxFoundation/taxsim)
-[![codecov](https://codecov.io/gh/TaxFoundation/taxsim/branch/master/graph/badge.svg?token=VnErjAtppV)](https://codecov.io/gh/TaxFoundation/taxsim)
-
 TaxSim is set up for continuous integration, testing, and deployment.
 
-Both Travis CI and AWS CodePipeline are setup to watch the `master` branch for any new commits. Travis CI is configured in the ` .travis.yml` file and is responsible for running the codecov test coverage suite, handling Slack notifications, and managing GitHub PR and commit integrations.
+Travis CI is setup to watch the `master` branch for any new commits. Travis CI is configured in the ` .travis.yml` file and handles Slack notifications and GitHub PR integration.
 
-AWS CodePipeline is responsible for testing and deploying the TaxSim API backend to AWS Elastic Beanstalk, where it is used by the 2018 Tax Reform calculator. The CodePipeline is split up in to three steps. The first step, Source, simply watches the master branch for any new commits. Once a new commit is detected, it is cloned and sent to the second step, Testing. The testing environment is setup with AWS CodeBuild and is configurable via the ` buildspec.yml` file. If the tests run and finish without any errors, the pipeline moves on to step three, where the test-passing master branch is then deployed to AWS Elastic Beanstalk on a rolling deployment policy. For these reasons it is **pivotal** that the version in the `master` branch remains production ready.
+AWS CodePipeline is responsible for testing and deploying the TaxSim API backend to AWS Elastic Beanstalk, where it is used by the 2018 and 2019 Tax Reform calculator. The CodePipeline is split up in to three steps. The first step, Source, simply watches the master branch for any new commits. Once a new commit is detected, it is cloned and sent to the second step, Testing. The testing environment is setup with AWS CodeBuild and is configurable via the ` buildspec.yml` file. If the tests run and finish without any errors, the pipeline moves on to step three, where the test-passing master branch is then deployed to AWS Elastic Beanstalk on a rolling deployment policy. For these reasons it is **pivotal** that the versions in the `web_tax_calculator_2019` and `web_tax_calculator_2018` branch remain production ready.
