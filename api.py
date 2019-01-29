@@ -73,10 +73,20 @@ def hello():
         taxsim.logging.warn("Received malformed json data from " + request.remote_addr)
         abort(400)
     try:
+        # Copy taxpayers
         taxpayer1 = copy.deepcopy(taxpayer)
         taxpayer2 = copy.deepcopy(taxpayer)
+        taxpayer3 = copy.deepcopy(taxpayer)
+        taxpayer4 = copy.deepcopy(taxpayer)
+        
+        # 2018
         result = tax_calc(taxpayer1, policy)
         alt_result = alt_tax_calc(taxpayer2, alt_policy)
+
+        # 2019
+        result_2019 = tax_calc(taxpayer3, policy)  # TODO: replace policy
+        alt_result_2019 = alt_tax_calc(taxpayer4, alt_policy)  # TODO: replace policy
+
     except BaseException:
         taxsim.logging.warn("Taxpayer failed input validation for " + request.remote_addr)
         abort(400)
@@ -91,6 +101,14 @@ def hello():
         'id': 'tcja-2018',
         'name': 'Tax Cuts and Jobs Act, 2018'},
         'results': alt_result})
+    results.append({'plan': {
+        'id': 'pre-tcja-2019',
+        'name': 'Previous Law, 2019'},
+        'results': result_2019})
+    results.append({'plan': {
+        'id': 'tcja-2019',
+        'name': 'Tax Cuts and Jobs Act, 2019'},
+        'results': alt_result_2019})
 
     return jsonify(results)
 
