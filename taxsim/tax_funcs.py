@@ -325,17 +325,13 @@ def senate_2018_taxable_income(policy, taxpayer, agi):
 
     taxable_income_before = max(0, taxable_income - personal_exemption_amt - deductions)
 
-    BUSINESS_DEDUCTION_RATE = 0.20  # as of senate conference agreement 12/15/2017
+    BUSINESS_DEDUCTION_RATE = policy["199a_rate"]
 
     qualified_business_income = taxpayer['business_income'] * BUSINESS_DEDUCTION_RATE
     taxable_income_limit = taxable_income_before * BUSINESS_DEDUCTION_RATE
 
-    if taxpayer["filing_status"] == 1:
-        po_start = 315000  # TODO: replace these
-        po_length = 100000
-    else:
-        po_start = 315000 / 2
-        po_length = 50000
+    po_start = policy["199a_po_start"][taxpayer['filing_status']]
+    po_length = policy["199a_po_length"][taxpayer['filing_status']]
 
     if taxable_income_before > po_start:
         taxable_income_over = taxable_income_before - po_start
