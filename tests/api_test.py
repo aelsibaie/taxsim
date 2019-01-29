@@ -23,7 +23,8 @@ def test_api_200():
                 "sl_property_tax": 0,
                 "interest_paid": 0,
                 "charity_contributions": 0,
-                "other_itemized": 0
+                "other_itemized": 0,
+                "business_income_service": 0
             }
         ), follow_redirects=True, headers={'content-type': 'application/json'})
 
@@ -48,7 +49,8 @@ def test_api_failure_single_with_kids():
                 "sl_property_tax": 0,
                 "interest_paid": 0,
                 "charity_contributions": 0,
-                "other_itemized": 0
+                "other_itemized": 0,
+                "business_income_service": 0
             }
         ), follow_redirects=True, headers={'content-type': 'application/json'})
 
@@ -73,7 +75,8 @@ def test_api_failure_decimal_kids():
                 "sl_property_tax": 0,
                 "interest_paid": 0,
                 "charity_contributions": 0,
-                "other_itemized": 0
+                "other_itemized": 0,
+                "business_income_service": 0
             }
         ), follow_redirects=True, headers={'content-type': 'application/json'})
 
@@ -98,7 +101,8 @@ def test_api_failure_string():
                 "sl_property_tax": 0,
                 "interest_paid": 0,
                 "charity_contributions": 0,
-                "other_itemized": 0
+                "other_itemized": 0,
+                "business_income_service": 0
             }
         ), follow_redirects=True, headers={'content-type': 'application/json'})
 
@@ -123,7 +127,8 @@ def test_api_failure_bad_key():
                 "sl_property_tax": 0,
                 "interest_paid": 0,
                 "charity_contributions": 0,
-                "other_itemized": 0
+                "other_itemized": 0,
+                "business_income_service": 0
             }
         ), follow_redirects=True, headers={'content-type': 'application/json'})
 

@@ -68,6 +68,7 @@ def hello():
         taxpayer['interest_paid'] = submission['interest_paid']
         taxpayer['charity_contributions'] = submission['charity_contributions']
         taxpayer['other_itemized'] = submission['other_itemized']
+        taxpayer['business_income_service'] = submission['business_income_service']
     except KeyError:
         taxsim.logging.warn("Received malformed json data from " + request.remote_addr)
         abort(400)

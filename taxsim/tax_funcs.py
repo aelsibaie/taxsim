@@ -327,6 +327,11 @@ def senate_2018_taxable_income(policy, taxpayer, agi):
 
     BUSINESS_DEDUCTION_RATE = policy["199a_rate"]
 
+    if taxpayer['business_income_service'] == 1:
+        # https://www.irs.gov/newsroom/tax-cuts-and-jobs-act-provision-11011-section-199a-qualified-business-income-deduction-faqs
+        # see Q/A #5
+        BUSINESS_DEDUCTION_RATE = 0
+
     qualified_business_income = taxpayer['business_income'] * BUSINESS_DEDUCTION_RATE
     taxable_income_limit = taxable_income_before * BUSINESS_DEDUCTION_RATE
 

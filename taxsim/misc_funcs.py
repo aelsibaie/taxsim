@@ -51,7 +51,8 @@ def create_taxpayer():
          ('sl_property_tax', 0),
          ('interest_paid', 0),
          ('charity_contributions', 0),
-         ('other_itemized', 0)])
+         ('other_itemized', 0),
+         ('business_income_service', 0)])
     return default_taxpayer
 
 
