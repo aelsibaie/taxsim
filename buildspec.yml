@@ -3,7 +3,8 @@ version: 0.2
 phases:
   install:
     commands:
-      - pip install -r requirements.txt
+      - pip install pipenv --upgrade
+      - pipenv install --dev --skip-lock
   build:
     commands:
-      - pytest
+      - pipenv run pytest
