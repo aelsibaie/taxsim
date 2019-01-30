@@ -94,22 +94,22 @@ def hello():
 
     results = []
     results.append({'plan': {
-        'id': 'pre-tcja-2018',
+        'id': 'pre-tcja',
         'name': 'Previous Law, 2018',
         'year': 2018},
         'results': result})
     results.append({'plan': {
-        'id': 'tcja-2018',
+        'id': 'tcja',
         'name': 'Tax Cuts and Jobs Act, 2018',
         'year': 2018},
         'results': alt_result})
     results.append({'plan': {
-        'id': 'pre-tcja-2019',
+        'id': 'pre-tcja',
         'name': 'Previous Law, 2019',
         'year': 2019},
         'results': result_2019})
     results.append({'plan': {
-        'id': 'tcja-2019',
+        'id': 'tcja',
         'name': 'Tax Cuts and Jobs Act, 2019',
         'year': 2019},
         'results': alt_result_2019})
