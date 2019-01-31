@@ -12,9 +12,11 @@ CORS(app)
 
 tax_calc = taxsim.calc_federal_taxes
 policy = taxsim.current_law_policy
+policy_2019 = taxsim.current_law_2019_policy
 
 alt_tax_calc = taxsim.calc_senate_2018_taxes
 alt_policy = taxsim.senate_2018_policy
+alt_policy_2019 = taxsim.senate_2019_policy
 
 '''
 curl --request POST \
@@ -84,8 +86,8 @@ def hello():
         alt_result = alt_tax_calc(taxpayer2, alt_policy)
 
         # 2019
-        result_2019 = tax_calc(taxpayer3, policy)  # TODO: replace policy
-        alt_result_2019 = alt_tax_calc(taxpayer4, alt_policy)  # TODO: replace policy
+        result_2019 = tax_calc(taxpayer3, policy_2019)
+        alt_result_2019 = alt_tax_calc(taxpayer4, alt_policy_2019)
 
     except BaseException:
         taxsim.logging.warn("Taxpayer failed input validation for " + request.remote_addr)

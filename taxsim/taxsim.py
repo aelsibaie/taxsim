@@ -26,6 +26,8 @@ TAXPAYERS_FILE = "taxpayers.csv"
 CURRENT_LAW_FILE = "current_law_2018.csv"
 HOUSE_2018_FILE = "house_2018.csv"
 SENATE_2018_FILE = "senate_2018.csv"
+CURRENT_LAW_2019_FILE = "current_law_2019.csv"
+SENATE_2019_FILE = "senate_2019.csv"
 # Name of results files
 CURRENT_LAW_RESULTS = "current_law_results.csv"
 HOUSE_2018_RESULTS = "house_2018_results.csv"
@@ -45,6 +47,8 @@ logging.basicConfig(filename=LOGS_DIR + current_datetime + '.log',
 current_law_policy = csv_parser.load_policy(PARAMS_DIR + CURRENT_LAW_FILE)
 house_2018_policy = csv_parser.load_policy(PARAMS_DIR + HOUSE_2018_FILE)
 senate_2018_policy = csv_parser.load_policy(PARAMS_DIR + SENATE_2018_FILE)
+current_law_2019_policy = csv_parser.load_policy(PARAMS_DIR + CURRENT_LAW_2019_FILE)
+senate_2019_policy = csv_parser.load_policy(PARAMS_DIR + SENATE_2019_FILE)
 
 
 ##### Current Law #####
