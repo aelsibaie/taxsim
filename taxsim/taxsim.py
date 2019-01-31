@@ -136,20 +136,9 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
     # Tax after ALL credits (payments)
     results["income_tax_after_credits"] = round(results["income_tax_after_other_taxes"] - actc - eitc, 2)
 
-    rates = misc_funcs.calc_effective_rates(results["income_tax_after_credits"],
+    results = misc_funcs.calc_effective_rates(results["income_tax_after_credits"],
                                             payroll_taxes,
-                                            results["gross_income"])
-    # Tax burden
-    results["tax_burden"] = rates["tax_burden"]
-
-    # Tax wedge
-    results["tax_wedge"] = rates["tax_wedge"]
-
-    # Average effective tax rate
-    results["avg_effective_tax_rate"] = rates["avg_effective_tax_rate"]
-
-    # Average effective tax rate without payroll
-    results["avg_effective_tax_rate_wo_payroll"] = rates["avg_effective_tax_rate_wo_payroll"]
+                                            results["gross_income"], results)
 
     if mrate is True:
         # Marginal rate calculations use tax_burden, NOT income_tax_after_credits
@@ -274,20 +263,9 @@ def calc_house_2018_taxes(taxpayer, policy, mrate=True):
     results["income_tax_after_credits"] = round(
         income_tax_after_credits - actc - eitc, 2)
 
-    rates = misc_funcs.calc_effective_rates(results["income_tax_after_credits"],
+    results = misc_funcs.calc_effective_rates(results["income_tax_after_credits"],
                                             payroll_taxes,
-                                            results["gross_income"])
-    # Tax burden
-    results["tax_burden"] = rates["tax_burden"]
-
-    # Tax wedge
-    results["tax_wedge"] = rates["tax_wedge"]
-
-    # Average effective tax rate
-    results["avg_effective_tax_rate"] = rates["avg_effective_tax_rate"]
-
-    # Average effective tax rate without payroll
-    results["avg_effective_tax_rate_wo_payroll"] = rates["avg_effective_tax_rate_wo_payroll"]
+                                            results["gross_income"], results)
 
     if mrate is True:
         # Marginal rate calculations use tax_burden, NOT income_tax_after_credits
@@ -397,20 +375,9 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     # Tax after ALL credits (payments)
     results["income_tax_after_credits"] = round(results["income_tax_after_other_taxes"] - actc - eitc, 2)
 
-    rates = misc_funcs.calc_effective_rates(results["income_tax_after_credits"],
+    results = misc_funcs.calc_effective_rates(results["income_tax_after_credits"],
                                             payroll_taxes,
-                                            results["gross_income"])
-    # Tax burden
-    results["tax_burden"] = rates["tax_burden"]
-
-    # Tax wedge
-    results["tax_wedge"] = rates["tax_wedge"]
-
-    # Average effective tax rate
-    results["avg_effective_tax_rate"] = rates["avg_effective_tax_rate"]
-
-    # Average effective tax rate without payroll
-    results["avg_effective_tax_rate_wo_payroll"] = rates["avg_effective_tax_rate_wo_payroll"]
+                                            results["gross_income"], results)
 
     if mrate is True:
         # Marginal rate calculations use tax_burden, NOT income_tax_after_credits

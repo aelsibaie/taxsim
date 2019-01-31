@@ -4,27 +4,32 @@ import os
 import subprocess
 
 
-def calc_effective_rates(income_tax_after_credits, payroll_taxes, gross_income):
-    rates = OrderedDict()
+def calc_effective_rates(income_tax_after_credits, payroll_taxes, gross_income, results):
+    # sum PRT
+    results['total_payroll_tax'] = payroll_taxes["employee"] + payroll_taxes["employer"]  # TODO: add sched se
+
+    # cash income
+    results['cash_income'] = gross_income + payroll_taxes["employer"]
+
     # Tax burden
-    rates['tax_burden'] = income_tax_after_credits + payroll_taxes["employee"]
+    results['tax_burden'] = income_tax_after_credits + payroll_taxes["employee"]
 
     # Tax wedge
-    rates['tax_wedge'] = income_tax_after_credits + payroll_taxes["employee"] + payroll_taxes["employer"]
+    results['tax_wedge'] = income_tax_after_credits + payroll_taxes["employee"] + payroll_taxes["employer"]
 
     # Tax Rates
     # Wrap all division in the same try-except block since they all use the same denominator
     try:
         # Average effective tax rate
-        rates['avg_effective_tax_rate'] = rates['tax_wedge'] / (gross_income + payroll_taxes["employer"])
+        results['avg_effective_tax_rate'] = income_tax_after_credits / (gross_income + payroll_taxes["employer"])
         # Average effective tax rate without payroll
-        rates['avg_effective_tax_rate_wo_payroll'] = income_tax_after_credits / gross_income
+        results['avg_effective_tax_rate_wo_payroll'] = income_tax_after_credits / gross_income
     except ZeroDivisionError as e:
         logging.warning("Taxpayer has gross_income of $0. Potential refund not reflected in rates.")
-        rates['avg_effective_tax_rate'] = 0
-        rates['avg_effective_tax_rate_wo_payroll'] = 0
+        results['avg_effective_tax_rate'] = 0
+        results['avg_effective_tax_rate_wo_payroll'] = 0
 
-    return rates
+    return results
 
 
 def require_dir(directory):
