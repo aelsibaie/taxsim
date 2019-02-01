@@ -35,10 +35,11 @@ def test_marginal_income_tax_rate0():
 
 
 def test_marginal_business_income_tax_rate0():
+    # this edge case doesn't make sense any more after sched se was included
     taxpayer = misc_funcs.create_taxpayer()
 
     taxpayer['business_income'] = 0
 
     results = taxsim.calc_federal_taxes(taxpayer, policy)
 
-    assert results['marginal_business_income_tax_rate'] < 0.0001
+    assert results['marginal_business_income_tax_rate'] > 0.0001

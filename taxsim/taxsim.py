@@ -66,6 +66,8 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
     results["employee_payroll_tax"] = payroll_taxes['employee']
     results["employer_payroll_tax"] = payroll_taxes['employer']
 
+    sched_se_tax, sched_se_ded = tax_funcs.sched_se(policy, taxpayer, results)
+
     # Income after tax-deferred retirement contributions
     ordinary_income_after_401k = (
         taxpayer['ordinary_income1'] +
@@ -74,7 +76,7 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
     results["ordinary_income_after_401k"] = ordinary_income_after_401k
 
     # AGI
-    agi = tax_funcs.fed_agi(policy, taxpayer, ordinary_income_after_401k)
+    agi = tax_funcs.fed_agi(policy, taxpayer, ordinary_income_after_401k, sched_se_ded)
     results["agi"] = agi
 
     if (policy["medical_expense_threshold"] * results["agi"]) > taxpayer["medical_expenses"]:
@@ -131,7 +133,8 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
     medicare_surtax, niit = tax_funcs.medsurtax_niit(policy, taxpayer, agi)
     results["medicare_surtax"] = medicare_surtax
     results["niit"] = niit
-    results["income_tax_after_other_taxes"] = income_tax_after_nonrefundable_credits + medicare_surtax + niit
+    results["sched_se_tax"] = sched_se_tax
+    results["income_tax_after_other_taxes"] = income_tax_after_nonrefundable_credits + medicare_surtax + niit + sched_se_tax
 
     # Tax after ALL credits (payments)
     results["income_tax_after_credits"] = round(results["income_tax_after_other_taxes"] - actc - eitc, 2)
@@ -188,7 +191,7 @@ def calc_house_2018_taxes(taxpayer, policy, mrate=True):
     results["ordinary_income_after_401k"] = ordinary_income_after_401k
 
     # AGI
-    agi = tax_funcs.fed_agi(policy, taxpayer, ordinary_income_after_401k)
+    agi = tax_funcs.fed_agi(policy, taxpayer, ordinary_income_after_401k, 0)
     results["agi"] = agi
 
     # Taxable income
@@ -305,12 +308,14 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     results["employee_payroll_tax"] = payroll_taxes['employee']
     results["employer_payroll_tax"] = payroll_taxes['employer']
 
+    sched_se_tax, sched_se_ded = tax_funcs.sched_se(policy, taxpayer, results)
+
     # Income after tax-deferred retirement contributions
     ordinary_income_after_401k = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2'] - taxpayer['401k_contributions']
     results["ordinary_income_after_401k"] = ordinary_income_after_401k
 
     # AGI
-    agi = tax_funcs.fed_agi(policy, taxpayer, ordinary_income_after_401k)
+    agi = tax_funcs.fed_agi(policy, taxpayer, ordinary_income_after_401k, sched_se_ded)
     results["agi"] = agi
 
     if (policy["medical_expense_threshold"] * results["agi"]) > taxpayer["medical_expenses"]:
@@ -370,7 +375,8 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     medicare_surtax, niit = tax_funcs.medsurtax_niit(policy, taxpayer, agi)
     results["medicare_surtax"] = medicare_surtax
     results["niit"] = niit
-    results["income_tax_after_other_taxes"] = income_tax_after_nonrefundable_credits + medicare_surtax + niit
+    results["sched_se_tax"] = sched_se_tax
+    results["income_tax_after_other_taxes"] = income_tax_after_nonrefundable_credits + medicare_surtax + niit + sched_se_tax
 
     # Tax after ALL credits (payments)
     results["income_tax_after_credits"] = round(results["income_tax_after_other_taxes"] - actc - eitc, 2)

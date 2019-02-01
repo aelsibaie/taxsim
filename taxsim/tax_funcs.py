@@ -2,6 +2,19 @@ import math
 import logging
 
 
+def sched_se(policy, taxpayer, results):
+    # TODO: replace hardcoded percentages when verified
+    bus_inc = taxpayer["business_income"] * 0.9235
+    if bus_inc < 400:
+        sched_se_tax = 0
+        return sched_se_tax, 0
+    if bus_inc < policy["ss_wage_base"]:
+        sched_se_tax = bus_inc * 0.153
+    else:
+        sched_se_tax = (bus_inc * 0.029) + (policy["ss_wage_base"] * 0.124)
+    return sched_se_tax, (sched_se_tax / 2)
+
+
 def fed_payroll(policy, taxpayer):
     """
     Get Federal payroll tax liabilities.
@@ -62,7 +75,7 @@ def medsurtax_niit(policy, taxpayer, agi):
     return medicare_surtax, niit
 
 
-def fed_agi(policy, taxpayer, ordinary_income_after_401k):
+def fed_agi(policy, taxpayer, ordinary_income_after_401k, sched_se_ded):
     """
     Get Federal AGI.
 
@@ -79,6 +92,8 @@ def fed_agi(policy, taxpayer, ordinary_income_after_401k):
         float: Federal adjusted gross income, including any taxable social security.
     """
     agi = ordinary_income_after_401k + taxpayer['business_income'] + taxpayer['qualified_income']
+
+    agi -= sched_se_ded
 
     if taxpayer['ss_income'] > 0:
         # Social security income may not be fully taxable.
