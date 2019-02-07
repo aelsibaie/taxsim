@@ -1,0 +1,9 @@
+name,filingData,id,income,tooltip
+James,"Single, No Kids",james,30000,"This taxpayer takes the standard deduction and had $2,600 of pre-tax 401(k) contributions."
+Jason,"Single, 2 Kids",jason,52000,"This taxpayer takes the standard deduction and had $4,000 of pre-tax 401(k) contributions."
+Amber,"Single, No Kids",amber,75000,"This taxpayer takes the standard deduction and had $5,500 of pre-tax 401(k) contributions."
+Kavya & Nick,"Married, 2 Kids",kavya,85000,"These taxpayers take the standard deduction and had $5,500 of pre-tax 401(k) contributions."
+Sophie & Chad,"Married, 2 Kids",sophie,165000,"These taxpayers claimed about $26,000 worth of itemized deductions and had $20,000 of pre-tax 401(k) contributions."
+Soren & Linea,"Married, 3 Kids",soren,800000,"These taxpayers live in an especially high-tax state and claimed about $125,000 worth of itemized deductions. They also had $37,000 of pre-tax 401(k) contributions."
+Laura & Seth,"Married, 2 Kids",laura,2000000,"These taxpayers claimed about $220,000 worth of itemized deductions and had $18,500 of pre-tax 401(k) contributions."
+Joe & Ethan,"Married, Retired",joe,48000,These taxpayers take the standard deduction and receive a mix of ordinary income and social security benefits.
