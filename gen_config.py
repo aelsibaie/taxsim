@@ -54,7 +54,7 @@ meta.append({
 meta.append({
     "name": "Joe & Ethan",
     "filingData": "Married, Retired",
-    "id": "james",
+    "id": "joe",
     "tooltip": "This taxpayer takes the standard deduction and had $2,600 of pre-tax 401(k) contributions."
 })
 
@@ -125,4 +125,4 @@ for i in range(len(taxpayers)):
 
 
 with open('config.json', 'w') as f:
-    json.dump(profiles, f, indent=4)
+    json.dump(profiles, f, indent=2)
