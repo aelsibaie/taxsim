@@ -43,7 +43,7 @@ meta.append({
     "name": "Soren & Linea",
     "filingData": "Married, 3 Kids",
     "id": "soren",
-    "tooltip": "These taxpayers earned half their income via a pass-through business which qualifies for the new 20-percent deduction and claimed about $30,000 worth of other itemized deductions. They also had $20,000 of pre-tax 401(k) contributions."
+    "tooltip": "These taxpayers earned half their income via a pass-through business which qualifies for the new 20-percent deduction and claimed about $30,000 worth of other itemized deductions. They also had $19,000 of pre-tax 401(k) contributions."
 })
 meta.append({
     "name": "Laura & Seth",
