@@ -17,6 +17,8 @@ def calc_effective_rates(income_tax_after_credits, payroll_taxes, gross_income, 
     # Tax wedge
     results['tax_wedge'] = income_tax_after_credits + payroll_taxes["employee"] + payroll_taxes["employer"]
 
+    results['take_home_pay'] = results['cash_income'] - results['tax_wedge']
+
     # Tax Rates
     # Wrap all division in the same try-except block since they all use the same denominator
     try:
