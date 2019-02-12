@@ -371,7 +371,7 @@ def senate_2018_taxable_income(policy, taxpayer, agi):
 
     taxable_income = max(0, taxable_income - personal_exemption_amt - deductions)
 
-    return taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt, taxable_income_before, agi
+    return taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt, taxable_income_before, agi, business_income_deduction
 
 
 def fed_ordinary_income_tax(policy, taxpayer, taxable_income):
