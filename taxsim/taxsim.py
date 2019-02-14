@@ -28,6 +28,7 @@ HOUSE_2018_FILE = "house_2018.csv"
 SENATE_2018_FILE = "senate_2018.csv"
 CURRENT_LAW_2019_FILE = "current_law_2019.csv"
 SENATE_2019_FILE = "senate_2019.csv"
+SENATE_2019_SS_FILE = "senate_2019_ss.csv"
 # Name of results files
 CURRENT_LAW_RESULTS = "current_law_results.csv"
 HOUSE_2018_RESULTS = "house_2018_results.csv"
@@ -49,6 +50,7 @@ house_2018_policy = csv_parser.load_policy(PARAMS_DIR + HOUSE_2018_FILE)
 senate_2018_policy = csv_parser.load_policy(PARAMS_DIR + SENATE_2018_FILE)
 current_law_2019_policy = csv_parser.load_policy(PARAMS_DIR + CURRENT_LAW_2019_FILE)
 senate_2019_policy = csv_parser.load_policy(PARAMS_DIR + SENATE_2019_FILE)
+senate_2019_ss_policy = csv_parser.load_policy(PARAMS_DIR + SENATE_2019_SS_FILE)
 
 
 ##### Current Law #####

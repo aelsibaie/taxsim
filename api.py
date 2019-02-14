@@ -17,6 +17,7 @@ policy_2019 = taxsim.current_law_2019_policy
 alt_tax_calc = taxsim.calc_senate_2018_taxes
 alt_policy = taxsim.senate_2018_policy
 alt_policy_2019 = taxsim.senate_2019_policy
+alt_policy_2019_ss = taxsim.senate_2019_ss_policy
 
 '''
 curl --request POST \
@@ -80,6 +81,7 @@ def hello():
         taxpayer2 = copy.deepcopy(taxpayer)
         taxpayer3 = copy.deepcopy(taxpayer)
         taxpayer4 = copy.deepcopy(taxpayer)
+        taxpayer5 = copy.deepcopy(taxpayer)
         
         # 2018
         result = tax_calc(taxpayer1, policy)
@@ -88,6 +90,7 @@ def hello():
         # 2019
         result_2019 = tax_calc(taxpayer3, policy_2019)
         alt_result_2019 = alt_tax_calc(taxpayer4, alt_policy_2019)
+        alt_result_2019_ss = alt_tax_calc(taxpayer5, alt_policy_2019_ss)
 
     except BaseException:
         taxsim.logging.warn("Taxpayer failed input validation for " + request.remote_addr)
@@ -115,6 +118,11 @@ def hello():
         'name': 'Tax Cuts and Jobs Act',
         'year': 2019},
         'results': alt_result_2019})
+    results.append({'plan': {
+        'id': 'ss2100',
+        'name': 'Social Security 2100 Act',
+        'year': 2019},
+        'results': alt_result_2019_ss})
 
     return jsonify(results)
 
