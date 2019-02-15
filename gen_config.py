@@ -66,6 +66,7 @@ policy_2019 = taxsim.current_law_2019_policy
 alt_tax_calc = taxsim.calc_senate_2018_taxes
 alt_policy = taxsim.senate_2018_policy
 alt_policy_2019 = taxsim.senate_2019_policy
+alt_policy_2019_ss = taxsim.senate_2019_ss_policy
 
 
 taxpayers = csv_parser.load_taxpayers(taxsim.TAXPAYERS_FILE)
@@ -81,6 +82,7 @@ for i in range(len(taxpayers)):
     taxpayer2 = copy.deepcopy(taxpayers[i])
     taxpayer3 = copy.deepcopy(taxpayers[i])
     taxpayer4 = copy.deepcopy(taxpayers[i])
+    taxpayer5 = copy.deepcopy(taxpayers[i])
 
     # 2018
     result = tax_calc(taxpayer1, policy)
@@ -89,6 +91,7 @@ for i in range(len(taxpayers)):
     # 2019
     result_2019 = tax_calc(taxpayer3, policy_2019)
     alt_result_2019 = alt_tax_calc(taxpayer4, alt_policy_2019)
+    alt_result_2019_ss = alt_tax_calc(taxpayer5, alt_policy_2019_ss)
 
     desc = {"name": meta[i]["name"],
             "filingData": meta[i]["filingData"],
@@ -117,6 +120,11 @@ for i in range(len(taxpayers)):
         'name': 'Tax Cuts and Jobs Act',
         'year': 2019},
         'results': alt_result_2019})
+    results.append({'plan': {
+        'id': 'ss2100',
+        'name': 'Social Security 2100 Act',
+        'year': 2019},
+        'results': alt_result_2019_ss})
 
     temp_dict = {"description": desc,
                  "taxes": results}
