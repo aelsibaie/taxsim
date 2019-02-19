@@ -188,51 +188,6 @@
             "marginal_income_tax_rate": 0.1965,
             "marginal_business_income_tax_rate": 0.22882000000000008
           }
-        },
-        {
-          "plan": {
-            "id": "ss2100",
-            "name": "Social Security 2100 Act",
-            "year": 2019
-          },
-          "results": {
-            "gross_income": 30000,
-            "employee_payroll_tax": 2655.0,
-            "employer_payroll_tax": 2655.0,
-            "ordinary_income_after_401k": 27400,
-            "agi": 27400,
-            "taxable_income": 15200.0,
-            "deduction_type": "standard",
-            "deductions": 12200.0,
-            "personal_exemption_amt": 0.0,
-            "pease_limitation_amt": 0,
-            "qbi_ded": 0.0,
-            "income_tax_before_credits": 1630.0,
-            "qualified_income_tax": 1630.0,
-            "selected_tax_before_credits": 1630.0,
-            "amt_taxable_income": 0,
-            "amt": 0,
-            "income_tax_before_credits_with_amt": 1630.0,
-            "ctc": 0,
-            "actc": 0,
-            "eitc": 0,
-            "dep_credit": 0.0,
-            "income_tax_after_nonrefundable_credits": 1630.0,
-            "medicare_surtax": 0,
-            "niit": 0.0,
-            "sched_se_tax": 0,
-            "income_tax_after_other_taxes": 1630.0,
-            "income_tax_after_credits": 1630.0,
-            "total_payroll_tax": 5310.0,
-            "cash_income": 32655.0,
-            "tax_burden": 4285.0,
-            "tax_wedge": 6940.0,
-            "take_home_pay": 25715.0,
-            "avg_effective_tax_rate": 0.21252488133517072,
-            "avg_effective_tax_rate_wo_payroll": 0.05433333333333333,
-            "marginal_income_tax_rate": 0.2085,
-            "marginal_business_income_tax_rate": 0.22882000000000008
-          }
         }
       ]
     },
@@ -422,51 +377,6 @@
             "avg_effective_tax_rate": 0.12928293258065668,
             "avg_effective_tax_rate_wo_payroll": -0.013826923076923077,
             "marginal_income_tax_rate": 0.1965,
-            "marginal_business_income_tax_rate": 0.22882000000000008
-          }
-        },
-        {
-          "plan": {
-            "id": "ss2100",
-            "name": "Social Security 2100 Act",
-            "year": 2019
-          },
-          "results": {
-            "gross_income": 52000,
-            "employee_payroll_tax": 4602.0,
-            "employer_payroll_tax": 4602.0,
-            "ordinary_income_after_401k": 48000,
-            "agi": 48000,
-            "taxable_income": 29650.0,
-            "deduction_type": "standard",
-            "deductions": 18350.0,
-            "personal_exemption_amt": 0.0,
-            "pease_limitation_amt": 0,
-            "qbi_ded": 0.0,
-            "income_tax_before_credits": 3281.0,
-            "qualified_income_tax": 3281.0,
-            "selected_tax_before_credits": 3281.0,
-            "amt_taxable_income": 0,
-            "amt": 0,
-            "income_tax_before_credits_with_amt": 3281.0,
-            "ctc": 1200.0,
-            "actc": 2800.0,
-            "eitc": 0,
-            "dep_credit": 0.0,
-            "income_tax_after_nonrefundable_credits": 2081.0,
-            "medicare_surtax": 0,
-            "niit": 0.0,
-            "sched_se_tax": 0,
-            "income_tax_after_other_taxes": 2081.0,
-            "income_tax_after_credits": -719.0,
-            "total_payroll_tax": 9204.0,
-            "cash_income": 56602.0,
-            "tax_burden": 3883.0,
-            "tax_wedge": 8485.0,
-            "take_home_pay": 48117.0,
-            "avg_effective_tax_rate": 0.14990636373273028,
-            "avg_effective_tax_rate_wo_payroll": -0.013826923076923077,
-            "marginal_income_tax_rate": 0.2085,
             "marginal_business_income_tax_rate": 0.22882000000000008
           }
         }
@@ -660,51 +570,6 @@
             "marginal_income_tax_rate": 0.2965,
             "marginal_business_income_tax_rate": 0.3017519999999997
           }
-        },
-        {
-          "plan": {
-            "id": "ss2100",
-            "name": "Social Security 2100 Act",
-            "year": 2019
-          },
-          "results": {
-            "gross_income": 75000,
-            "employee_payroll_tax": 6637.5,
-            "employer_payroll_tax": 6637.5,
-            "ordinary_income_after_401k": 69500,
-            "agi": 69500,
-            "taxable_income": 57300.0,
-            "deduction_type": "standard",
-            "deductions": 12200.0,
-            "personal_exemption_amt": 0.0,
-            "pease_limitation_amt": 0,
-            "qbi_ded": 0.0,
-            "income_tax_before_credits": 8464.5,
-            "qualified_income_tax": 8464.5,
-            "selected_tax_before_credits": 8464.5,
-            "amt_taxable_income": 0,
-            "amt": 0,
-            "income_tax_before_credits_with_amt": 8464.5,
-            "ctc": 0,
-            "actc": 0,
-            "eitc": 0,
-            "dep_credit": 0.0,
-            "income_tax_after_nonrefundable_credits": 8464.5,
-            "medicare_surtax": 0,
-            "niit": 0.0,
-            "sched_se_tax": 0,
-            "income_tax_after_other_taxes": 8464.5,
-            "income_tax_after_credits": 8464.5,
-            "total_payroll_tax": 13275.0,
-            "cash_income": 81637.5,
-            "tax_burden": 15102.0,
-            "tax_wedge": 21739.5,
-            "take_home_pay": 59898.0,
-            "avg_effective_tax_rate": 0.26629306384933393,
-            "avg_effective_tax_rate_wo_payroll": 0.11286,
-            "marginal_income_tax_rate": 0.3085,
-            "marginal_business_income_tax_rate": 0.3017519999999997
-          }
         }
       ]
     },
@@ -894,51 +759,6 @@
             "avg_effective_tax_rate": 0.16643261113084343,
             "avg_effective_tax_rate_wo_payroll": 0.02616470588235294,
             "marginal_income_tax_rate": 0.1965,
-            "marginal_business_income_tax_rate": 0.22881999999999972
-          }
-        },
-        {
-          "plan": {
-            "id": "ss2100",
-            "name": "Social Security 2100 Act",
-            "year": 2019
-          },
-          "results": {
-            "gross_income": 85000,
-            "employee_payroll_tax": 7522.5,
-            "employer_payroll_tax": 7522.5,
-            "ordinary_income_after_401k": 79500,
-            "agi": 79500,
-            "taxable_income": 55100.0,
-            "deduction_type": "standard",
-            "deductions": 24400.0,
-            "personal_exemption_amt": 0.0,
-            "pease_limitation_amt": 0,
-            "qbi_ded": 0.0,
-            "income_tax_before_credits": 6224.0,
-            "qualified_income_tax": 6224.0,
-            "selected_tax_before_credits": 6224.0,
-            "amt_taxable_income": 0,
-            "amt": 0,
-            "income_tax_before_credits_with_amt": 6224.0,
-            "ctc": 4000.0,
-            "actc": 0,
-            "eitc": 0,
-            "dep_credit": 0.0,
-            "income_tax_after_nonrefundable_credits": 2224.0,
-            "medicare_surtax": 0,
-            "niit": 0.0,
-            "sched_se_tax": 0,
-            "income_tax_after_other_taxes": 2224.0,
-            "income_tax_after_credits": 2224.0,
-            "total_payroll_tax": 15045.0,
-            "cash_income": 92522.5,
-            "tax_burden": 9746.5,
-            "tax_wedge": 17269.0,
-            "take_home_pay": 75253.5,
-            "avg_effective_tax_rate": 0.18664649139398526,
-            "avg_effective_tax_rate_wo_payroll": 0.02616470588235294,
-            "marginal_income_tax_rate": 0.2085,
             "marginal_business_income_tax_rate": 0.22881999999999972
           }
         }
@@ -1132,51 +952,6 @@
             "marginal_income_tax_rate": 0.2965,
             "marginal_business_income_tax_rate": 0.30175199999999897
           }
-        },
-        {
-          "plan": {
-            "id": "ss2100",
-            "name": "Social Security 2100 Act",
-            "year": 2019
-          },
-          "results": {
-            "gross_income": 165000,
-            "employee_payroll_tax": 14602.5,
-            "employer_payroll_tax": 14602.5,
-            "ordinary_income_after_401k": 145000,
-            "agi": 145000,
-            "taxable_income": 120600.0,
-            "deduction_type": "standard",
-            "deductions": 24400.0,
-            "personal_exemption_amt": 0.0,
-            "pease_limitation_amt": 0,
-            "qbi_ded": 0.0,
-            "income_tax_before_credits": 18249.0,
-            "qualified_income_tax": 18249.0,
-            "selected_tax_before_credits": 18249.0,
-            "amt_taxable_income": 33300.0,
-            "amt": 0,
-            "income_tax_before_credits_with_amt": 18249.0,
-            "ctc": 4000.0,
-            "actc": 0,
-            "eitc": 0,
-            "dep_credit": 0.0,
-            "income_tax_after_nonrefundable_credits": 14249.0,
-            "medicare_surtax": 0,
-            "niit": 0.0,
-            "sched_se_tax": 0,
-            "income_tax_after_other_taxes": 14249.0,
-            "income_tax_after_credits": 14249.0,
-            "total_payroll_tax": 29205.0,
-            "cash_income": 179602.5,
-            "tax_burden": 28851.5,
-            "tax_wedge": 43454.0,
-            "take_home_pay": 136148.5,
-            "avg_effective_tax_rate": 0.24194540721871913,
-            "avg_effective_tax_rate_wo_payroll": 0.08635757575757576,
-            "marginal_income_tax_rate": 0.3085,
-            "marginal_business_income_tax_rate": 0.30175199999999897
-          }
         }
       ]
     },
@@ -1366,51 +1141,6 @@
             "avg_effective_tax_rate": 0.21018203708162775,
             "avg_effective_tax_rate_wo_payroll": 0.1417215,
             "marginal_income_tax_rate": 0.2965,
-            "marginal_business_income_tax_rate": 0.30175199999999897
-          }
-        },
-        {
-          "plan": {
-            "id": "ss2100",
-            "name": "Social Security 2100 Act",
-            "year": 2019
-          },
-          "results": {
-            "gross_income": 200000,
-            "employee_payroll_tax": 8850.0,
-            "employer_payroll_tax": 8850.0,
-            "ordinary_income_after_401k": 81000,
-            "agi": 173935.225,
-            "taxable_income": 129535.225,
-            "deduction_type": "standard",
-            "deductions": 44400.0,
-            "personal_exemption_amt": 0.0,
-            "pease_limitation_amt": 0,
-            "qbi_ded": 20000.0,
-            "income_tax_before_credits": 20214.75,
-            "qualified_income_tax": 20214.75,
-            "selected_tax_before_credits": 20214.75,
-            "amt_taxable_income": 62235.225000000006,
-            "amt": 0,
-            "income_tax_before_credits_with_amt": 20214.75,
-            "ctc": 6000.0,
-            "actc": 0,
-            "eitc": 0,
-            "dep_credit": 0.0,
-            "income_tax_after_nonrefundable_credits": 14214.75,
-            "medicare_surtax": 0,
-            "niit": 0.0,
-            "sched_se_tax": 14129.55,
-            "income_tax_after_other_taxes": 28344.3,
-            "income_tax_after_credits": 28344.3,
-            "total_payroll_tax": 17700.0,
-            "cash_income": 208850.0,
-            "tax_burden": 37194.3,
-            "tax_wedge": 46044.3,
-            "take_home_pay": 162805.7,
-            "avg_effective_tax_rate": 0.2204658846061767,
-            "avg_effective_tax_rate_wo_payroll": 0.1417215,
-            "marginal_income_tax_rate": 0.3085,
             "marginal_business_income_tax_rate": 0.30175199999999897
           }
         }
@@ -1604,51 +1334,6 @@
             "marginal_income_tax_rate": 0.3935,
             "marginal_business_income_tax_rate": 0.4111560000000056
           }
-        },
-        {
-          "plan": {
-            "id": "ss2100",
-            "name": "Social Security 2100 Act",
-            "year": 2019
-          },
-          "results": {
-            "gross_income": 2000000,
-            "employee_payroll_tax": 38834.6,
-            "employer_payroll_tax": 38834.6,
-            "ordinary_income_after_401k": 1981500,
-            "agi": 1981500,
-            "taxable_income": 1885397.0,
-            "deduction_type": "itemized",
-            "deductions": 96103.0,
-            "personal_exemption_amt": 0,
-            "pease_limitation_amt": 0,
-            "qbi_ded": 0.0,
-            "income_tax_before_credits": 635736.89,
-            "qualified_income_tax": 635736.89,
-            "selected_tax_before_credits": 635736.89,
-            "amt_taxable_income": 1901500.0,
-            "amt": 0,
-            "income_tax_before_credits_with_amt": 635736.89,
-            "ctc": 0,
-            "actc": 0,
-            "eitc": 0,
-            "dep_credit": 0.0,
-            "income_tax_after_nonrefundable_credits": 635736.89,
-            "medicare_surtax": 15749.999999999998,
-            "niit": 0.0,
-            "sched_se_tax": 0,
-            "income_tax_after_other_taxes": 651486.89,
-            "income_tax_after_credits": 651486.89,
-            "total_payroll_tax": 77669.2,
-            "cash_income": 2038834.6,
-            "tax_burden": 690321.49,
-            "tax_wedge": 729156.09,
-            "take_home_pay": 1309678.5100000002,
-            "avg_effective_tax_rate": 0.3576337629349629,
-            "avg_effective_tax_rate_wo_payroll": 0.325743445,
-            "marginal_income_tax_rate": 0.3935,
-            "marginal_business_income_tax_rate": 0.4111560000000056
-          }
         }
       ]
     },
@@ -1838,51 +1523,6 @@
             "avg_effective_tax_rate": 0.11061627251581764,
             "avg_effective_tax_rate_wo_payroll": 0.016666666666666666,
             "marginal_income_tax_rate": 0.2265,
-            "marginal_business_income_tax_rate": 0.2607
-          }
-        },
-        {
-          "plan": {
-            "id": "ss2100",
-            "name": "Social Security 2100 Act",
-            "year": 2019
-          },
-          "results": {
-            "gross_income": 48000,
-            "employee_payroll_tax": 2761.2,
-            "employer_payroll_tax": 2761.2,
-            "ordinary_income_after_401k": 31200,
-            "agi": 35000.0,
-            "taxable_income": 8000.0,
-            "deduction_type": "standard",
-            "deductions": 27000.0,
-            "personal_exemption_amt": 0.0,
-            "pease_limitation_amt": 0,
-            "qbi_ded": 0.0,
-            "income_tax_before_credits": 800.0,
-            "qualified_income_tax": 800.0,
-            "selected_tax_before_credits": 800.0,
-            "amt_taxable_income": 0,
-            "amt": 0,
-            "income_tax_before_credits_with_amt": 800.0,
-            "ctc": 0,
-            "actc": 0,
-            "eitc": 0,
-            "dep_credit": 0.0,
-            "income_tax_after_nonrefundable_credits": 800.0,
-            "medicare_surtax": 0,
-            "niit": 0.0,
-            "sched_se_tax": 0,
-            "income_tax_after_other_taxes": 800.0,
-            "income_tax_after_credits": 800.0,
-            "total_payroll_tax": 5522.4,
-            "cash_income": 50761.2,
-            "tax_burden": 3561.2,
-            "tax_wedge": 6322.4,
-            "take_home_pay": 44438.799999999996,
-            "avg_effective_tax_rate": 0.12455182304594849,
-            "avg_effective_tax_rate_wo_payroll": 0.016666666666666666,
-            "marginal_income_tax_rate": 0.2385,
             "marginal_business_income_tax_rate": 0.2607
           }
         }

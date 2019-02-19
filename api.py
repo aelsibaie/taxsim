@@ -118,11 +118,11 @@ def hello():
         'name': 'Tax Cuts and Jobs Act',
         'year': 2019},
         'results': alt_result_2019})
-    results.append({'plan': {
-        'id': 'ss2100',
-        'name': 'Social Security 2100 Act',
-        'year': 2019},
-        'results': alt_result_2019_ss})
+    #results.append({'plan': {
+    #    'id': 'ss2100',
+    #    'name': 'Social Security 2100 Act',
+    #    'year': 2019},
+    #    'results': alt_result_2019_ss})
 
     return jsonify(results)
 
