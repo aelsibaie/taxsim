@@ -66,6 +66,7 @@ Policy parameters used by the main tax calculation functions are found in the `p
 
 ## Continuous Integration and Deployment:
 [![Build Status](https://travis-ci.com/TaxFoundation/taxsim.svg?token=yexSBERtR4Ec1WprzQ72&branch=master)](https://travis-ci.com/TaxFoundation/taxsim)
+
 TaxSim is set up for continuous integration, testing, and deployment.
 
 Travis CI is setup to watch the `master` branch for any new commits. Travis CI is configured in the ` .travis.yml` file and handles Slack notifications and GitHub PR integration.

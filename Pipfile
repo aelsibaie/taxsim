@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pandas = "*"
+matplotlib = "*"
+tqdm = "*"
+flask = "*"
+flask-cors = "*"
+
+[dev-packages]
+pytest = "*"
+autopep8 = "*"
+pylint = "*"
+pep8 = "*"
+pytest-cov = "*"
+
+[requires]
+python_version = "3.6"

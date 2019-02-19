@@ -26,6 +26,9 @@ TAXPAYERS_FILE = "taxpayers.csv"
 CURRENT_LAW_FILE = "current_law_2018.csv"
 HOUSE_2018_FILE = "house_2018.csv"
 SENATE_2018_FILE = "senate_2018.csv"
+CURRENT_LAW_2019_FILE = "current_law_2019.csv"
+SENATE_2019_FILE = "senate_2019.csv"
+SENATE_2019_SS_FILE = "senate_2019_ss.csv"
 # Name of results files
 CURRENT_LAW_RESULTS = "current_law_results.csv"
 HOUSE_2018_RESULTS = "house_2018_results.csv"
@@ -45,6 +48,9 @@ logging.basicConfig(filename=LOGS_DIR + current_datetime + '.log',
 current_law_policy = csv_parser.load_policy(PARAMS_DIR + CURRENT_LAW_FILE)
 house_2018_policy = csv_parser.load_policy(PARAMS_DIR + HOUSE_2018_FILE)
 senate_2018_policy = csv_parser.load_policy(PARAMS_DIR + SENATE_2018_FILE)
+current_law_2019_policy = csv_parser.load_policy(PARAMS_DIR + CURRENT_LAW_2019_FILE)
+senate_2019_policy = csv_parser.load_policy(PARAMS_DIR + SENATE_2019_FILE)
+senate_2019_ss_policy = csv_parser.load_policy(PARAMS_DIR + SENATE_2019_SS_FILE)
 
 
 ##### Current Law #####
@@ -62,6 +68,8 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
     results["employee_payroll_tax"] = payroll_taxes['employee']
     results["employer_payroll_tax"] = payroll_taxes['employer']
 
+    sched_se_tax, sched_se_ded = tax_funcs.sched_se(policy, taxpayer, results)
+
     # Income after tax-deferred retirement contributions
     ordinary_income_after_401k = (
         taxpayer['ordinary_income1'] +
@@ -70,7 +78,7 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
     results["ordinary_income_after_401k"] = ordinary_income_after_401k
 
     # AGI
-    agi = tax_funcs.fed_agi(policy, taxpayer, ordinary_income_after_401k)
+    agi = tax_funcs.fed_agi(policy, taxpayer, ordinary_income_after_401k, sched_se_ded)
     results["agi"] = agi
 
     if (policy["medical_expense_threshold"] * results["agi"]) > taxpayer["medical_expenses"]:
@@ -87,6 +95,7 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
     results["deductions"] = deductions
     results["personal_exemption_amt"] = personal_exemption_amt
     results["pease_limitation_amt"] = pease_limitation_amt
+    results['qbi_ded'] = 0
 
     # Ordinary income tax
     income_tax_before_credits = tax_funcs.fed_ordinary_income_tax(policy, taxpayer, taxable_income)
@@ -127,25 +136,15 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
     medicare_surtax, niit = tax_funcs.medsurtax_niit(policy, taxpayer, agi)
     results["medicare_surtax"] = medicare_surtax
     results["niit"] = niit
-    results["income_tax_after_other_taxes"] = income_tax_after_nonrefundable_credits + medicare_surtax + niit
+    results["sched_se_tax"] = sched_se_tax
+    results["income_tax_after_other_taxes"] = income_tax_after_nonrefundable_credits + medicare_surtax + niit + sched_se_tax
 
     # Tax after ALL credits (payments)
     results["income_tax_after_credits"] = round(results["income_tax_after_other_taxes"] - actc - eitc, 2)
 
-    rates = misc_funcs.calc_effective_rates(results["income_tax_after_credits"],
+    results = misc_funcs.calc_effective_rates(results["income_tax_after_credits"],
                                             payroll_taxes,
-                                            results["gross_income"])
-    # Tax burden
-    results["tax_burden"] = rates["tax_burden"]
-
-    # Tax wedge
-    results["tax_wedge"] = rates["tax_wedge"]
-
-    # Average effective tax rate
-    results["avg_effective_tax_rate"] = rates["avg_effective_tax_rate"]
-
-    # Average effective tax rate without payroll
-    results["avg_effective_tax_rate_wo_payroll"] = rates["avg_effective_tax_rate_wo_payroll"]
+                                            results["gross_income"], results)
 
     if mrate is True:
         # Marginal rate calculations use tax_burden, NOT income_tax_after_credits
@@ -195,7 +194,7 @@ def calc_house_2018_taxes(taxpayer, policy, mrate=True):
     results["ordinary_income_after_401k"] = ordinary_income_after_401k
 
     # AGI
-    agi = tax_funcs.fed_agi(policy, taxpayer, ordinary_income_after_401k)
+    agi = tax_funcs.fed_agi(policy, taxpayer, ordinary_income_after_401k, 0)
     results["agi"] = agi
 
     # Taxable income
@@ -270,20 +269,9 @@ def calc_house_2018_taxes(taxpayer, policy, mrate=True):
     results["income_tax_after_credits"] = round(
         income_tax_after_credits - actc - eitc, 2)
 
-    rates = misc_funcs.calc_effective_rates(results["income_tax_after_credits"],
+    results = misc_funcs.calc_effective_rates(results["income_tax_after_credits"],
                                             payroll_taxes,
-                                            results["gross_income"])
-    # Tax burden
-    results["tax_burden"] = rates["tax_burden"]
-
-    # Tax wedge
-    results["tax_wedge"] = rates["tax_wedge"]
-
-    # Average effective tax rate
-    results["avg_effective_tax_rate"] = rates["avg_effective_tax_rate"]
-
-    # Average effective tax rate without payroll
-    results["avg_effective_tax_rate_wo_payroll"] = rates["avg_effective_tax_rate_wo_payroll"]
+                                            results["gross_income"], results)
 
     if mrate is True:
         # Marginal rate calculations use tax_burden, NOT income_tax_after_credits
@@ -323,12 +311,14 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     results["employee_payroll_tax"] = payroll_taxes['employee']
     results["employer_payroll_tax"] = payroll_taxes['employer']
 
+    sched_se_tax, sched_se_ded = tax_funcs.sched_se(policy, taxpayer, results)
+
     # Income after tax-deferred retirement contributions
     ordinary_income_after_401k = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2'] - taxpayer['401k_contributions']
     results["ordinary_income_after_401k"] = ordinary_income_after_401k
 
     # AGI
-    agi = tax_funcs.fed_agi(policy, taxpayer, ordinary_income_after_401k)
+    agi = tax_funcs.fed_agi(policy, taxpayer, ordinary_income_after_401k, sched_se_ded)
     results["agi"] = agi
 
     if (policy["medical_expense_threshold"] * results["agi"]) > taxpayer["medical_expenses"]:
@@ -339,7 +329,7 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     taxpayer["charity_contributions"] = min(policy['charitable_cont_limit'] * agi, taxpayer["charity_contributions"])
 
     # Taxable income
-    taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt, taxable_income_before, new_agi = tax_funcs.senate_2018_taxable_income(policy, taxpayer, agi)
+    taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt, taxable_income_before, new_agi, business_income_deduction = tax_funcs.senate_2018_taxable_income(policy, taxpayer, agi)
     results["taxable_income"] = taxable_income
     # results["taxable_income_before"] = taxable_income_before
     results["deduction_type"] = deduction_type
@@ -348,6 +338,7 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     results["pease_limitation_amt"] = pease_limitation_amt
     agi = new_agi
     results['agi'] = new_agi
+    results['qbi_ded'] = business_income_deduction
 
     # Ordinary income tax
     income_tax_before_credits = tax_funcs.fed_ordinary_income_tax(policy, taxpayer, taxable_income)
@@ -388,25 +379,15 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     medicare_surtax, niit = tax_funcs.medsurtax_niit(policy, taxpayer, agi)
     results["medicare_surtax"] = medicare_surtax
     results["niit"] = niit
-    results["income_tax_after_other_taxes"] = income_tax_after_nonrefundable_credits + medicare_surtax + niit
+    results["sched_se_tax"] = sched_se_tax
+    results["income_tax_after_other_taxes"] = income_tax_after_nonrefundable_credits + medicare_surtax + niit + sched_se_tax
 
     # Tax after ALL credits (payments)
     results["income_tax_after_credits"] = round(results["income_tax_after_other_taxes"] - actc - eitc, 2)
 
-    rates = misc_funcs.calc_effective_rates(results["income_tax_after_credits"],
+    results = misc_funcs.calc_effective_rates(results["income_tax_after_credits"],
                                             payroll_taxes,
-                                            results["gross_income"])
-    # Tax burden
-    results["tax_burden"] = rates["tax_burden"]
-
-    # Tax wedge
-    results["tax_wedge"] = rates["tax_wedge"]
-
-    # Average effective tax rate
-    results["avg_effective_tax_rate"] = rates["avg_effective_tax_rate"]
-
-    # Average effective tax rate without payroll
-    results["avg_effective_tax_rate_wo_payroll"] = rates["avg_effective_tax_rate_wo_payroll"]
+                                            results["gross_income"], results)
 
     if mrate is True:
         # Marginal rate calculations use tax_burden, NOT income_tax_after_credits

@@ -63,3 +63,9 @@ results/graph_data/
 results/county_results\.csv
 
 taxpayers/
+
+~\$current_io_docs\.xlsx
+
+\.DS_Store
+
+\.pytest_cache/v/cache/
