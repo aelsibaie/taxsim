@@ -109,7 +109,7 @@ def calc_federal_taxes(taxpayer, policy, mrate=True):
     results["selected_tax_before_credits"] = income_tax_before_credits
 
     # AMT
-    amt, amt_taxable_income = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits, taxable_income)
+    amt, amt_taxable_income = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits, taxable_income, 0)
     results['amt_taxable_income'] = amt_taxable_income
     results["amt"] = amt
 
@@ -237,7 +237,7 @@ def calc_house_2018_taxes(taxpayer, policy, mrate=True):
     results["selected_tax_before_credits"] = income_tax_before_credits
 
     # AMT
-    amt, amt_taxable_income = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits, taxable_income)
+    amt, amt_taxable_income = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits, taxable_income, 0)
     results['amt_taxable_income'] = amt_taxable_income
     results["amt"] = amt
 
@@ -351,7 +351,7 @@ def calc_senate_2018_taxes(taxpayer, policy, mrate=True):
     results["selected_tax_before_credits"] = income_tax_before_credits  # form1040_line44
 
     # AMT
-    amt, amt_taxable_income = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits, taxable_income)
+    amt, amt_taxable_income = tax_funcs.fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation_amt, income_tax_before_credits, taxable_income, results['qbi_ded'])
     results['amt_taxable_income'] = amt_taxable_income
     results["amt"] = amt
 

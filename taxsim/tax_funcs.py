@@ -518,7 +518,7 @@ def fed_eitc(policy, taxpayer):
     return eitc
 
 
-def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation, income_tax_before_credits, taxable_income):
+def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation, income_tax_before_credits, taxable_income, qbi_ded):
     amt = 0
     # Form 6251 https://www.irs.gov/pub/irs-pdf/f6251.pdf
     # Instructions https://www.irs.gov/pub/irs-pdf/i6251.pdf
@@ -542,7 +542,7 @@ def fed_amt(policy, taxpayer, deduction_type, deductions, agi, pease_limitation,
         amt_income = line1 + line2 + line3 + line5 + line6
         # only charity and mortgage allowed
     else:
-        line1 = agi
+        line1 = agi - qbi_ded
         amt_income = line1
 
     # Step 2: Calculate AMT Exemption
