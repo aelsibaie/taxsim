@@ -51,8 +51,8 @@ def fed_payroll(policy, taxpayer):
 
 
 def medsurtax_niit(policy, taxpayer, agi):
-    combined_ordinary_income = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2']
-    investment_income = taxpayer['qualified_income']  # TODO: add for business_income
+    combined_ordinary_income = taxpayer['ordinary_income1'] + taxpayer['ordinary_income2'] + (taxpayer['business_income'] * 0.9235)
+    investment_income = taxpayer['qualified_income']
 
     # Additional Medicare Tax
     filing_status = taxpayer['filing_status']
