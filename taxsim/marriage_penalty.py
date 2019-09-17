@@ -17,6 +17,9 @@ def gen_datasets():
     for tax_calc_function, policy_object, name in tqdm(policies):
         for CHILDREN in tqdm(range(0, 3), leave=False):
 
+
+            ITEM_DED_RATE = 0.20
+            ITEM_DED_TYPE = "sl_income_tax"
             PERCENTAGE_PRECISION = 4
             INCOME_UPPER_BOUND = 6
             INCOME_LOWER_BOUND = 4
@@ -43,6 +46,7 @@ def gen_datasets():
                     married_taxpayer['child_dep'] = CHILDREN
                     married_taxpayer['ordinary_income1'] = income1
                     married_taxpayer['ordinary_income2'] = income2
+                    married_taxpayer[ITEM_DED_TYPE] = (income1 + income2) * ITEM_DED_RATE
                     married_results = tax_calc_function(married_taxpayer, policy_object, mrate=False)
 
                     married_tax_burden = married_results['tax_burden']
@@ -52,11 +56,13 @@ def gen_datasets():
                         single_taxpayer1_nokids = misc_funcs.create_taxpayer()
                         single_taxpayer1_nokids['filing_status'] = 0
                         single_taxpayer1_nokids['ordinary_income1'] = income1
+                        single_taxpayer1_nokids[ITEM_DED_TYPE] = income1 * ITEM_DED_RATE
                         single_result1 = tax_calc_function(single_taxpayer1_nokids, policy_object, mrate=False)
 
                         single_taxpayer2_nokids = misc_funcs.create_taxpayer()
                         single_taxpayer2_nokids['filing_status'] = 0
                         single_taxpayer2_nokids['ordinary_income1'] = income2
+                        single_taxpayer2_nokids[ITEM_DED_TYPE] = income2 * ITEM_DED_RATE
                         single_result2 = tax_calc_function(single_taxpayer2_nokids, policy_object, mrate=False)
 
                         unmarried_tax_burden = single_result1['tax_burden'] + single_result2['tax_burden']
@@ -67,11 +73,13 @@ def gen_datasets():
                         single_taxpayer1['filing_status'] = 2
                         single_taxpayer1['ordinary_income1'] = income1
                         single_taxpayer1['child_dep'] = CHILDREN
+                        single_taxpayer1[ITEM_DED_TYPE] = income1 * ITEM_DED_RATE
                         single_result1 = tax_calc_function(single_taxpayer1, policy_object, mrate=False)
 
                         single_taxpayer2 = misc_funcs.create_taxpayer()
                         single_taxpayer2['filing_status'] = 0
                         single_taxpayer2['ordinary_income1'] = income2
+                        single_taxpayer2[ITEM_DED_TYPE] = income2 * ITEM_DED_RATE
                         single_result2 = tax_calc_function(single_taxpayer2, policy_object, mrate=False)
 
                         option_a = single_result1['tax_burden'] + single_result2['tax_burden']
@@ -80,12 +88,14 @@ def gen_datasets():
                         single_taxpayer3 = misc_funcs.create_taxpayer()
                         single_taxpayer3['filing_status'] = 0
                         single_taxpayer3['ordinary_income1'] = income1
+                        single_taxpayer3[ITEM_DED_TYPE] = income1 * ITEM_DED_RATE
                         single_result3 = tax_calc_function(single_taxpayer3, policy_object, mrate=False)
 
                         single_taxpayer4 = misc_funcs.create_taxpayer()
                         single_taxpayer4['filing_status'] = 2
                         single_taxpayer4['ordinary_income1'] = income2
                         single_taxpayer4['child_dep'] = CHILDREN
+                        single_taxpayer4[ITEM_DED_TYPE] = income2 * ITEM_DED_RATE
                         single_result4 = tax_calc_function(single_taxpayer4, policy_object, mrate=False)
 
                         option_b = single_result3['tax_burden'] + single_result4['tax_burden']
@@ -96,12 +106,14 @@ def gen_datasets():
                             single_taxpayer5['filing_status'] = 2
                             single_taxpayer5['ordinary_income1'] = income1
                             single_taxpayer5['child_dep'] = 1
+                            single_taxpayer5[ITEM_DED_TYPE] = income1 * ITEM_DED_RATE
                             single_result5 = tax_calc_function(single_taxpayer5, policy_object, mrate=False)
 
                             single_taxpayer6 = misc_funcs.create_taxpayer()
                             single_taxpayer6['filing_status'] = 2
                             single_taxpayer6['ordinary_income1'] = income2
                             single_taxpayer6['child_dep'] = 1
+                            single_taxpayer6[ITEM_DED_TYPE] = income2 * ITEM_DED_RATE
                             single_result6 = tax_calc_function(single_taxpayer6, policy_object, mrate=False)
 
                             option_c = single_result5['tax_burden'] + single_result6['tax_burden']
