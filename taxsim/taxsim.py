@@ -477,6 +477,18 @@ def main():
     current_law_results = []
     house_2018_results = []
     senate_2018_results = []
+
+    biden_results = []
+    harris_results = []
+    sanders_results = []
+    warren_results = []
+
+    biden_policy = csv_parser.load_policy(PARAMS_DIR + "biden_2018.csv")
+    harris_policy = csv_parser.load_policy(PARAMS_DIR + "harris_2018.csv")
+    sanders_policy = csv_parser.load_policy(PARAMS_DIR + "sanders_2018.csv")
+    warren_policy = csv_parser.load_policy(PARAMS_DIR + "sanders_2018.csv")
+
+
     for i in range(len(taxpayers)):
         filer = taxpayers[i]
         filer_number = str(i + 1)
@@ -484,6 +496,11 @@ def main():
         filer1 = copy.deepcopy(filer)
         filer2 = copy.deepcopy(filer)
         filer3 = copy.deepcopy(filer)
+
+        filer4 = copy.deepcopy(filer)
+        filer5 = copy.deepcopy(filer)
+        filer6 = copy.deepcopy(filer)
+        filer7 = copy.deepcopy(filer)
 
         logging.info("Running calc_federal_taxes for filer #" + filer_number)
         current_law_result = calc_federal_taxes(filer1, current_law_policy)
@@ -499,6 +516,26 @@ def main():
         senate_2018_result = calc_senate_2018_taxes(filer3, senate_2018_policy)
         senate_2018_results.append(senate_2018_result)
         logging.debug(json.dumps(senate_2018_result, indent=4))
+
+        # pres candidates 9/24/19
+        temp_result = calc_senate_2018_taxes(filer4, biden_policy)
+        biden_results.append(temp_result)
+
+        temp_result = calc_federal_taxes(filer5, harris_policy)
+        harris_results.append(temp_result)
+
+        temp_result = calc_senate_2018_taxes(filer6, sanders_policy)
+        sanders_results.append(temp_result)
+
+        temp_result = calc_senate_2018_taxes(filer7, warren_policy)
+        warren_results.append(temp_result)
+
+
+
+    csv_parser.write_results(biden_results, RESULTS_DIR + "biden.csv")
+    csv_parser.write_results(harris_results, RESULTS_DIR + "harris.csv")
+    csv_parser.write_results(sanders_results, RESULTS_DIR + "sanders.csv")
+    csv_parser.write_results(warren_results, RESULTS_DIR + "warren.csv")
 
     csv_parser.write_results(current_law_results, RESULTS_DIR + CURRENT_LAW_RESULTS)
     csv_parser.write_results(house_2018_results, RESULTS_DIR + HOUSE_2018_RESULTS)
