@@ -2,6 +2,19 @@ import math
 import logging
 
 
+def sched_se(policy, taxpayer, results):
+    # TODO: replace hardcoded percentages when verified
+    bus_inc = taxpayer["business_income"] * 0.9235
+    if bus_inc < 400:
+        sched_se_tax = 0
+        return sched_se_tax, 0
+    if bus_inc < policy["ss_wage_base"]:
+        sched_se_tax = bus_inc * 0.153
+    else:
+        sched_se_tax = (bus_inc * 0.029) + (policy["ss_wage_base"] * 0.124)
+    return sched_se_tax, (sched_se_tax / 2)
+
+
 def fed_payroll(policy, taxpayer):
     """
     Get Federal payroll tax liabilities.
@@ -62,7 +75,7 @@ def medsurtax_niit(policy, taxpayer, agi):
     return medicare_surtax, niit
 
 
-def fed_agi(policy, taxpayer, ordinary_income_after_401k):
+def fed_agi(policy, taxpayer, ordinary_income_after_401k, sched_se_ded):
     """
     Get Federal AGI.
 
@@ -79,6 +92,8 @@ def fed_agi(policy, taxpayer, ordinary_income_after_401k):
         float: Federal adjusted gross income, including any taxable social security.
     """
     agi = ordinary_income_after_401k + taxpayer['business_income'] + taxpayer['qualified_income']
+
+    agi -= sched_se_ded
 
     if taxpayer['ss_income'] > 0:
         # Social security income may not be fully taxable.
@@ -325,22 +340,22 @@ def senate_2018_taxable_income(policy, taxpayer, agi):
 
     taxable_income_before = max(0, taxable_income - personal_exemption_amt - deductions)
 
-    BUSINESS_DEDUCTION_RATE = 0.20  # as of senate conference agreement 12/15/2017
+    BUSINESS_DEDUCTION_RATE = policy["199a_rate"]
+
+    '''
+    if taxpayer['business_income_service'] == 1:
+        # https://www.irs.gov/newsroom/tax-cuts-and-jobs-act-provision-11011-section-199a-qualified-business-income-deduction-faqs
+        # see Q/A #5
+        BUSINESS_DEDUCTION_RATE = 0
+    '''
 
     qualified_business_income = taxpayer['business_income'] * BUSINESS_DEDUCTION_RATE
     taxable_income_limit = taxable_income_before * BUSINESS_DEDUCTION_RATE
 
-    non_limited_qualified_business_income = qualified_business_income * 0.5
-    qualified_business_income = qualified_business_income * 0.5
+    po_start = policy["199a_po_start"][taxpayer['filing_status']]
+    po_length = policy["199a_po_length"][taxpayer['filing_status']]
 
-    if taxpayer["filing_status"] == 1:
-        po_start = 315000
-        po_length = 100000
-    else:
-        po_start = 315000 / 2
-        po_length = 50000
-
-    if taxable_income_before > po_start:
+    if (taxable_income_before > po_start) and (taxpayer['business_income_service'] == 1):
         taxable_income_over = taxable_income_before - po_start
         if taxable_income_over > po_length:
             qualified_business_income = 0
@@ -358,7 +373,7 @@ def senate_2018_taxable_income(policy, taxpayer, agi):
 
     taxable_income = max(0, taxable_income - personal_exemption_amt - deductions)
 
-    return taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt, taxable_income_before, agi
+    return taxable_income, deduction_type, deductions, personal_exemption_amt, pease_limitation_amt, taxable_income_before, agi, business_income_deduction
 
 
 def fed_ordinary_income_tax(policy, taxpayer, taxable_income):

@@ -3,8 +3,8 @@ from context import *
 policy = taxsim.current_law_policy
 
 
-def test_business_income():
-    # ensure business_income is treated as ordinary_income1
+def test_sched_se():
+    # ensure business_income is treated better under ordinary tax code
     taxpayer = misc_funcs.create_taxpayer()
     taxpayer['ordinary_income1'] = 100000
     result1 = taxsim.calc_federal_taxes(taxpayer, policy)
@@ -13,7 +13,7 @@ def test_business_income():
     taxpayer['business_income'] = 100000
     result2 = taxsim.calc_federal_taxes(taxpayer, policy)
 
-    assert result1['income_tax_after_credits'] == result2['income_tax_after_credits']
+    assert result1['tax_wedge'] > result2['tax_wedge']
 
 
 def test_qualified_income():

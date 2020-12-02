@@ -1,12 +1,12 @@
 language: python
 python:
-  - "3.6"
+- '3.6'
 install:
-  - pip install -r requirements.txt
-script: 
-  - pytest --cov=./
-  - python taxsim
-after_success:
-  - codecov --token=f891d7ee-30bf-4c1c-b93b-643ea636c88c
+- pip install pipenv --upgrade
+- pipenv install --dev --skip-lock
+script:
+- pipenv run pytest --cov=./
+- pipenv run python taxsim
 notifications:
-  slack: taxfoundation:kX1efSnT7Gwuh8nuKviECq3r
+  slack:
+    secure: gGITPf2ES/42VPDo023B+7W3rNT3jHE3RCwkJzLzZTWUyfFvOYAiYldqL1b5hzg1rrEerIfclG1aEXtY4HNl7Rmc1z/FwI74OkvSDw4Nty+rqFRzsjB2oll4UTcSib5RYXq1ltNvoqgvVvigDL80OAGZT0ob840fvdsivZh9Jy9JIKWZnjvxaFFPd15aTqWrKZQD00lRpDde0aQPiIeeg8443MZ2qZol2k4l3hvswQMssY6znUywDZMKDPPWPITrRaEkDqA01TptPk5ZT3t8q/efJBv918w2a4Q+8S24BC6nJAwwfoeXMZmgJ7GrpFeYb9mA6VSBgUVhufC+bPYNk9AnmpJGMUmvJI0358Co8C2jHvPT8W6pl8nA2XWfYixi7fz/S8hscakhgomBk/R1x7K31ODXaNPnBR6VbGyVOC3mnlBwMG8pW8iZhFvIYQLeik3+wkzAPwsQyUltCPB6q7MF/aZXF2RheR+NYu64zEgyUinP8X8VRoWvjQ3MihRkQU5yoZ8V5EiPzAijnW6MDPqo604V0keqMAtvUR/7oWduQyIyZ+ixhnUCAGutUC7BinSh6dgdIQocKVPYbBj/7rOuLynr9DrQZZ7SxlhmC+ELi2xHzBJm/60mcs1Ux6Vz1/bNiXcVFE9/D56pO9O/MH1FwkmN1MG6XJWBqp5cuEA=
